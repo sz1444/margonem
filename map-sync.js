@@ -40,7 +40,7 @@
         #mapSyncScroll::-webkit-scrollbar { width: 4px !important; }
         #mapSyncScroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2) !important; }
         #mapSyncScroll::-webkit-scrollbar-thumb { background: #333 !important; border-radius: 10px !important; }
-        #mapSyncContainer.minimized { width: 150px !important; min-width: 150px !important; height: 28px !important; resize: none !important; border-color: #444 !important; }
+        #mapSyncContainer.minimized { width: 178px !important; min-width: 150px !important; height: 28px !important; resize: none !important; border-color: #444 !important; }
         .nav-btn { cursor:pointer; background:none; border:none; font-size:10px; font-weight:bold; color: #666; padding: 4px 8px; transition: all 0.2s; position: relative; letter-spacing: 0.5px; }
         .nav-btn.active { color: #fff; }
         .nav-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 8px; right: 8px; height: 2px; background: #fff; border-radius: 2px; }
