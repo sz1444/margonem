@@ -4,7 +4,7 @@
       "id": "map_sync",
       "name": "Event Heros Helper",
       "url": "https://margonem.vercel.app/map-sync.js",
-      "description": "Dodatek pomaga w obstawianu herosa"
+      "description": "Podgląd obstawy herosów w czasie rzeczywistym"
     }
   ]
 }
