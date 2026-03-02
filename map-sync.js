@@ -67,7 +67,7 @@
                 <button id="t1" class="nav-btn active">ELANCJA (143p)</button>
                 <button id="t2" class="nav-btn">BARBARZYŃCA (300m)</button>
             </div>
-            <div style="font-weight: bold; color: #fff; font-size: 10px; pointer-events:none; display:none; letter-spacing: 1px;" id="miniTitle">MAP SYNC ❯❯</div>
+            <div style="font-weight: bold; color: #fff; font-size: 10px; pointer-events:none; display:none; letter-spacing: 1px;" id="miniTitle">EVENT HEROS HELPER</div>
             <button id="min" style="background:rgba(255,255,255,0.05); color:#fff; border:none; width: 22px; height: 22px; border-radius: 4px; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">−</button>
         </div>
         <div id="mapSyncScroll" style="flex-grow: 1; overflow-y: scroll; overflow-x: hidden; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
