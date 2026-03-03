@@ -9,7 +9,7 @@
     {
       "id": "qucik_salce",
       "name": "Quick Sale",
-      "url": "https://margonem.vercel.app/map-sync.js",
+      "url": "https://margonem.vercel.app/quick-sale.js",
       "description": "Szybsze opróżnianie toreb u handlarza po naciśnięciu spacji. Przeniesienie przycisku do opróżniania toreb."
     }
   ]
