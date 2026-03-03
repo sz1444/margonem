@@ -121,21 +121,13 @@
     const mBody = document.getElementById('mBody');
     let currentTab = 1;
 
-    function sync(id, val) {
+    async function sync(id, val) {
         pendingUpdates.add(id);
-        GM_xmlhttpRequest({
-            method: "PUT",
-            url: `${DB_BASE_URL}${id}.json`,
-            data: JSON.stringify(val),
-            onload: function(response) {
-                
-                setTimeout(() => pendingUpdates.delete(id), 1200);
-            },
-            onerror: function(err) {
-                console.error("Błąd synchronizacji GM_sync:", err);
-                pendingUpdates.delete(id);
-            }
-        });
+        try {
+            await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) });
+        } catch(e) {} finally {
+            setTimeout(() => pendingUpdates.delete(id), 1200);
+        }
     }
 
     function render() {
@@ -200,28 +192,16 @@
         applyStyle(cell, text);
     }
 
-    function load() {
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: `${DB_BASE_URL}.json`,
-            onload: function(response) {
-                try {
-                    const data = JSON.parse(response.responseText);
-                    if (!data) return;
-                    Object.keys(data).forEach(id => {
-                        const cell = document.getElementById(id);
-                        if (cell && !pendingUpdates.has(id)) {
-                            updateCellText(cell, data[id] || "");
-                        }
-                    });
-                } catch (e) {
-                    console.error("Błąd parsowania danych load:", e);
-                }
-            },
-            onerror: function(err) {
-                console.error("Błąd połączenia GM_load:", err);
-            }
-        });
+    async function load() {
+        try {
+            const res = await fetch(`${DB_BASE_URL}.json`);
+            const data = await res.json();
+            if (!data) return;
+            Object.keys(data).forEach(id => {
+                const cell = document.getElementById(id);
+                if (cell && !pendingUpdates.has(id)) updateCellText(cell, data[id] || "");
+            });
+        } catch(e) {}
     }
 
     const toggleMin = () => {
