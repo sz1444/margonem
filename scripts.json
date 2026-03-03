@@ -5,6 +5,12 @@
       "name": "Event Heros Helper",
       "url": "https://margonem.vercel.app/map-sync.js",
       "description": "Podgląd obstawy herosów w czasie rzeczywistym"
+    },
+     {
+      "id": "qucik_salce",
+      "name": "Quick Sale",
+      "url": "https://margonem.vercel.app/map-sync.js",
+      "description": "Szybsze opróżnianie toreb u handlarza po naciśnięciu spacji. Przeniesienie przycisku do opróżniania toreb."
     }
   ]
 }
