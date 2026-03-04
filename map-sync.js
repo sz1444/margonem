@@ -2,7 +2,8 @@
     'use strict';
 
     const DB_BASE_URL = "https://margonem-b79f0-default-rtdb.europe-west1.firebasedatabase.app/";
-    const pendingUpdates = new Set();
+    let eventSource = null;
+    let cachedData = {};
 
     const arkusz1 = [
         ["Chodniki Mrinding p.1 - s.1", "blue"], ["Chodniki Mrinding p.1 - s.2", "blue"],
@@ -22,6 +23,41 @@
         ["Rozlewisko Kai", "cyan"], ["Gvar Hamryd", "cyan"], ["Matecznik Szelestu", "cyan"], ["Suchy Pęd s.4", "cyan"], ["Suchy Pęd s.3", "cyan"], ["Suchy Pęd s.2", "cyan"], ["Suchy Pęd s.1", "cyan"],
         ["Pustynia - zachód", "magenta"], ["Pustynia - wschód", "magenta"], ["Skały Umarłych", "magenta"], ["Smocze Skalisko", "magenta"], ["Urwisko Vapora", "magenta"]
     ];
+
+    function initLiveSync() {
+        if (eventSource) eventSource.close();
+
+        eventSource = new EventSource(`${DB_BASE_URL}.json`);
+
+        eventSource.addEventListener('put', (e) => {
+            const response = JSON.parse(e.data);
+            const path = response.path;
+            const data = response.data;
+
+            if (path === "/") {
+                cachedData = data || {};
+                Object.keys(cachedData).forEach(id => {
+                    const cell = document.getElementById(id);
+                    if (cell) updateCellText(cell, cachedData[id] || "");
+                });
+            } else {
+                const id = path.replace('/', '');
+                cachedData[id] = data;
+                const cell = document.getElementById(id);
+                if (cell) updateCellText(cell, data || "");
+            }
+        });
+
+        eventSource.onerror = () => {
+            setTimeout(initLiveSync, 3000);
+        };
+    }
+
+    async function sync(id, val) {
+        try {
+            await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) });
+        } catch(e) {}
+    }
 
     function getHeroName() {
         if (typeof window.Engine !== "undefined" && Engine.hero?.d) return Engine.hero.d.nick;
@@ -79,56 +115,8 @@
     document.body.appendChild(container);
 
     const scrollArea = document.getElementById('mapSyncScroll');
-    const stopScroll = (e) => {
-        const delta = e.wheelDelta || -e.detail;
-        scrollArea.scrollTop -= delta;
-        e.preventDefault(); e.stopPropagation();
-    };
-    scrollArea.addEventListener('mousewheel', stopScroll, { passive: false });
-    scrollArea.addEventListener('DOMMouseScroll', stopScroll, { passive: false });
-
-    const resizeObserver = new ResizeObserver(entries => {
-        for (let entry of entries) {
-            if (!container.classList.contains('minimized')) {
-                localStorage.setItem('mapSyncSize', JSON.stringify({
-                    width: container.style.width,
-                    height: container.style.height
-                }));
-            }
-        }
-    });
-    resizeObserver.observe(container);
-
-    let isDragging = false, offset = { x: 0, y: 0 };
-    document.getElementById('dragHandle').onmousedown = (e) => {
-        if (e.target.tagName === 'BUTTON') return;
-        isDragging = true;
-        offset = { x: container.offsetLeft - e.clientX, y: container.offsetTop - e.clientY };
-    };
-    document.onmousemove = (e) => {
-        if (!isDragging) return;
-        container.style.top = (e.clientY + offset.y) + "px";
-        container.style.left = (e.clientX + offset.x) + "px";
-        container.style.right = "auto";
-    };
-    document.onmouseup = () => {
-        if (isDragging) {
-            isDragging = false;
-            localStorage.setItem('mapSyncPos', JSON.stringify({ top: container.style.top, left: container.style.left, right: "auto" }));
-        }
-    };
-
     const mBody = document.getElementById('mBody');
     let currentTab = 1;
-
-    async function sync(id, val) {
-        pendingUpdates.add(id);
-        try {
-            await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) });
-        } catch(e) {} finally {
-            setTimeout(() => pendingUpdates.delete(id), 1200);
-        }
-    }
 
     function render() {
         mBody.innerHTML = "";
@@ -145,6 +133,9 @@
             ["_1", "_2"].forEach(os => {
                 const id = `${prefix}${i}${os}`;
                 const cell = document.getElementById(id);
+
+                if (cachedData[id]) updateCellText(cell, cachedData[id]);
+
                 const btn = document.createElement('div');
                 btn.style = "position:absolute; right:0; top:0; bottom:0; width:18px; background:rgba(255,255,255,0.08); color:#fff; cursor:pointer; display:none; align-items:center; justify-content:center; font-size:12px; z-index:5; font-weight:bold; border-radius: 0 2px 2px 0;";
                 cell.appendChild(btn);
@@ -159,11 +150,10 @@
                     e.stopPropagation();
                     const myNick = getHeroName();
                     const newVal = (getCellText(cell) !== myNick) ? myNick : "";
-                    updateCellText(cell, newVal); sync(id, newVal);
+                    sync(id, newVal);
                 };
             });
         });
-        load();
     }
 
     function getCellText(cell) {
@@ -192,31 +182,42 @@
         applyStyle(cell, text);
     }
 
-    async function load() {
-        try {
-            const res = await fetch(`${DB_BASE_URL}.json`);
-            const data = await res.json();
-            if (!data) return;
-            Object.keys(data).forEach(id => {
-                const cell = document.getElementById(id);
-                if (cell && !pendingUpdates.has(id)) updateCellText(cell, data[id] || "");
-            });
-        } catch(e) {}
-    }
+    const resizeObserver = new ResizeObserver(() => {
+        if (!container.classList.contains('minimized')) {
+            localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: container.style.height }));
+        }
+    });
+    resizeObserver.observe(container);
+
+    let isDragging = false, offset = { x: 0, y: 0 };
+    document.getElementById('dragHandle').onmousedown = (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        isDragging = true;
+        offset = { x: container.offsetLeft - e.clientX, y: container.offsetTop - e.clientY };
+    };
+    document.onmousemove = (e) => {
+        if (!isDragging) return;
+        container.style.top = (e.clientY + offset.y) + "px";
+        container.style.left = (e.clientX + offset.x) + "px";
+        container.style.right = "auto";
+    };
+    document.onmouseup = () => {
+        if (isDragging) {
+            isDragging = false;
+            localStorage.setItem('mapSyncPos', JSON.stringify({ top: container.style.top, left: container.style.left, right: "auto" }));
+        }
+    };
 
     const toggleMin = () => {
         const isMin = container.classList.toggle('minimized');
         scrollArea.style.display = isMin ? 'none' : 'block';
         document.getElementById('miniTitle').style.display = isMin ? 'block' : 'none';
         document.getElementById('tabsHeader').style.display = isMin ? 'none' : 'flex';
-
+        document.getElementById('min').innerText = isMin ? "+" : "−";
         if (!isMin) {
             const sSize = JSON.parse(localStorage.getItem('mapSyncSize'));
             container.style.width = sSize ? sSize.width : "330px";
             container.style.height = sSize ? sSize.height : "400px";
-            document.getElementById('min').innerText = "−";
-        } else {
-            document.getElementById('min').innerText = "+";
         }
     };
 
@@ -225,13 +226,12 @@
     document.getElementById('min').onclick = toggleMin;
 
     function updateBtn() {
-        const b1 = document.getElementById('t1'), b2 = document.getElementById('t2');
-        b1.classList.toggle('active', currentTab === 1);
-        b2.classList.toggle('active', currentTab === 2);
+        document.getElementById('t1').classList.toggle('active', currentTab === 1);
+        document.getElementById('t2').classList.toggle('active', currentTab === 2);
     }
 
-    setInterval(load, 1000);
     render();
     updateBtn();
     toggleMin();
+    initLiveSync();
 })();
