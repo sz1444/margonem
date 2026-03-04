@@ -47,10 +47,20 @@
         eventSource.onerror = () => setTimeout(initLiveSync, 3000);
     }
 
-    async function sync(id, val) {
+    async function sync(id, val, oldVal) {
         try {
-            await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) });
-        } catch(e) {}
+            const res = await fetch(`${DB_BASE_URL}${id}.json`, {
+                method: 'PUT',
+                body: JSON.stringify(val)
+            });
+            if (!res.ok) throw new Error();
+        } catch(e) {
+            // Revert w razie błędu (Rollback)
+            console.error("Błąd synchronizacji! Cofanie zmian...");
+            cachedData[id] = oldVal;
+            const cell = document.getElementById(id);
+            if (cell) updateCellText(cell, oldVal || "");
+        }
     }
 
     function getHeroName() {
@@ -112,7 +122,6 @@
     const mBody = document.getElementById('mBody');
     let currentTab = 1;
 
-    // Funkcja scrollowania - naprawiona
     const handleScroll = (e) => {
         const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : e.detail);
         scrollArea.scrollTop += delta;
@@ -148,11 +157,17 @@
                     btn.style.display = "flex";
                 };
                 cell.onmouseleave = () => btn.style.display = "none";
+
                 btn.onclick = (e) => {
                     e.stopPropagation();
                     const myNick = getHeroName();
-                    const newVal = (getCellText(cell) !== myNick) ? myNick : "";
-                    sync(id, newVal);
+                    const oldVal = getCellText(cell);
+                    const newVal = (oldVal !== myNick) ? myNick : "";
+
+                    updateCellText(cell, newVal);
+                    cachedData[id] = newVal;
+
+                    sync(id, newVal, oldVal);
                 };
             });
         });
