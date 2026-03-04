@@ -26,14 +26,11 @@
 
     function initLiveSync() {
         if (eventSource) eventSource.close();
-
         eventSource = new EventSource(`${DB_BASE_URL}.json`);
-
         eventSource.addEventListener('put', (e) => {
             const response = JSON.parse(e.data);
             const path = response.path;
             const data = response.data;
-
             if (path === "/") {
                 cachedData = data || {};
                 Object.keys(cachedData).forEach(id => {
@@ -47,10 +44,7 @@
                 if (cell) updateCellText(cell, data || "");
             }
         });
-
-        eventSource.onerror = () => {
-            setTimeout(initLiveSync, 3000);
-        };
+        eventSource.onerror = () => setTimeout(initLiveSync, 3000);
     }
 
     async function sync(id, val) {
@@ -106,7 +100,7 @@
             <div style="font-weight: bold; color: #fff; font-size: 10px; pointer-events:none; display:none; letter-spacing: 1px;" id="miniTitle">EVENT HEROS HELPER</div>
             <button id="min" style="background:rgba(255,255,255,0.05); color:#fff; border:none; width: 22px; height: 22px; border-radius: 4px; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">−</button>
         </div>
-        <div id="mapSyncScroll" style="flex-grow: 1; overflow-y: scroll; overflow-x: hidden; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
+        <div id="mapSyncScroll" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
             <table style="width:100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed;">
                 <tbody id="mBody"></tbody>
             </table>
@@ -117,6 +111,15 @@
     const scrollArea = document.getElementById('mapSyncScroll');
     const mBody = document.getElementById('mBody');
     let currentTab = 1;
+
+    // Funkcja scrollowania - naprawiona
+    const handleScroll = (e) => {
+        const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : e.detail);
+        scrollArea.scrollTop += delta;
+        e.preventDefault();
+        e.stopPropagation();
+    };
+    scrollArea.addEventListener('wheel', handleScroll, { passive: false });
 
     function render() {
         mBody.innerHTML = "";
@@ -133,7 +136,6 @@
             ["_1", "_2"].forEach(os => {
                 const id = `${prefix}${i}${os}`;
                 const cell = document.getElementById(id);
-
                 if (cachedData[id]) updateCellText(cell, cachedData[id]);
 
                 const btn = document.createElement('div');
