@@ -49,14 +49,9 @@
 
     async function sync(id, val, oldVal) {
         try {
-            const res = await fetch(`${DB_BASE_URL}${id}.json`, {
-                method: 'PUT',
-                body: JSON.stringify(val)
-            });
+            const res = await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) });
             if (!res.ok) throw new Error();
         } catch(e) {
-            // Revert w razie błędu (Rollback)
-            console.error("Błąd synchronizacji! Cofanie zmian...");
             cachedData[id] = oldVal;
             const cell = document.getElementById(id);
             if (cell) updateCellText(cell, oldVal || "");
@@ -69,7 +64,7 @@
         return "???";
     }
 
-    const savedPos = JSON.parse(localStorage.getItem('mapSyncPos')) || { top: "5px", right: "5px", left: "auto" };
+    const savedPos = JSON.parse(localStorage.getItem('mapSyncPos')) || { top: "5px", left: "auto", right: "5px" };
     const savedSize = JSON.parse(localStorage.getItem('mapSyncSize')) || { width: "330px", height: "400px" };
 
     const container = document.createElement('div');
@@ -130,6 +125,32 @@
     };
     scrollArea.addEventListener('wheel', handleScroll, { passive: false });
 
+    let isDragging = false, offset = { x: 0, y: 0 };
+    const dH = document.getElementById('dragHandle');
+
+    dH.addEventListener('mousedown', (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        isDragging = true;
+        const rect = container.getBoundingClientRect();
+        offset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        document.body.style.userSelect = 'none'; // Blokada zaznaczania
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        container.style.right = "auto";
+        container.style.left = (e.clientX - offset.x) + "px";
+        container.style.top = (e.clientY - offset.y) + "px";
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            document.body.style.userSelect = 'auto';
+            localStorage.setItem('mapSyncPos', JSON.stringify({ top: container.style.top, left: container.style.left, right: "auto" }));
+        }
+    });
+
     function render() {
         mBody.innerHTML = "";
         const data = currentTab === 1 ? arkusz1 : arkusz2;
@@ -146,7 +167,6 @@
                 const id = `${prefix}${i}${os}`;
                 const cell = document.getElementById(id);
                 if (cachedData[id]) updateCellText(cell, cachedData[id]);
-
                 const btn = document.createElement('div');
                 btn.style = "position:absolute; right:0; top:0; bottom:0; width:18px; background:rgba(255,255,255,0.08); color:#fff; cursor:pointer; display:none; align-items:center; justify-content:center; font-size:12px; z-index:5; font-weight:bold; border-radius: 0 2px 2px 0;";
                 cell.appendChild(btn);
@@ -157,16 +177,13 @@
                     btn.style.display = "flex";
                 };
                 cell.onmouseleave = () => btn.style.display = "none";
-
                 btn.onclick = (e) => {
                     e.stopPropagation();
                     const myNick = getHeroName();
                     const oldVal = getCellText(cell);
                     const newVal = (oldVal !== myNick) ? myNick : "";
-
                     updateCellText(cell, newVal);
                     cachedData[id] = newVal;
-
                     sync(id, newVal, oldVal);
                 };
             });
@@ -205,25 +222,6 @@
         }
     });
     resizeObserver.observe(container);
-
-    let isDragging = false, offset = { x: 0, y: 0 };
-    document.getElementById('dragHandle').onmousedown = (e) => {
-        if (e.target.tagName === 'BUTTON') return;
-        isDragging = true;
-        offset = { x: container.offsetLeft - e.clientX, y: container.offsetTop - e.clientY };
-    };
-    document.onmousemove = (e) => {
-        if (!isDragging) return;
-        container.style.top = (e.clientY + offset.y) + "px";
-        container.style.left = (e.clientX + offset.x) + "px";
-        container.style.right = "auto";
-    };
-    document.onmouseup = () => {
-        if (isDragging) {
-            isDragging = false;
-            localStorage.setItem('mapSyncPos', JSON.stringify({ top: container.style.top, left: container.style.left, right: "auto" }));
-        }
-    };
 
     const toggleMin = () => {
         const isMin = container.classList.toggle('minimized');
