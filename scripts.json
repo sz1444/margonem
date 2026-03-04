@@ -11,6 +11,12 @@
       "name": "Quick Sale",
       "url": "https://margonem.vercel.app/quick-sale.js",
       "description": "Szybsze opróżnianie toreb u handlarza po naciśnięciu spacji. Przeniesienie przycisku do opróżniania toreb."
+    },
+    {
+      "id": "game_pad",
+      "name": "Game Pad Mobile",
+      "url": "https://margonem.vercel.app/quick-sale.js",
+      "description": "Prosty game pad na urządzeniach mobilnych."
     }
   ]
 }
