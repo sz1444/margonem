@@ -24,6 +24,49 @@
         ["Pustynia - zachód", "magenta"], ["Pustynia - wschód", "magenta"], ["Skały Umarłych", "magenta"], ["Smocze Skalisko", "magenta"], ["Urwisko Vapora", "magenta"]
     ];
 
+    function showGlobalModal(data) {
+        if (!data || !data.text) return;
+
+        const existing = document.getElementById('globalAlertModal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = "globalAlertModal";
+        modal.style = `
+            position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
+            background: rgba(20, 20, 20, 0.9); color: white; padding: 12px 25px;
+            z-index: 30000; border-radius: 4px; font-family: 'Verdana', sans-serif;
+            text-align: center; border-left: 4px solid #e74c3c;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            pointer-events: none; border-bottom: 1px solid rgba(255,255,255,0.1);
+        `;
+
+        modal.innerHTML = `
+            <div style="font-size: 10px; opacity: 0.6; margin-bottom: 2px;">WEZWANIE: ${data.sender}</div>
+            <div style="font-size: 13px; letter-spacing: 0.5px;">${data.text}</div>
+        `;
+
+        document.body.appendChild(modal);
+
+        setTimeout(() => {
+            modal.style.transition = "opacity 0.8s";
+            modal.style.opacity = "0";
+            setTimeout(() => modal.remove(), 800);
+        }, 5000);
+    }
+
+    // --- ALERT: WYSYŁANIE ---
+    async function sendGlobalAlert(mapName) {
+        const hName = "Eventowy Heros"; // Tutaj możesz wpisać nazwę herosa
+        const msg = {
+            text: `Potrzebna pomoc: <b style="color:#e74c3c">${hName}</b> na <b style="color:#3498db">${mapName}</b>`,
+            sender: getHeroName(),
+            ts: Date.now()
+        };
+        await sync("alert", msg, null);
+        setTimeout(() => sync("alert", null, null), 500);
+    }
+
     function initLiveSync() {
         if (eventSource) eventSource.close();
         eventSource = new EventSource(`${DB_BASE_URL}.json`);
@@ -31,14 +74,20 @@
             const response = JSON.parse(e.data);
             const path = response.path;
             const data = response.data;
+
+            if (path === "/alert" && data) { showGlobalModal(data); return; }
+            if (path === "/" && data && data.alert) { showGlobalModal(data.alert); return; }
+
             if (path === "/") {
                 cachedData = data || {};
                 Object.keys(cachedData).forEach(id => {
+                    if (id === "alert") return;
                     const cell = document.getElementById(id);
                     if (cell) updateCellText(cell, cachedData[id] || "");
                 });
             } else {
                 const id = path.replace('/', '');
+                if (id === "alert") return;
                 cachedData[id] = data;
                 const cell = document.getElementById(id);
                 if (cell) updateCellText(cell, data || "");
@@ -49,12 +98,13 @@
 
     async function sync(id, val, oldVal) {
         try {
-            const res = await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) });
-            if (!res.ok) throw new Error();
+            await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) });
         } catch(e) {
-            cachedData[id] = oldVal;
-            const cell = document.getElementById(id);
-            if (cell) updateCellText(cell, oldVal || "");
+            if (id !== "alert") {
+                cachedData[id] = oldVal;
+                const cell = document.getElementById(id);
+                if (cell) updateCellText(cell, oldVal || "");
+            }
         }
     }
 
@@ -66,7 +116,6 @@
 
     const savedPos = JSON.parse(localStorage.getItem('mapSyncPos')) || { top: "5px", left: "auto", right: "5px" };
     const savedSize = JSON.parse(localStorage.getItem('mapSyncSize')) || { width: "330px", height: "400px" };
-
     const container = document.createElement('div');
     container.id = "mapSyncContainer";
 
@@ -80,7 +129,7 @@
         .nav-btn.active { color: #fff; }
         .nav-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 8px; right: 8px; height: 2px; background: #fff; border-radius: 2px; }
         .sync-cell { transition: border-color 0.2s, color 0.2s; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
-        .map-name { text-shadow: 1px 1px 1px rgba(0,0,0,0.8); }
+        .map-name { text-shadow: 1px 1px 1px rgba(0,0,0,0.8); cursor: pointer; }
     `;
     document.head.appendChild(styleSheet);
 
@@ -117,36 +166,23 @@
     const mBody = document.getElementById('mBody');
     let currentTab = 1;
 
-    const handleScroll = (e) => {
-        const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : e.detail);
-        scrollArea.scrollTop += delta;
-        e.preventDefault();
-        e.stopPropagation();
-    };
-    scrollArea.addEventListener('wheel', handleScroll, { passive: false });
-
     let isDragging = false, offset = { x: 0, y: 0 };
     const dH = document.getElementById('dragHandle');
-
     dH.addEventListener('mousedown', (e) => {
         if (e.target.tagName === 'BUTTON') return;
         isDragging = true;
         const rect = container.getBoundingClientRect();
         offset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-        document.body.style.userSelect = 'none'; // Blokada zaznaczania
     });
-
     window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         container.style.right = "auto";
         container.style.left = (e.clientX - offset.x) + "px";
         container.style.top = (e.clientY - offset.y) + "px";
     });
-
     window.addEventListener('mouseup', () => {
         if (isDragging) {
             isDragging = false;
-            document.body.style.userSelect = 'auto';
             localStorage.setItem('mapSyncPos', JSON.stringify({ top: container.style.top, left: container.style.left, right: "auto" }));
         }
     });
@@ -162,6 +198,13 @@
                 <td class="sync-cell" id="${prefix}${i}_1" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td>
                 <td class="sync-cell" id="${prefix}${i}_2" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td>
             `;
+
+            const nameCell = tr.querySelector('.map-name');
+            nameCell.oncontextmenu = (e) => {
+                e.preventDefault();
+                sendGlobalAlert(mapData[0]);
+            };
+
             mBody.appendChild(tr);
             ["_1", "_2"].forEach(os => {
                 const id = `${prefix}${i}${os}`;
@@ -196,7 +239,11 @@
         return text.trim();
     }
 
-    function applyStyle(cell, text) {
+    function updateCellText(cell, text) {
+        let textNode = Array.from(cell.childNodes).find(n => n.nodeType === 3);
+        if (textNode) textNode.nodeValue = text;
+        else cell.prepend(document.createTextNode(text));
+
         const myNick = getHeroName();
         if (text === myNick && text !== "") {
             cell.style.color = "#2ecc71"; cell.style.fontWeight = "bold"; cell.style.borderColor = "#27ae60";
@@ -209,31 +256,12 @@
         }
     }
 
-    function updateCellText(cell, text) {
-        let textNode = Array.from(cell.childNodes).find(n => n.nodeType === 3);
-        if (textNode) textNode.nodeValue = text;
-        else cell.prepend(document.createTextNode(text));
-        applyStyle(cell, text);
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-        if (!container.classList.contains('minimized')) {
-            localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: container.style.height }));
-        }
-    });
-    resizeObserver.observe(container);
-
     const toggleMin = () => {
         const isMin = container.classList.toggle('minimized');
         scrollArea.style.display = isMin ? 'none' : 'block';
         document.getElementById('miniTitle').style.display = isMin ? 'block' : 'none';
         document.getElementById('tabsHeader').style.display = isMin ? 'none' : 'flex';
         document.getElementById('min').innerText = isMin ? "+" : "−";
-        if (!isMin) {
-            const sSize = JSON.parse(localStorage.getItem('mapSyncSize'));
-            container.style.width = sSize ? sSize.width : "330px";
-            container.style.height = sSize ? sSize.height : "400px";
-        }
     };
 
     document.getElementById('t1').onclick = () => { currentTab = 1; render(); updateBtn(); };
