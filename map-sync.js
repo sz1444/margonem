@@ -26,43 +26,19 @@
 
     function showGlobalModal(data) {
         if (!data || !data.text) return;
-
         const existing = document.getElementById('globalAlertModal');
         if (existing) existing.remove();
-
         const modal = document.createElement('div');
         modal.id = "globalAlertModal";
-        modal.style = `
-            position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
-            background: rgba(20, 20, 20, 0.9); color: white; padding: 12px 25px;
-            z-index: 30000; border-radius: 4px; font-family: 'Verdana', sans-serif;
-            text-align: center; border-left: 4px solid #e74c3c;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-            pointer-events: none; border-bottom: 1px solid rgba(255,255,255,0.1);
-        `;
-
-        modal.innerHTML = `
-            <div style="font-size: 10px; opacity: 0.6; margin-bottom: 2px;">WEZWANIE: ${data.sender}</div>
-            <div style="font-size: 13px; letter-spacing: 0.5px;">${data.text}</div>
-        `;
-
+        modal.style = `position: fixed; top: 15%; left: 50%; transform: translateX(-50%); background: rgba(20, 20, 20, 0.9); color: white; padding: 12px 25px; z-index: 30000; border-radius: 4px; font-family: 'Verdana', sans-serif; text-align: center; border-left: 4px solid #e74c3c; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px); pointer-events: none; border-bottom: 1px solid rgba(255,255,255,0.1);`;
+        modal.innerHTML = `<div style="font-size: 10px; opacity: 0.6; margin-bottom: 2px;">WEZWANIE: ${data.sender}</div><div style="font-size: 13px; letter-spacing: 0.5px;">${data.text}</div>`;
         document.body.appendChild(modal);
-
-        setTimeout(() => {
-            modal.style.transition = "opacity 0.8s";
-            modal.style.opacity = "0";
-            setTimeout(() => modal.remove(), 800);
-        }, 5000);
+        setTimeout(() => { modal.style.transition = "opacity 0.8s"; modal.style.opacity = "0"; setTimeout(() => modal.remove(), 800); }, 5000);
     }
 
-    // --- ALERT: WYSYŁANIE ---
     async function sendGlobalAlert(mapName) {
-        const hName = "Eventowy Heros"; // Tutaj możesz wpisać nazwę herosa
-        const msg = {
-            text: `Potrzebna pomoc: <b style="color:#e74c3c">${hName}</b> na <b style="color:#3498db">${mapName}</b>`,
-            sender: getHeroName(),
-            ts: Date.now()
-        };
+        const hName = "Eventowy Heros";
+        const msg = { text: `Potrzebna pomoc: <b style="color:#e74c3c">${hName}</b> na <b style="color:#3498db">${mapName}</b>`, sender: getHeroName(), ts: Date.now() };
         await sync("alert", msg, null);
         setTimeout(() => sync("alert", null, null), 500);
     }
@@ -74,10 +50,8 @@
             const response = JSON.parse(e.data);
             const path = response.path;
             const data = response.data;
-
             if (path === "/alert" && data) { showGlobalModal(data); return; }
             if (path === "/" && data && data.alert) { showGlobalModal(data.alert); return; }
-
             if (path === "/") {
                 cachedData = data || {};
                 Object.keys(cachedData).forEach(id => {
@@ -97,9 +71,7 @@
     }
 
     async function sync(id, val, oldVal) {
-        try {
-            await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) });
-        } catch(e) {
+        try { await fetch(`${DB_BASE_URL}${id}.json`, { method: 'PUT', body: JSON.stringify(val) }); } catch(e) {
             if (id !== "alert") {
                 cachedData[id] = oldVal;
                 const cell = document.getElementById(id);
@@ -116,6 +88,7 @@
 
     const savedPos = JSON.parse(localStorage.getItem('mapSyncPos')) || { top: "5px", left: "auto", right: "5px" };
     const savedSize = JSON.parse(localStorage.getItem('mapSyncSize')) || { width: "330px", height: "400px" };
+
     const container = document.createElement('div');
     container.id = "mapSyncContainer";
 
@@ -133,17 +106,7 @@
     `;
     document.head.appendChild(styleSheet);
 
-    container.style = `
-        position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left};
-        width: ${savedSize.width}; height: ${savedSize.height};
-        min-width: 280px; min-height: 28px;
-        z-index: 10000; background: rgba(10, 10, 10, 0.85);
-        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-        color: #fff; padding: 6px; border: 1px solid #222;
-        border-radius: 8px; font-family: 'Verdana', sans-serif;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none;
-        resize: both; overflow: hidden; display: flex; flex-direction: column;
-    `;
+    container.style = `position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; min-width: 280px; min-height: 28px; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; padding: 6px; border: 1px solid #222; border-radius: 8px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; resize: both; overflow: hidden; display: flex; flex-direction: column;`;
 
     container.innerHTML = `
         <div id="dragHandle" style="display:flex; margin-bottom:8px; justify-content:space-between; cursor: move; flex-shrink: 0; align-items: center; padding: 2px 4px;">
@@ -166,6 +129,14 @@
     const mBody = document.getElementById('mBody');
     let currentTab = 1;
 
+    const handleScroll = (e) => {
+        const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : e.detail);
+        scrollArea.scrollTop += delta;
+        e.preventDefault();
+        e.stopPropagation();
+    };
+    scrollArea.addEventListener('wheel', handleScroll, { passive: false });
+
     let isDragging = false, offset = { x: 0, y: 0 };
     const dH = document.getElementById('dragHandle');
     dH.addEventListener('mousedown', (e) => {
@@ -187,6 +158,19 @@
         }
     });
 
+    // Zapisywanie rozmiaru przy zmianie okna
+    const resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            if (!container.classList.contains('minimized')) {
+                localStorage.setItem('mapSyncSize', JSON.stringify({
+                    width: container.style.width,
+                    height: container.style.height
+                }));
+            }
+        }
+    });
+    resizeObserver.observe(container);
+
     function render() {
         mBody.innerHTML = "";
         const data = currentTab === 1 ? arkusz1 : arkusz2;
@@ -198,13 +182,8 @@
                 <td class="sync-cell" id="${prefix}${i}_1" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td>
                 <td class="sync-cell" id="${prefix}${i}_2" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td>
             `;
-
             const nameCell = tr.querySelector('.map-name');
-            nameCell.oncontextmenu = (e) => {
-                e.preventDefault();
-                sendGlobalAlert(mapData[0]);
-            };
-
+            nameCell.oncontextmenu = (e) => { e.preventDefault(); sendGlobalAlert(mapData[0]); };
             mBody.appendChild(tr);
             ["_1", "_2"].forEach(os => {
                 const id = `${prefix}${i}${os}`;
@@ -213,47 +192,22 @@
                 const btn = document.createElement('div');
                 btn.style = "position:absolute; right:0; top:0; bottom:0; width:18px; background:rgba(255,255,255,0.08); color:#fff; cursor:pointer; display:none; align-items:center; justify-content:center; font-size:12px; z-index:5; font-weight:bold; border-radius: 0 2px 2px 0;";
                 cell.appendChild(btn);
-                cell.onmouseenter = () => {
-                    const isMe = getCellText(cell) === getHeroName();
-                    btn.innerText = isMe ? "×" : "+";
-                    btn.style.background = isMe ? "rgba(231, 76, 60, 0.3)" : "rgba(46, 204, 113, 0.2)";
-                    btn.style.display = "flex";
-                };
+                cell.onmouseenter = () => { const isMe = getCellText(cell) === getHeroName(); btn.innerText = isMe ? "×" : "+"; btn.style.background = isMe ? "rgba(231, 76, 60, 0.3)" : "rgba(46, 204, 113, 0.2)"; btn.style.display = "flex"; };
                 cell.onmouseleave = () => btn.style.display = "none";
-                btn.onclick = (e) => {
-                    e.stopPropagation();
-                    const myNick = getHeroName();
-                    const oldVal = getCellText(cell);
-                    const newVal = (oldVal !== myNick) ? myNick : "";
-                    updateCellText(cell, newVal);
-                    cachedData[id] = newVal;
-                    sync(id, newVal, oldVal);
-                };
+                btn.onclick = (e) => { e.stopPropagation(); const myNick = getHeroName(); const oldVal = getCellText(cell); const newVal = (oldVal !== myNick) ? myNick : ""; updateCellText(cell, newVal); cachedData[id] = newVal; sync(id, newVal, oldVal); };
             });
         });
     }
 
-    function getCellText(cell) {
-        let text = "";
-        for (let node of cell.childNodes) if (node.nodeType === 3) text += node.nodeValue;
-        return text.trim();
-    }
+    function getCellText(cell) { let text = ""; for (let node of cell.childNodes) if (node.nodeType === 3) text += node.nodeValue; return text.trim(); }
 
     function updateCellText(cell, text) {
         let textNode = Array.from(cell.childNodes).find(n => n.nodeType === 3);
-        if (textNode) textNode.nodeValue = text;
-        else cell.prepend(document.createTextNode(text));
-
+        if (textNode) textNode.nodeValue = text; else cell.prepend(document.createTextNode(text));
         const myNick = getHeroName();
-        if (text === myNick && text !== "") {
-            cell.style.color = "#2ecc71"; cell.style.fontWeight = "bold"; cell.style.borderColor = "#27ae60";
-            cell.style.background = "rgba(46, 204, 113, 0.05)";
-        } else if (text !== "") {
-            cell.style.color = "#fff"; cell.style.fontWeight = "normal"; cell.style.borderColor = "#fff";
-            cell.style.background = "rgba(243, 156, 18, 0.05)";
-        } else {
-            cell.style.color = "#444"; cell.style.borderColor = "#1a1a1a"; cell.style.background = "#050505";
-        }
+        if (text === myNick && text !== "") { cell.style.color = "#2ecc71"; cell.style.fontWeight = "bold"; cell.style.borderColor = "#27ae60"; cell.style.background = "rgba(46, 204, 113, 0.05)"; }
+        else if (text !== "") { cell.style.color = "#fff"; cell.style.fontWeight = "normal"; cell.style.borderColor = "#fff"; cell.style.background = "rgba(243, 156, 18, 0.05)"; }
+        else { cell.style.color = "#444"; cell.style.borderColor = "#1a1a1a"; cell.style.background = "#050505"; }
     }
 
     const toggleMin = () => {
