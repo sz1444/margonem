@@ -109,7 +109,7 @@
                 const isActive = parent?.className.includes('text-orange-400') ?? false;
                 cache[span.innerText.trim()] = {
                     time: timerDiv.innerText.trim(),
-                    color: isActive ? getComputedStyle(parent).color : "#fff"
+                    color: isActive ? 'orange : "#fff"
                 };
             }
         });
