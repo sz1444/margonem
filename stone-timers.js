@@ -145,7 +145,7 @@
                         if (bossName) {
                             cache[bossName] = {
                                 time: timerDiv.innerText.trim() || "--:--",
-                                color: isActive ? '#fff' : "orange"
+                                color: isActive ? 'orange' : "#fff"
                             };
                         }
                     }
