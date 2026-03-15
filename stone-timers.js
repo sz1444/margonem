@@ -1,0 +1,149 @@
+(function() {
+    'use strict';
+
+    const allowedMaps = {
+        "125": ["Razuglag Oklash"], "177": ["Agar"], "580": ["Mushita"], "632": ["Kotołak Tropiciel"],
+        "727": ["Władca rzek"], "7701": ["Mysiur Myśliwirowy Król"], "1142": ["Arachniregina Colosseus"],
+        "1151": ["Goplana"], "1322": ["Adariel"], "1325": ["Leśne Widmo"], "1463": ["Pancerny Maddok"],
+        "7843": ["Mocny Maddoks"], "1526": ["Henry Kaprawe Oko"], "1527": ["Helga Opiekunka Rumu"],
+        "1620": ["Krab pustelnik"], "1912": ["Czempion Furboli"], "2063": ["Breheret Żelazny Łeb"],
+        "2308": ["Szczęt alias Gładki"], "2353": ["Artenius"], "2354": ["Zorin"], "2356": ["Furion"],
+        "2532": ["Zorg Jednooki Baron"], "2646": ["Vari Kruger"], "2729": ["Foverk Turrim"],
+        "7864": ["Marlloth Malignitas"], "3035": ["Chopesz"], "3039": ["Neferkar Set"],
+        "3149": ["Gobbos"], "3327": ["Terrozaur (urwisko)"], "3335": ["Terrozaur (jaskinia)"],
+        "3340": ["Vaenra Charkhaam"], "3341": ["Chaegd Agnrakh"], "3409": ["Młody Jack Truciciel"],
+        "3437": ["Furruk Kozug"], "3466": ["Żelazoręki Ohydziarz"], "3530": ["Wielka Stopa"],
+        "3597": ["Dendroculus"], "3628": ["Silvanasus"], "3765": ["Centaur Zyfryd"],
+        "4056": ["Pogardliwa Sybilla"], "4157": ["Tyrtajos"], "4998": ["Kambion"],
+        "5293": ["Tollok Shimger"], "5395": ["Owadzia Matka"], "5662": ["Tolypeutes"],
+        "5672": ["Cuaitl Citlalin"], "5685": ["Quetzalcoatl"], "5695": ["Yaotl"],
+        "5738": ["Shae Phu"], "5851": ["Shakkru", "Sheba Orcza Szamanka"], "5856": ["Burkog Lorulk"],
+        "5861": ["Bragarth Myśliwy Dusz", "Fursharag Pożeracz Umysłów", "Ziuggrael Strażnik Królowej"],
+        "5862": ["Lusgrathera Królowa Pramatka"], "5872": ["Duch Władcy Klanów"],
+        "5940": ["Sadolia Nadzorczyni Hurys"], "5941": ["Annaniel Wysysacz Marzeń", "Gothardus Kolekcjoner Głów"],
+        "7695": ["Sataniel Skrytobójca"], "5943": ["Zufulus Smakosz Serc"], "5945": ["Bergermona Krwawa Hrabina"],
+        "6053": ["Torunia Ankelwald"], "7689": ["Cerasus"], "6064": ["Nymphemonia"],
+        "6537": ["Jotun"], "6615": ["Podły zbrojmistrz"], "6623": ["Grabarz świątynny"],
+        "6627": ["Lisz"], "6632": ["Tollok Atamatu"], "6633": ["Tollok Utumutu"],
+        "6634": ["Choukker"], "6772": ["Nadzorczyni krasnoludów"], "6774": ["Morthen"],
+        "6781": ["Gnom Figlid"], "6938": ["Jertek Moxos"], "6944": ["Miłośnik rycerzy"],
+        "6945": ["Miłośnik łowców"], "6946": ["Miłośnik magii"], "6956": ["Grubber Ochlaj"],
+        "7057": ["Ifryt"], "7066": ["Łowca czaszek"], "7069": ["Ozirus Władca Hieroglifów"],
+        "7338": ["Teściowa Rumcajsa"], "7340": ["Wójt Fistuła"], "7345": ["Królowa Śniegu"],
+        "7352": ["Eol"], "7357": ["Morski potwór"], "7368": ["Borgoros Garamir III"],
+        "7375": ["Stworzyciel"], "7441": ["Fodug Zolash"], "7454": ["Berserker Amuno"],
+        "7466": ["Mistrz Worundriel"], "7474": ["Goons Asterus"], "4185": ["Pięknotka Mięsożerna"],
+        "6055": ["Wrzosera", "Chryzoprenia", "Cantedewia"], "7693": ["Ogr Stalowy Pazur"],
+        "7859": ["Al'diphrin Ilythirahel"], "1159": ["Arachniregina Colosseus"],
+        "7827": ["Arytodam olbrzymi"], "8181": ["Fangaj"], "8187": ["Wabicielka"]
+    };
+
+       const IS_NEW_INTERFACE = typeof window.Engine !== "undefined";
+
+    let bossTimerCache = {};
+    let lastBossTimerUpdate = 0;
+    const BOSS_TIMER_TTL = 250;
+
+    let activeStones = [];
+
+    function parseStats(item) {
+        if (item._cachedStats) return item._cachedStats;
+        const res = {};
+        (item.stat || "").split(";").forEach(entry => {
+            const [key, val] = entry.split("=");
+            if (key) res[key] = val ?? "true";
+        });
+        item._cachedStats = res;
+        return res;
+    }
+
+    function createTextOverlay() {
+        const el = document.createElement("span");
+        el.classList.add("tp-live-timer");
+        Object.assign(el.style, {
+            position: "absolute", bottom: "1px", left: "0", width: "100%",
+            fontSize: "10px", fontWeight: "900", color: "#00ffea",
+            textAlign: "center", pointerEvents: "none", zIndex: "10",
+            textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+            whiteSpace: "nowrap", lineHeight: "10px"
+        });
+        return el;
+    }
+
+    function syncInventory() {
+        const items = IS_NEW_INTERFACE
+            ? window.Engine.items.fetchLocationItems("g")
+            : Object.values(window.g?.item ?? {}).filter(i => i.loc === "g");
+
+        const newStones = [];
+
+        items.forEach(item => {
+            const stats = parseStats(item);
+            const tp = (stats.teleport || stats.custom_teleport || "").split(",")[0];
+            const bossNames = allowedMaps[tp];
+            if (!bossNames) return;
+
+            const selector = IS_NEW_INTERFACE ? `.item-id-${item.id}` : `#item${item.id}`;
+            const el = document.querySelector(selector);
+            if (!el) return;
+
+            const overlay = el.querySelector(".tp-live-timer") ?? (() => {
+                const o = createTextOverlay();
+                el.appendChild(o);
+                return o;
+            })();
+
+            newStones.push({ dom: overlay, bosses: bossNames });
+        });
+
+        activeStones = newStones;
+    }
+
+    function refreshBossTimerCache() {
+        const cache = {};
+        document.querySelectorAll('.ll-custom-cursor-pointer span.ll\\:whitespace-nowrap')
+            .forEach(span => {
+                const timerDiv = span.nextElementSibling;
+                if (timerDiv?.tagName === 'DIV') {
+                    cache[span.innerText.trim()] = timerDiv.innerText.trim();
+                }
+            });
+        bossTimerCache = cache;
+    }
+
+    function formatTime(raw) {
+        const parts = raw.split(':');
+        return parts.length === 3 ? `${parts[1]}:${parts[2]}` : raw;
+    }
+
+    function smoothTick(timestamp) {
+        if (timestamp - lastBossTimerUpdate > BOSS_TIMER_TTL) {
+            refreshBossTimerCache();
+            lastBossTimerUpdate = timestamp;
+        }
+
+        activeStones.forEach(stone => {
+            const found = stone.bosses.find(name => bossTimerCache[name]);
+
+            if (found) {
+                const formatted = formatTime(bossTimerCache[found]);
+                if (stone.dom.innerText !== formatted) {
+                    stone.dom.innerText = formatted;
+                    stone.dom.style.color = "#fff";
+                }
+            } else {
+                const fallback = 'brak';
+                if (stone.dom.innerText !== fallback) {
+                    stone.dom.innerText = fallback;
+                    stone.dom.style.color = "rgba(255,255,255,0.4)";
+                }
+            }
+        });
+
+        requestAnimationFrame(smoothTick);
+    }
+
+    setTimeout(syncInventory, 1000);
+    setInterval(syncInventory, 3000);
+    requestAnimationFrame(smoothTick);
+})();
