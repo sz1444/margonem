@@ -179,7 +179,12 @@
                 // Sprawdź czy element DOM nadal istnieje w dokumencie
                 if (!document.body.contains(stone.dom)) return;
 
-                const found = stone.bosses.find(name => bossTimerCache[name]);
+                const cacheKeys = Object.keys(bossTimerCache);
+                const found = cacheKeys.find(fullTextFromGame => {
+                    return stone.bosses.some(bossName =>
+                         fullTextFromGame.includes(bossName)
+                    );
+                });
 
                 if (found) {
                     const { time, color } = bossTimerCache[found];
