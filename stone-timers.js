@@ -1,3 +1,4 @@
+
 (function () {
     'use strict';
 
@@ -45,15 +46,27 @@
     let lastBossTimerUpdate = 0;
     let activeStones = [];
 
+    /**
+     * Bezpieczne parsowanie statystyk przedmiotu
+     */
     function parseStats(item) {
-        if (item._cachedStats) return item._cachedStats;
-        const res = {};
-        (item.stat || "").split(";").forEach(entry => {
-            const [key, val] = entry.split("=");
-            if (key) res[key] = val ?? "true";
-        });
-        item._cachedStats = res;
-        return res;
+        try {
+            if (!item || typeof item !== 'object') return {};
+            if (item._cachedStats) return item._cachedStats;
+
+            const res = {};
+            const statStr = item.stat || "";
+            statStr.split(";").forEach(entry => {
+                if (!entry) return;
+                const [key, val] = entry.split("=");
+                if (key) res[key] = val ?? "true";
+            });
+            item._cachedStats = res;
+            return res;
+        } catch (e) {
+            console.warn("Błąd podczas parsowania statystyk przedmiotu:", item?.id, e);
+            return {};
+        }
     }
 
     function createTextOverlay() {
@@ -69,86 +82,130 @@
         return el;
     }
 
+    /**
+     * Synchronizacja ekwipunku z obsługą błędów DOM
+     */
     function syncInventory() {
-        const items = IS_NEW_INTERFACE
-            ? (window.Engine?.items.fetchLocationItems("g") ?? [])
-            : Object.values(window.g?.item ?? {}).filter(i => i.loc === "g");
+        try {
+            const items = IS_NEW_INTERFACE
+                ? (window.Engine?.items?.fetchLocationItems("g") ?? [])
+                : Object.values(window.g?.item ?? {}).filter(i => i && i.loc === "g");
 
-        const newStones = [];
+            const newStones = [];
 
-        items.forEach(item => {
-            const stats = parseStats(item);
-            const tp = (stats.teleport || stats.custom_teleport || "").split(",")[0];
-            const bossNames = BOSS_MAP[tp];
-            if (!bossNames) return;
+            items.forEach(item => {
+                const stats = parseStats(item);
+                const tpValue = stats.teleport || stats.custom_teleport || "";
+                const tp = tpValue.split(",")[0];
+                const bossNames = BOSS_MAP[tp];
 
-            const selector = IS_NEW_INTERFACE ? `.item-id-${item.id}` : `#item${item.id}`;
-            const el = document.querySelector(selector);
-            if (!el) return;
+                if (!bossNames) return;
 
-            const overlay = el.querySelector(".tp-live-timer") ?? (() => {
-                const o = createTextOverlay();
-                el.appendChild(o);
-                return o;
-            })();
+                const selector = IS_NEW_INTERFACE ? `.item-id-${item.id}` : `#item${item.id}`;
+                const el = document.querySelector(selector);
 
-            newStones.push({ dom: overlay, bosses: bossNames });
-        });
+                if (!el) return;
 
-        activeStones = newStones;
+                try {
+                    let overlay = el.querySelector(".tp-live-timer");
+                    if (!overlay) {
+                        overlay = createTextOverlay();
+                        el.appendChild(overlay);
+                    }
+                    newStones.push({ dom: overlay, bosses: bossNames });
+                } catch (domErr) {
+                    console.error("Błąd manipulacji DOM dla przedmiotu:", item.id, domErr);
+                }
+            });
+
+            activeStones = newStones;
+        } catch (globalErr) {
+            console.error("Krytyczny błąd w syncInventory:", globalErr);
+        }
     }
 
+    /**
+     * Odświeżanie cache timerów z zabezpieczeniem przed brakiem kontenera
+     */
     function refreshBossTimerCache() {
-        const cache = {};
-        const timerContainer = document.getElementById('ll-timers');
-        if (!timerContainer) return;
-        
-        timerContainer.querySelectorAll('[data-slot="tooltip-trigger"] span')
-            .forEach(span => {
-            const timerDiv = span.nextElementSibling;
-            if (timerDiv?.tagName === 'DIV') {
-                const parent = span.closest('.ll\\:text-orange-400')
-                ?? span.parentElement;
-                const isActive = parent?.className.includes('text-orange-400') ?? false;
-                cache[span.innerText.trim()] = {
-                    time: timerDiv.innerText.trim(),
-                    color: isActive ? 'orange' : "#fff"
-                };
-            }
-        });
-        bossTimerCache = cache;
+        try {
+            const cache = {};
+            const timerContainer = document.getElementById('ll-timers');
+            if (!timerContainer) return;
+
+            const timerNodes = timerContainer.querySelectorAll('[data-slot="tooltip-trigger"] span');
+            timerNodes.forEach(span => {
+                try {
+                    const timerDiv = span.nextElementSibling;
+                    if (timerDiv?.tagName === 'DIV') {
+                        const parent = span.closest('.ll\\:text-orange-400') ?? span.parentElement;
+                        const isActive = parent?.className?.includes('text-orange-400') ?? false;
+
+                        const bossName = span.innerText.trim();
+                        if (bossName) {
+                            cache[bossName] = {
+                                time: timerDiv.innerText.trim() || "--:--",
+                                color: isActive ? '#fff' : "orange"
+                            };
+                        }
+                    }
+                } catch (nodeErr) {
+                    // Ignoruj błędy pojedynczych węzłów timerów
+                }
+            });
+            bossTimerCache = cache;
+        } catch (e) {
+            console.error("Błąd podczas odświeżania timerów:", e);
+        }
     }
 
     function formatTime(raw) {
+        if (!raw || typeof raw !== 'string') return "??";
         const parts = raw.split(':');
         return parts.length === 3 ? `${parts[1]}:${parts[2]}` : raw;
     }
 
+    /**
+     * Główna pętla renderująca z catch-all
+     */
     function smoothTick(timestamp) {
-        if (timestamp - lastBossTimerUpdate > BOSS_TIMER_TTL) {
-            refreshBossTimerCache();
-            lastBossTimerUpdate = timestamp;
-        }
-
-        activeStones.forEach(stone => {
-            const found = stone.bosses.find(name => bossTimerCache[name]);
-
-            if (found) {
-                const { time, color } = bossTimerCache[found];
-                const formatted = formatTime(time);
-                if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
-                if (stone.dom.style.color !== color) stone.dom.style.color = color;
-            } else {
-                const fallback = 'brak';
-                if (stone.dom.innerText !== fallback) stone.dom.innerText = fallback;
-                if (stone.dom.style.color !== "rgba(255, 255, 255, 0.4)") stone.dom.style.color = "rgba(255,255,255,0.4)";
+        try {
+            if (timestamp - lastBossTimerUpdate > BOSS_TIMER_TTL) {
+                refreshBossTimerCache();
+                lastBossTimerUpdate = timestamp;
             }
-        });
+
+            activeStones.forEach(stone => {
+                // Sprawdź czy element DOM nadal istnieje w dokumencie
+                if (!document.body.contains(stone.dom)) return;
+
+                const found = stone.bosses.find(name => bossTimerCache[name]);
+
+                if (found) {
+                    const { time, color } = bossTimerCache[found];
+                    const formatted = formatTime(time);
+                    if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
+                    if (stone.dom.style.color !== color) stone.dom.style.color = color;
+                } else {
+                    const fallback = 'brak';
+                    if (stone.dom.innerText !== fallback) stone.dom.innerText = fallback;
+                    const fadedColor = "rgba(255, 255, 255, 0.4)";
+                    if (stone.dom.style.color !== fadedColor) stone.dom.style.color = fadedColor;
+                }
+            });
+        } catch (tickErr) {
+            console.error("Błąd w pętli renderującej smoothTick:", tickErr);
+        }
 
         requestAnimationFrame(smoothTick);
     }
 
-    setTimeout(syncInventory, 1000);
-    setInterval(syncInventory, 3000);
-    requestAnimationFrame(smoothTick);
+    // Bezpieczny start
+    try {
+        setTimeout(syncInventory, 1000);
+        setInterval(syncInventory, 3000);
+        requestAnimationFrame(smoothTick);
+    } catch (startErr) {
+        console.error("Nie udało się zainicjować skryptu:", startErr);
+    }
 })();
