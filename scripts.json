@@ -11,6 +11,12 @@
       "name": "Game Pad Mobile",
       "url": "https://margonem.vercel.app/quick-sale.js",
       "description": "Prosty game pad na urządzeniach mobilnych."
-    }
+    },
+    {
+      "id": "stone_timers",
+      "name": "Stone Timers",
+      "url": "https://margonem.vercel.app/stone-timers.js",
+      "description": "Informacja o timerze na kamyku teleportacyjnym."
+    }    
   ]
 }
