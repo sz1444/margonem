@@ -1,7 +1,7 @@
-(function() {
+(function () {
     'use strict';
 
-    const allowedMaps = {
+    const BOSS_MAP = {
         "125": ["Razuglag Oklash"], "177": ["Agar"], "580": ["Mushita"], "632": ["Kotołak Tropiciel"],
         "727": ["Władca rzek"], "7701": ["Mysiur Myśliwirowy Król"], "1142": ["Arachniregina Colosseus"],
         "1151": ["Goplana"], "1322": ["Adariel"], "1325": ["Leśne Widmo"], "1463": ["Pancerny Maddok"],
@@ -14,7 +14,7 @@
         "3340": ["Vaenra Charkhaam"], "3341": ["Chaegd Agnrakh"], "3409": ["Młody Jack Truciciel"],
         "3437": ["Furruk Kozug"], "3466": ["Żelazoręki Ohydziarz"], "3530": ["Wielka Stopa"],
         "3597": ["Dendroculus"], "3628": ["Silvanasus"], "3765": ["Centaur Zyfryd"],
-        "4056": ["Pogardliwa Sybilla"], "4157": ["Tyrtajos"], "4998": ["Kambion"],
+        "4057": ["Pogardliwa Sybilla"], "4157": ["Tyrtajos"], "4998": ["Kambion"],
         "5293": ["Tollok Shimger"], "5395": ["Owadzia Matka"], "5662": ["Tolypeutes"],
         "5672": ["Cuaitl Citlalin"], "5685": ["Quetzalcoatl"], "5695": ["Yaotl"],
         "5738": ["Shae Phu"], "5851": ["Shakkru", "Sheba Orcza Szamanka"], "5856": ["Burkog Lorulk"],
@@ -22,7 +22,7 @@
         "5862": ["Lusgrathera Królowa Pramatka"], "5872": ["Duch Władcy Klanów"],
         "5940": ["Sadolia Nadzorczyni Hurys"], "5941": ["Annaniel Wysysacz Marzeń", "Gothardus Kolekcjoner Głów"],
         "7695": ["Sataniel Skrytobójca"], "5943": ["Zufulus Smakosz Serc"], "5945": ["Bergermona Krwawa Hrabina"],
-        "6053": ["Torunia Ankelwald"], "7689": ["Cerasus"], "6064": ["Nymphemonia"],
+        "6053": ["Torunia Ankelwald"], "7689": ["Cerasus"], "6065": ["Nymphemonia"],
         "6537": ["Jotun"], "6615": ["Podły zbrojmistrz"], "6623": ["Grabarz świątynny"],
         "6627": ["Lisz"], "6632": ["Tollok Atamatu"], "6633": ["Tollok Utumutu"],
         "6634": ["Choukker"], "6772": ["Nadzorczyni krasnoludów"], "6774": ["Morthen"],
@@ -38,12 +38,11 @@
         "7827": ["Arytodam olbrzymi"], "8181": ["Fangaj"], "8187": ["Wabicielka"]
     };
 
-       const IS_NEW_INTERFACE = typeof window.Engine !== "undefined";
+    const IS_NEW_INTERFACE = typeof window.Engine !== "undefined";
+    const BOSS_TIMER_TTL = 250;
 
     let bossTimerCache = {};
     let lastBossTimerUpdate = 0;
-    const BOSS_TIMER_TTL = 250;
-
     let activeStones = [];
 
     function parseStats(item) {
@@ -62,17 +61,17 @@
         el.classList.add("tp-live-timer");
         Object.assign(el.style, {
             position: "absolute", bottom: "1px", left: "0", width: "100%",
-            fontSize: "10px", fontWeight: "900", color: "#00ffea",
+            fontSize: "10px", fontWeight: "800", color: "#00ffea",
             textAlign: "center", pointerEvents: "none", zIndex: "10",
             textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
-            whiteSpace: "nowrap", lineHeight: "10px"
+            whiteSpace: "nowrap", lineHeight: "10px",
         });
         return el;
     }
 
     function syncInventory() {
         const items = IS_NEW_INTERFACE
-            ? window.Engine.items.fetchLocationItems("g")
+            ? (window.Engine?.items.fetchLocationItems("g") ?? [])
             : Object.values(window.g?.item ?? {}).filter(i => i.loc === "g");
 
         const newStones = [];
@@ -80,7 +79,7 @@
         items.forEach(item => {
             const stats = parseStats(item);
             const tp = (stats.teleport || stats.custom_teleport || "").split(",")[0];
-            const bossNames = allowedMaps[tp];
+            const bossNames = BOSS_MAP[tp];
             if (!bossNames) return;
 
             const selector = IS_NEW_INTERFACE ? `.item-id-${item.id}` : `#item${item.id}`;
@@ -103,11 +102,17 @@
         const cache = {};
         document.querySelectorAll('.ll-custom-cursor-pointer span.ll\\:whitespace-nowrap')
             .forEach(span => {
-                const timerDiv = span.nextElementSibling;
-                if (timerDiv?.tagName === 'DIV') {
-                    cache[span.innerText.trim()] = timerDiv.innerText.trim();
-                }
-            });
+            const timerDiv = span.nextElementSibling;
+            if (timerDiv?.tagName === 'DIV') {
+                const parent = span.closest('.ll\\:text-orange-400')
+                ?? span.parentElement;
+                const isActive = parent?.className.includes('text-orange-400') ?? false;
+                cache[span.innerText.trim()] = {
+                    time: timerDiv.innerText.trim(),
+                    color: isActive ? getComputedStyle(parent).color : "#fff"
+                };
+            }
+        });
         bossTimerCache = cache;
     }
 
@@ -126,17 +131,14 @@
             const found = stone.bosses.find(name => bossTimerCache[name]);
 
             if (found) {
-                const formatted = formatTime(bossTimerCache[found]);
-                if (stone.dom.innerText !== formatted) {
-                    stone.dom.innerText = formatted;
-                    stone.dom.style.color = "#fff";
-                }
+                const { time, color } = bossTimerCache[found];
+                const formatted = formatTime(time);
+                if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
+                if (stone.dom.style.color !== color) stone.dom.style.color = color;
             } else {
                 const fallback = 'brak';
-                if (stone.dom.innerText !== fallback) {
-                    stone.dom.innerText = fallback;
-                    stone.dom.style.color = "rgba(255,255,255,0.4)";
-                }
+                if (stone.dom.innerText !== fallback) stone.dom.innerText = fallback;
+                if (stone.dom.style.color !== "rgba(255, 255, 255, 0.4)") stone.dom.style.color = "rgba(255,255,255,0.4)";
             }
         });
 
