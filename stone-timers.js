@@ -60,7 +60,7 @@
         const el = document.createElement("span");
         el.classList.add("tp-live-timer");
         Object.assign(el.style, {
-            position: "absolute", bottom: "1px", left: "0", width: "100%",
+            position: "absolute", top: "1px", left: "0", width: "100%",
             fontSize: "10px", fontWeight: "800", color: "#00ffea",
             textAlign: "center", pointerEvents: "none", zIndex: "10",
             textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
