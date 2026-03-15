@@ -100,7 +100,10 @@
 
     function refreshBossTimerCache() {
         const cache = {};
-        document.querySelectorAll('.ll-custom-cursor-pointer span.ll\\:whitespace-nowrap')
+        const timerContainer = document.getElementById('ll-timers');
+        if (!timerContainer) return;
+        
+        timerContainer.querySelectorAll('[data-slot="tooltip-trigger"] span')
             .forEach(span => {
             const timerDiv = span.nextElementSibling;
             if (timerDiv?.tagName === 'DIV') {
@@ -109,7 +112,7 @@
                 const isActive = parent?.className.includes('text-orange-400') ?? false;
                 cache[span.innerText.trim()] = {
                     time: timerDiv.innerText.trim(),
-                    color: isActive ? 'orange' : "#fff"
+                    color: isActive ? '#fff' : "orange"
                 };
             }
         });
