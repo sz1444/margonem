@@ -7,7 +7,7 @@
         "727": ["Władca rzek"], "7701": ["Mysiur Myśliwirowy Król"], "1142": ["Arachniregina Colosseus"],
         "1150": ["Goplana"], "1322": ["Adariel"], "1324": ["Leśne Widmo"], "1463": ["Pancerny Maddok"],
         "7843": ["Mocny Maddoks"], "1526": ["Henry Kaprawe Oko"], "1527": ["Helga Opiekunka Rumu"],
-        "1620": ["Krab pustelnik"],"1741": ["Krab pustelnik (wyspa)"], "1912": ["Czempion Furboli"], "2063": ["Breheret Żelazny Łeb"],
+        "7370": ["Krab pustelnik"],"1741": ["Krab pustelnik (wyspa)"], "1912": ["Czempion Furboli"], "2063": ["Breheret Żelazny Łeb"],
         "2308": ["Szczęt alias Gładki"], "2353": ["Artenius"], "2354": ["Zorin"], "2356": ["Furion"],
         "2532": ["Zorg Jednooki Baron"], "2646": ["Vari Kruger"], "2729": ["Foverk Turrim"],
         "7864": ["Marlloth Malignitas"], "3035": ["Chopesz"], "3039": ["Neferkar Set"],
