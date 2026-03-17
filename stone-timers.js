@@ -26,7 +26,7 @@
         "6053": ["Torunia Ankelwald"], "7689": ["Cerasus"], "6064": ["Nymphemonia"],
         "6537": ["Jotun"], "6615": ["Podły zbrojmistrz"], "6623": ["Grabarz świątynny"],
         "6627": ["Lisz"], "6632": ["Tollok Atamatu"], "6633": ["Tollok Utumutu"],
-        "6634": ["Choukker"], "6636": ["Choukker p3"], "6772": ["Nadzorczyni krasnoludów"], "6773": ["Morthen"],
+        "6634": ["Choukker"], "6636": ["Choukker p3"], "6772": ["Nadzorczyni krasnoludów"], "6774": ["Morthen"],
         "6781": ["Gnom Figlid"], "6938": ["Jertek Moxos"], "6944": ["Miłośnik rycerzy"],
         "6945": ["Miłośnik łowców"], "6946": ["Miłośnik magii"], "6955": ["Grubber Ochlaj"],
         "7057": ["Ifryt"], "7066": ["Łowca czaszek"], "7069": ["Ozirus Władca Hieroglifów"],
