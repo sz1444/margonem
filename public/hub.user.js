@@ -98,9 +98,7 @@
                     url: script.url,
                     onload: function(res) {
                         try {
-                            // Sprawdzamy flagę w obiekcie script
                             if (script.tm_context === true) {
-                                // WYKONANIE W KONTEKŚCIE TM (Działa sync, GM_XHR, socket)
                                 eval(res.responseText);
                             } else {
                                 const s = document.createElement('script');
