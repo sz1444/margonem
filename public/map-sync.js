@@ -63,7 +63,7 @@
             const loginOverlay = document.getElementById('mapSyncLoginOverlay');
             if (loginOverlay) loginOverlay.remove();
             startHeartbeat();
-            setInterval(autoMapCheck, 5000);
+            setInterval(autoMapCheck, 1000);
         };
 
         socket.onmessage = (event) => {
@@ -226,28 +226,38 @@
     document.getElementById('min').onclick = toggleMin;
     function updateBtn() { document.getElementById('t1').classList.toggle('active', currentTab === 1); document.getElementById('t2').classList.toggle('active', currentTab === 2); document.getElementById('t3').classList.toggle('active', currentTab === 3); }
 
-    // Automation & Sync
     function autoMapCheck() {
-        let currentMap = null;
-    
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-       
-        if (win.Engine && win.Engine.map && win.Engine.map.d) return win.Engine.map.d.name;
-    
-        if (currentMap === "???") return;
+        let currentMap = "???";
+
+        if (win.Engine && win.Engine.map && win.Engine.map.d) {
+            currentMap = win.Engine.map.d.name;
+        } 
+        else if (win.map && win.map.name) {
+            currentMap = win.map.name;
+        }
+
+        if (currentMap === "???" || currentMap === "") return;
         
         const myNick = getHeroName();
+    
+        if (myNick === "???") return;
+
         [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
             const prefix = ["p", "n", "s"][idx];
             arkusz.forEach((mapData, i) => {
                 if (mapData[0] === currentMap) {
                     const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
                     const val1 = cachedData[id1]?.val || "", val2 = cachedData[id2]?.val || "";
+                    
                     if (val1 !== myNick && val2 !== myNick) {
                         const targetId = (val1 === "") ? id1 : id2;
+                        currentMyId = targetId;
                         sync(targetId, myNick);
+                        console.log(`[Auto-Sync] Zapisano na mapę: ${currentMap} (${targetId})`);
+                    } else {
+                        currentMyId = (val1 === myNick) ? id1 : id2;
                     }
-                    currentMyId = (val1 === myNick) ? id1 : id2;
                 }
             });
         });
