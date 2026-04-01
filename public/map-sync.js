@@ -232,21 +232,23 @@
 
         if (win.Engine && win.Engine.map && win.Engine.map.d) {
             currentMap = win.Engine.map.d.name;
-        } 
-        else if (win.map && win.map.name) {
+        } else if (win.map && win.map.name) {
             currentMap = win.map.name;
         }
 
         if (currentMap === "???" || currentMap === "") return;
         
         const myNick = getHeroName();
-    
         if (myNick === "???") return;
+
+        let foundMatch = false; // Flaga sprawdzająca, czy stoisz na mapie z listy
 
         [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
             const prefix = ["p", "n", "s"][idx];
             arkusz.forEach((mapData, i) => {
                 if (mapData[0] === currentMap) {
+                    foundMatch = true; // Stoisz na mapie, która jest w dodatku!
+                    
                     const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
                     const val1 = cachedData[id1]?.val || "", val2 = cachedData[id2]?.val || "";
                     
@@ -254,13 +256,17 @@
                         const targetId = (val1 === "") ? id1 : id2;
                         currentMyId = targetId;
                         sync(targetId, myNick);
-                        console.log(`[Auto-Sync] Zapisano na mapę: ${currentMap} (${targetId})`);
                     } else {
                         currentMyId = (val1 === myNick) ? id1 : id2;
                     }
                 }
             });
         });
+
+        if (!foundMatch) {
+            currentMyId = null; // Przestań wysyłać heartbeat!
+        }
+
         lastMapName = currentMap;
     }
 
