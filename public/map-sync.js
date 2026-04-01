@@ -228,8 +228,12 @@
 
     // Automation & Sync
     function autoMapCheck() {
+        let currentMap = null;
+    
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-        const currentMap = win.g ? win.g.main_map.name : (win.hero ? win.hero.map : "???");
+       
+        if (win.Engine && win.Engine.map && win.Engine.map.d) return win.Engine.map.d.name;
+    
         if (currentMap === "???") return;
         
         const myNick = getHeroName();
