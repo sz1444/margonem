@@ -14,7 +14,7 @@
     let currentMyId = null;
 
     function checkUrlForToken() {
-        const hash = window.location.hash;
+        const hash = window.location.hash;e
         if (hash.includes("access_token=")) {
             const params = new URLSearchParams(hash.substring(1));
             const token = params.get("access_token");
@@ -277,7 +277,7 @@
                 else { nameCell.style.color = "#e74c3c"; }
                 const minutes = Math.floor(diff / 60), seconds = Math.floor(diff % 60).toString().padStart(2, '0');
                 const base = nameCell.getAttribute('data-base-name');
-                nameCell.innerText = `${base} (${minutes}:${seconds})`;
+                nameCell.innerText = `(${minutes}:${seconds}) ${base}`;
             }
         });
     }
