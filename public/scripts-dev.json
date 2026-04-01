@@ -16,14 +16,14 @@
       "id": "stone_timers",
       "name": "Stone Timers",
       "url": "https://margonem.vercel.app/stone-timers.js",
-      "description": "Informacja o timerze na kamyku teleportacyjnym.",
-      "tm_context": true
+      "description": "Informacja o timerze na kamyku teleportacyjnym."
     },
       {
       "id": "map_sync",
       "name": "Event HEROS Helper",
       "url": "https://margonem.vercel.app/map-sync.js",
-      "description": "Obstawiaj herosa na mapie eventowej, synchronizuj z innymi graczami i sprawdzaj, kto jest na której mapie."
+      "description": "Obstawiaj herosa na mapie eventowej, synchronizuj z innymi graczami i sprawdzaj, kto jest na której mapie.",
+      "tm_context": true
     }    
   ]
 }
