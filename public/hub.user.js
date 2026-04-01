@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Panel dodatków Groli
 // @namespace    http://tampermonkey.net/
-// @version      3.4
+// @version      3.5
 // @description  Panel dodatków Groli
 // @author       Groli
 // @match        *://nubes.margonem.pl/*
@@ -97,10 +97,19 @@
                     method: "GET",
                     url: script.url,
                     onload: function(res) {
-                         const script = document.createElement('script');
-                script.textContent = res.responseText;
-                document.head.appendChild(script);
-
+                        try {
+                            // Sprawdzamy flagę w obiekcie script
+                            if (script.tm_context === true) {
+                                // WYKONANIE W KONTEKŚCIE TM (Działa sync, GM_XHR, socket)
+                                eval(res.responseText);
+                            } else {
+                                const s = document.createElement('script');
+                                s.textContent = res.responseText;
+                                document.head.appendChild(s);
+                            }
+                        } catch (e) {
+                            console.error(`❌ Błąd ładowania skryptu ${script.name}:`, e);
+                        }
                     }
                 });
             }
