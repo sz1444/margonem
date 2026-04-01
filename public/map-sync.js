@@ -5,11 +5,13 @@
     const CLIENT_ID = "1488794373775687782";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + window.location.pathname);
     const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds.members.read`;
+    
     let lastMapName = "";
     let heartbeatInterval = null;
     let socket = null;
     let cachedData = {};
     let discordToken = localStorage.getItem('mapSync_dcToken');
+    let currentMyId = null; // ID komórki w której aktualnie jesteśmy
 
     function checkUrlForToken() {
         const hash = window.location.hash;
@@ -60,6 +62,8 @@
             console.log("%c[Mapy Sync] Połączono pomyślnie!", "color:#2ecc71; font-weight:bold;");
             const loginOverlay = document.getElementById('mapSyncLoginOverlay');
             if (loginOverlay) loginOverlay.remove();
+            startHeartbeat();
+            setInterval(autoMapCheck, 5000);
         };
 
         socket.onmessage = (event) => {
@@ -67,11 +71,13 @@
             if (msg.type === 'init_data') {
                 cachedData = msg.data || {};
                 render();
-            } else if (msg.type === 'cell_updated') {
-                cachedData[msg.id] = msg.val;
+            } 
+            else if (msg.type === 'cell_updated') {
+                cachedData[msg.id] = { val: msg.val, ts: msg.ts };
                 const cell = document.getElementById(msg.id);
                 if (cell) updateCellText(cell, msg.val);
-            } else if (msg.type === 'global_alert') {
+            } 
+            else if (msg.type === 'global_alert') {
                 showGlobalModal(msg.data);
             }
         };
@@ -85,18 +91,16 @@
             }
         };
 
-        socket.onerror = (err) => {
-            console.error("[Mapy Sync] Błąd połączenia:", err);
-        };
+        socket.onerror = (err) => console.error("[Mapy Sync] Błąd połączenia:", err);
     }
 
-    async function sync(id, val, oldVal) {
-       if (socket && socket.readyState === 1) {
+    async function sync(id, val) {
+        if (socket && socket.readyState === 1) {
             const data = {
                 type: 'update_cell',
                 id: id,
-                val: val, // nick
-                ts: val !== "" ? Date.now() : 0 // timestamp zapisu
+                val: val,
+                ts: val !== "" ? Date.now() : 0
             };
             socket.send(JSON.stringify(data));
         }
@@ -113,52 +117,9 @@
         }
     }
 
-    const arkusz1 = [
-        ["Ruiny Tass Zhil", "blue"], ["Błota Sham Al", "blue"], ["Głusza Świstu", "blue"], 
-        ["Las Porywów Wiatru", "blue"], ["Kwieciste Kresy", "blue"], ["Grań Gawronich Piór", "blue"],
-        ["Nawiedzone Komnaty - przedsionek", "orange"], ["Nawiedzone Kazamaty p.1 s.1", "orange"], 
-        ["Nawiedzone Kazamaty p.1 s.2", "orange"], ["Nawiedzone Kazamaty p.2 s.1", "orange"], 
-        ["Nawiedzone Kazamaty p.2 s.2", "orange"], ["Nawiedzone Kazamaty p.3 s.1", "orange"], 
-        ["Nawiedzone Kazamaty p.3 s.2", "orange"], ["Nawiedzone Kazamaty p.4", "orange"], 
-        ["Sala Dowódcy Orków", "orange"], ["Nawiedzone Komnaty - zachód", "orange"], 
-        ["Nawiedzone Komnaty - wschód", "orange"], ["Sala Rady Orków", "orange"], 
-        ["Sala Królewska", "orange"], ["Komnaty Czarnej Gwardii - wschód", "orange"], 
-        ["Komnata Czarnej Perły", "orange"], ["Komnaty Czarnej Gwardii - zachód", "orange"]
-    ];
-
-    const arkusz2 = [
-        ["Gęste Sploty", "green"], ["Zmurszały Łęg", "green"], ["Garb Połamanych Konarów", "green"], 
-        ["Zalesiony Step", "green"], ["Głusza Srebrnego Rogu", "green"], ["Knieja Lunarnych Głazów", "green"], 
-        ["Szepty Menhirów", "green"], ["Gaj Księżycowego Blasku", "green"], ["Zakątek Nocnych Szelestów", "green"],
-        ["Zarosłe Szczeliny p.1 - sala 1", "green"], ["Zarosłe Szczeliny p.1 - sala 2", "green"], 
-        ["Zarosłe Szczeliny p.1 - sala 3", "green"], ["Gardziel Podgnitych Mchów p.1", "green"], 
-        ["Gardziel Podgnitych Mchów p.2", "green"], ["Zacienione Wnęki p.1 - sala 1", "green"], 
-        ["Zacienione Wnęki p.1 - sala 2", "green"], ["Zacienione Wnęki p.2 - sala 1", "green"], 
-        ["Zacienione Wnęki p.2 - sala 2", "green"], ["Skryty Azyl", "blue"], 
-        ["Dolina Potoku Śmierci", "blue"], ["Złota Dąbrowa", "blue"], 
-        ["Strumienie Szemrzących Wód", "blue"], ["Zawodzące Kaskady", "blue"], 
-        ["Jaszczurze Korytarze p.1 - sala 1", "blue"], ["Jaszczurze Korytarze p.1 - sala 2", "blue"], 
-        ["Jaszczurze Korytarze p.1 - sala 3", "blue"], ["Jaszczurze Korytarze p.1 - sala 4", "blue"], 
-        ["Jaszczurze Korytarze p.2 - sala 1", "blue"], ["Jaszczurze Korytarze p.2 - sala 2", "blue"], 
-        ["Jaszczurze Korytarze p.2 - sala 3", "blue"], ["Jaszczurze Korytarze p.2 - sala 4", "blue"]
-    ];
-
-    const arkusz3 = [
-        ["Potępione Zamczysko", "cyan"], ["Potępione Zamczysko - lochy zach. p.1", "cyan"], 
-        ["Potępione Zamczysko - lochy zach. p.2", "cyan"], ["Potępione Zamczysko - głębokie lochy", "cyan"], 
-        ["Potępione Zamczysko - lochy wsch. p.2", "cyan"], ["Potępione Zamczysko - lochy wsch. p.1", "cyan"], 
-        ["Potępione Zamczysko - korytarz zachodni", "cyan"], ["Potępione Zamczysko - korytarz wschodni", "cyan"], 
-        ["Potępione Zamczysko - zachodnia komnata", "cyan"], ["Potępione Zamczysko - wschodnia komnata", "cyan"], 
-        ["Potępione Zamczysko - sala ofiarna", "cyan"], ["Potępione Zamczysko - łącznik zachodni", "cyan"], 
-        ["Potępione Zamczysko - łącznik wschodni", "cyan"], ["Potępione Zamczysko - północna komnata", "cyan"], 
-        ["Zachodnie Zbocze", "cyan"], ["Plugawe Pustkowie", "cyan"], ["Jęczywąwóz", "cyan"], 
-        ["Pogranicze Wisielców", "cyan"], ["Skalisty Styk", "cyan"], ["Zacisze Zimnych Wiatrów", "cyan"], 
-        ["Pustynne Katakumby", "magenta"], ["Pustynne Katakumby - sala 1", "magenta"], 
-        ["Pustynne Katakumby - sala 2", "magenta"], ["Komnaty Bezdusznych - sala 1", "magenta"], 
-        ["Komnaty Bezdusznych - sala 2", "magenta"], ["Katakumby Odnalezionych Skrytobójców", "magenta"], 
-        ["Katakumby Opętanych Dusz", "magenta"], ["Korytarz Porzuconych Marzeń", "magenta"], 
-        ["Katakumby Gwałtownej Śmierci", "magenta"]
-    ];
+    const arkusz1 = [["Ruiny Tass Zhil", "blue"], ["Błota Sham Al", "blue"], ["Głusza Świstu", "blue"], ["Las Porywów Wiatru", "blue"], ["Kwieciste Kresy", "blue"], ["Grań Gawronich Piór", "blue"], ["Nawiedzone Komnaty - przedsionek", "orange"], ["Nawiedzone Kazamaty p.1 s.1", "orange"], ["Nawiedzone Kazamaty p.1 s.2", "orange"], ["Nawiedzone Kazamaty p.2 s.1", "orange"], ["Nawiedzone Kazamaty p.2 s.2", "orange"], ["Nawiedzone Kazamaty p.3 s.1", "orange"], ["Nawiedzone Kazamaty p.3 s.2", "orange"], ["Nawiedzone Kazamaty p.4", "orange"], ["Sala Dowódcy Orków", "orange"], ["Nawiedzone Komnaty - zachód", "orange"], ["Nawiedzone Komnaty - wschód", "orange"], ["Sala Rady Orków", "orange"], ["Sala Królewska", "orange"], ["Komnaty Czarnej Gwardii - wschód", "orange"], ["Komnata Czarnej Perły", "orange"], ["Komnaty Czarnej Gwardii - zachód", "orange"]];
+    const arkusz2 = [["Gęste Sploty", "green"], ["Zmurszały Łęg", "green"], ["Garb Połamanych Konarów", "green"], ["Zalesiony Step", "green"], ["Głusza Srebrnego Rogu", "green"], ["Knieja Lunarnych Głazów", "green"], ["Szepty Menhirów", "green"], ["Gaj Księżycowego Blasku", "green"], ["Zakątek Nocnych Szelestów", "green"], ["Zarosłe Szczeliny p.1 - sala 1", "green"], ["Zarosłe Szczeliny p.1 - sala 2", "green"], ["Zarosłe Szczeliny p.1 - sala 3", "green"], ["Gardziel Podgnitych Mchów p.1", "green"], ["Gardziel Podgnitych Mchów p.2", "green"], ["Zacienione Wnęki p.1 - sala 1", "green"], ["Zacienione Wnęki p.1 - sala 2", "green"], ["Zacienione Wnęki p.2 - sala 1", "green"], ["Zacienione Wnęki p.2 - sala 2", "green"], ["Skryty Azyl", "blue"], ["Dolina Potoku Śmierci", "blue"], ["Złota Dąbrowa", "blue"], ["Strumienie Szemrzących Wód", "blue"], ["Zawodzące Kaskady", "blue"], ["Jaszczurze Korytarze p.1 - sala 1", "blue"], ["Jaszczurze Korytarze p.1 - sala 2", "blue"], ["Jaszczurze Korytarze p.1 - sala 3", "blue"], ["Jaszczurze Korytarze p.1 - sala 4", "blue"], ["Jaszczurze Korytarze p.2 - sala 1", "blue"], ["Jaszczurze Korytarze p.2 - sala 2", "blue"], ["Jaszczurze Korytarze p.2 - sala 3", "blue"], ["Jaszczurze Korytarze p.2 - sala 4", "blue"]];
+    const arkusz3 = [["Potępione Zamczysko", "cyan"], ["Potępione Zamczysko - lochy zach. p.1", "cyan"], ["Potępione Zamczysko - lochy zach. p.2", "cyan"], ["Potępione Zamczysko - głębokie lochy", "cyan"], ["Potępione Zamczysko - lochy wsch. p.2", "cyan"], ["Potępione Zamczysko - lochy wsch. p.1", "cyan"], ["Potępione Zamczysko - korytarz zachodni", "cyan"], ["Potępione Zamczysko - korytarz wschodni", "cyan"], ["Potępione Zamczysko - zachodnia komnata", "cyan"], ["Potępione Zamczysko - wschodnia komnata", "cyan"], ["Potępione Zamczysko - sala ofiarna", "cyan"], ["Potępione Zamczysko - łącznik zachodni", "cyan"], ["Potępione Zamczysko - łącznik wschodni", "cyan"], ["Potępione Zamczysko - północna komnata", "cyan"], ["Zachodnie Zbocze", "cyan"], ["Plugawe Pustkowie", "cyan"], ["Jęczywąwóz", "cyan"], ["Pogranicze Wisielców", "cyan"], ["Skalisty Styk", "cyan"], ["Zacisze Zimnych Wiatrów", "cyan"], ["Pustynne Katakumby", "magenta"], ["Pustynne Katakumby - sala 1", "magenta"], ["Pustynne Katakumby - sala 2", "magenta"], ["Komnaty Bezdusznych - sala 1", "magenta"], ["Komnaty Bezdusznych - sala 2", "magenta"], ["Katakumby Odnalezionych Skrytobójców", "magenta"], ["Katakumby Opętanych Dusz", "magenta"], ["Korytarz Porzuconych Marzeń", "magenta"], ["Katakumby Gwałtownej Śmierci", "magenta"]];
 
     function showGlobalModal(data) {
         if (!data || !data.text) return;
@@ -174,13 +135,8 @@
 
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-
-        if (win.Engine && win.Engine.hero && win.Engine.hero.d) {
-            return win.Engine.hero.d.nick;
-        }
-        if (win.hero && win.hero.nick) {
-            return win.hero.nick;
-        }
+        if (win.Engine && win.Engine.hero && win.Engine.hero.d) return win.Engine.hero.d.nick;
+        if (win.hero && win.hero.nick) return win.hero.nick;
         return "???";
     }
 
@@ -189,39 +145,12 @@
 
     const container = document.createElement('div');
     container.id = "mapSyncContainer";
-
     const styleSheet = document.createElement("style");
-    styleSheet.innerText = `
-        #mapSyncScroll::-webkit-scrollbar { width: 4px !important; }
-        #mapSyncScroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2) !important; }
-        #mapSyncScroll::-webkit-scrollbar-thumb { background: #333 !important; border-radius: 10px !important; }
-        #mapSyncContainer.minimized { width: 58px !important; min-width: 150px !important; height: 28px !important; resize: none !important; border-color: #444 !important; }
-        .nav-btn { cursor:pointer; background:none; border:none; font-size:10px; font-weight:bold; color: #666; padding: 4px 8px; transition: all 0.2s; position: relative; letter-spacing: 0.5px; }
-        .nav-btn.active { color: #fff; }
-        .nav-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 8px; right: 8px; height: 2px; background: #fff; border-radius: 2px; }
-        .sync-cell { transition: border-color 0.2s, color 0.2s; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
-        .map-name { text-shadow: 1px 1px 1px rgba(0,0,0,0.8); cursor: pointer; }
-    `;
+    styleSheet.innerText = `#mapSyncScroll::-webkit-scrollbar { width: 4px !important; } #mapSyncScroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2) !important; } #mapSyncScroll::-webkit-scrollbar-thumb { background: #333 !important; border-radius: 10px !important; } #mapSyncContainer.minimized { width: 58px !important; min-width: 150px !important; height: 28px !important; resize: none !important; border-color: #444 !important; } .nav-btn { cursor:pointer; background:none; border:none; font-size:10px; font-weight:bold; color: #666; padding: 4px 8px; transition: all 0.2s; position: relative; letter-spacing: 0.5px; } .nav-btn.active { color: #fff; } .nav-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 8px; right: 8px; height: 2px; background: #fff; border-radius: 2px; } .sync-cell { transition: border-color 0.2s, color 0.2s; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); } .map-name { text-shadow: 1px 1px 1px rgba(0,0,0,0.8); cursor: pointer; }`;
     document.head.appendChild(styleSheet);
 
     container.style = `position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; min-width: 280px; min-height: 28px; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; padding: 6px; border: 1px solid #222; border-radius: 8px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; resize: both; overflow: hidden; display: flex; flex-direction: column;`;
-
-    container.innerHTML = `
-        <div id="dragHandle" style="display:flex; margin-bottom:8px; justify-content:space-between; cursor: move; flex-shrink: 0; align-items: center; padding: 2px 4px;">
-            <div id="tabsHeader" style="display:flex; gap:4px;">
-                <button id="t1" class="nav-btn active">POULET (173h)</button>
-                <button id="t2" class="nav-btn">NADWORNY (231p)</button>
-                <button id="t3" class="nav-btn">ŚLEPIEC (266b)</button>
-            </div>
-            <div style="font-weight: bold; color: #fff; font-size: 10px; pointer-events:none; display:none; letter-spacing: 1px;" id="miniTitle">Wielkanoc 2026</div>
-            <button id="min" style="background:rgba(255,255,255,0.05); color:#fff; border:none; width: 22px; height: 22px; border-radius: 4px; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">−</button>
-        </div>
-        <div id="mapSyncScroll" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
-            <table style="width:100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed;">
-                <tbody id="mBody"></tbody>
-            </table>
-        </div>
-    `;
+    container.innerHTML = `<div id="dragHandle" style="display:flex; margin-bottom:8px; justify-content:space-between; cursor: move; flex-shrink: 0; align-items: center; padding: 2px 4px;"><div id="tabsHeader" style="display:flex; gap:4px;"><button id="t1" class="nav-btn active">POULET (173h)</button><button id="t2" class="nav-btn">NADWORNY (231p)</button><button id="t3" class="nav-btn">ŚLEPIEC (266b)</button></div><div style="font-weight: bold; color: #fff; font-size: 10px; pointer-events:none; display:none; letter-spacing: 1px;" id="miniTitle">Wielkanoc 2026</div><button id="min" style="background:rgba(255,255,255,0.05); color:#fff; border:none; width: 22px; height: 22px; border-radius: 4px; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">−</button></div><div id="mapSyncScroll" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;"><table style="width:100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed;"><tbody id="mBody"></tbody></table></div>`;
     document.body.appendChild(container);
 
     const scrollArea = document.getElementById('mapSyncScroll');
@@ -230,17 +159,13 @@
 
     function render() {
         mBody.innerHTML = "";
-       let data, prefix;
+        let data, prefix;
         if (currentTab === 1) { data = arkusz1; prefix = "p"; }
         else if (currentTab === 2) { data = arkusz2; prefix = "n"; }
         else { data = arkusz3; prefix = "s"; }
         data.forEach((mapData, i) => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="map-name" style="padding:4px; color:#ddd; border: 1px solid #1a1a1a; background: rgba(30,30,30,0.3); font-size: 10px; border-left: 3px solid ${mapData[1]}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 2px;">${mapData[0]}</td>
-                <td class="sync-cell" id="${prefix}${i}_1" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td>
-                <td class="sync-cell" id="${prefix}${i}_2" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td>
-            `;
+            tr.innerHTML = `<td class="map-name" data-base-name="${mapData[0]}" style="padding:4px; color:#ddd; border: 1px solid #1a1a1a; background: rgba(30,30,30,0.3); font-size: 10px; border-left: 3px solid ${mapData[1]}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 2px;">${mapData[0]}</td><td class="sync-cell" id="${prefix}${i}_1" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td><td class="sync-cell" id="${prefix}${i}_2" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td>`;
             const nameCell = tr.querySelector('.map-name');
             nameCell.oncontextmenu = (e) => { e.preventDefault(); sendGlobalAlert(mapData[0]); };
             mBody.appendChild(tr);
@@ -248,7 +173,7 @@
             ["_1", "_2"].forEach(os => {
                 const id = `${prefix}${i}${os}`;
                 const cell = document.getElementById(id);
-                if (cachedData[id]) updateCellText(cell, cachedData[id]);
+                if (cachedData[id]) updateCellText(cell, cachedData[id].val || "");
                 
                 const btn = document.createElement('div');
                 btn.style = "position:absolute; right:0; top:0; bottom:0; width:18px; background:rgba(255,255,255,0.08); color:#fff; cursor:pointer; display:none; align-items:center; justify-content:center; font-size:12px; z-index:5; font-weight:bold; border-radius: 0 2px 2px 0;";
@@ -267,11 +192,11 @@
                     const oldVal = getCellText(cell); 
                     const newVal = (oldVal !== myNick) ? myNick : ""; 
                     updateCellText(cell, newVal); 
-                    cachedData[id] = newVal; 
-                    sync(id, newVal, oldVal); 
+                    sync(id, newVal); 
                 };
             });
         });
+        updateMapColors();
     }
 
     function getCellText(cell) { let text = ""; for (let node of cell.childNodes) if (node.nodeType === 3) text += node.nodeValue; return text.trim(); }
@@ -287,150 +212,76 @@
 
     let isDragging = false, offset = { x: 0, y: 0 };
     const dH = document.getElementById('dragHandle');
-
-    dH.onmousedown = (e) => { 
-        if (e.target.tagName === 'BUTTON') return; 
-        isDragging = true; 
-        const rect = container.getBoundingClientRect(); 
-        offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }; 
-    };
-
-    window.onmousemove = (e) => { 
-        if (!isDragging) return; 
-
-        const vW = window.innerWidth;
-        const vH = window.innerHeight;
-        const cW = container.offsetWidth;
-        const cH = container.offsetHeight;
-
-        let newX = e.clientX - offset.x;
-        let newY = e.clientY - offset.y;
-
-        if (newX < 0) newX = 0;
-        if (newX + cW > vW) newX = vW - cW;
-
-        if (newY < 0) newY = 0;
-        if (newY + cH > vH) newY = vH - cH;
-
-        container.style.right = "auto"; 
-        container.style.left = newX + "px"; 
-        container.style.top = newY + "px"; 
-    };
-
-    window.onmouseup = () => { 
-        if (isDragging) { 
-            isDragging = false; 
-            localStorage.setItem('mapSyncPos', JSON.stringify({
-                top: container.style.top, 
-                left: container.style.left, 
-                right: "auto" 
-            })); 
-        } 
-    };
-
+    dH.onmousedown = (e) => { if (e.target.tagName === 'BUTTON') return; isDragging = true; const rect = container.getBoundingClientRect(); offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }; };
+    window.onmousemove = (e) => { if (!isDragging) return; const vW = window.innerWidth, vH = window.innerHeight, cW = container.offsetWidth, cH = container.offsetHeight; let newX = e.clientX - offset.x, newY = e.clientY - offset.y; if (newX < 0) newX = 0; if (newX + cW > vW) newX = vW - cW; if (newY < 0) newY = 0; if (newY + cH > vH) newY = vH - cH; container.style.right = "auto"; container.style.left = newX + "px"; container.style.top = newY + "px"; };
+    window.onmouseup = () => { if (isDragging) { isDragging = false; localStorage.setItem('mapSyncPos', JSON.stringify({ top: container.style.top, left: container.style.left, right: "auto" })); } };
     new ResizeObserver(() => { if (!container.classList.contains('minimized')) { localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: container.style.height })); } }).observe(container);
-
-    const toggleMin = () => {
-        const isMin = container.classList.toggle('minimized');
-        scrollArea.style.display = isMin ? 'none' : 'block';
-        document.getElementById('miniTitle').style.display = isMin ? 'block' : 'none';
-        document.getElementById('tabsHeader').style.display = isMin ? 'none' : 'flex';
-        document.getElementById('min').innerText = isMin ? "+" : "−";
-    };
-
+    const toggleMin = () => { const isMin = container.classList.toggle('minimized'); scrollArea.style.display = isMin ? 'none' : 'block'; document.getElementById('miniTitle').style.display = isMin ? 'block' : 'none'; document.getElementById('tabsHeader').style.display = isMin ? 'none' : 'flex'; document.getElementById('min').innerText = isMin ? "+" : "−"; };
+    scrollArea.addEventListener('wheel', (e) => { const scrollTop = scrollArea.scrollTop, scrollHeight = scrollArea.scrollHeight, height = scrollArea.offsetHeight, delta = e.deltaY; if ((delta > 0 && scrollTop + height >= scrollHeight) || (delta < 0 && scrollTop <= 0)) e.preventDefault(); e.stopPropagation(); }, { passive: false });
     
-    scrollArea.addEventListener('wheel', (e) => {
-        const scrollTop = scrollArea.scrollTop;
-        const scrollHeight = scrollArea.scrollHeight;
-        const height = scrollArea.offsetHeight;
-        const delta = e.deltaY;
-
-        if ((delta > 0 && scrollTop + height >= scrollHeight) || (delta < 0 && scrollTop <= 0)) {
-            e.preventDefault();
-        }
-        e.stopPropagation();
-    }, { passive: false });
-
-
     document.getElementById('t1').onclick = () => { currentTab = 1; render(); updateBtn(); };
     document.getElementById('t2').onclick = () => { currentTab = 2; render(); updateBtn(); };
     document.getElementById('t3').onclick = () => { currentTab = 3; render(); updateBtn(); };
-
     document.getElementById('min').onclick = toggleMin;
+    function updateBtn() { document.getElementById('t1').classList.toggle('active', currentTab === 1); document.getElementById('t2').classList.toggle('active', currentTab === 2); document.getElementById('t3').classList.toggle('active', currentTab === 3); }
 
-    function updateBtn() {
-        document.getElementById('t1').classList.toggle('active', currentTab === 1);
-        document.getElementById('t2').classList.toggle('active', currentTab === 2);
-        document.getElementById('t3').classList.toggle('active', currentTab === 3);
-    }
-
+    // Automation & Sync
     function autoMapCheck() {
-        const currentMap = (typeof unsafeWindow !== 'undefined' && unsafeWindow.g) ? unsafeWindow.g.main_map.name : "???";
-        if (currentMap === lastMapName || currentMap === "???") return;
-    
-        lastMapName = currentMap;
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        const currentMap = win.g ? win.g.main_map.name : (win.hero ? win.hero.map : "???");
+        if (currentMap === "???") return;
+        
         const myNick = getHeroName();
-    
-        // Szukamy mapy w arkuszach i zapisujemy się
         [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
             const prefix = ["p", "n", "s"][idx];
             arkusz.forEach((mapData, i) => {
                 if (mapData[0] === currentMap) {
-                    const id1 = `${prefix}${i}_1`;
-                    const id2 = `${prefix}${i}_2`;
-                    if (cachedData[id1] !== myNick && cachedData[id2] !== myNick) {
-                        const targetId = !cachedData[id1] ? id1 : id2;
+                    const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
+                    const val1 = cachedData[id1]?.val || "", val2 = cachedData[id2]?.val || "";
+                    if (val1 !== myNick && val2 !== myNick) {
+                        const targetId = (val1 === "") ? id1 : id2;
                         sync(targetId, myNick);
                     }
+                    currentMyId = (val1 === myNick) ? id1 : id2;
                 }
             });
         });
+        lastMapName = currentMap;
     }
 
     function updateMapColors() {
         const now = Date.now();
-        [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
-            const prefix = ["p", "n", "s"][idx];
-            arkusz.forEach((mapData, i) => {
-                const time1 = cachedData[`${prefix}${i}_1`]?.ts || 0;
-                const time2 = cachedData[`${prefix}${i}_2`]?.ts || 0;
-                const lastTs = Math.max(time1, time2);
-            
-                const mapRow = document.querySelector(`[id^="${prefix}${i}_"]`)?.closest('tr');
-                const nameCell = mapRow?.querySelector('.map-name');
-                
-                if (nameCell && lastTs > 0) {
-                    const diff = (now - lastTs) / 1000; // różnica w sekundach
-    
-                    if (diff < 60) {
-                        nameCell.style.color = "#fff"; // Świeże (poniżej minuty)
-                        nameCell.style.backgroundColor = "rgba(30,30,30,0.3)";
-                    } else if (diff < 120) {
-                        nameCell.style.color = "#f1c40f"; // Żółte (1-2 min)
-                        nameCell.style.backgroundColor = "rgba(241, 196, 15, 0.1)";
-                    } else {
-                        nameCell.style.color = "#e74c3c"; // Czerwone (powyżej 2 min)
-                        nameCell.style.backgroundColor = "rgba(231, 76, 60, 0.1)";
-                    }
-                    const minutes = Math.floor(diff / 60);
-                    const seconds = Math.floor(diff % 60).toString().padStart(2, '0');
-                    nameCell.innerText = `${mapData[0]} (${minutes}:${seconds})`;
-                }
-            });
+        document.querySelectorAll('.map-name').forEach(nameCell => {
+            const row = nameCell.closest('tr');
+            if (!row) return;
+            const cells = row.querySelectorAll('.sync-cell');
+            if (cells.length < 2) return;
+            const ts1 = cachedData[cells[0].id]?.ts || 0;
+            const ts2 = cachedData[cells[1].id]?.ts || 0;
+            const lastTs = Math.max(ts1, ts2);
+            if (lastTs > 0) {
+                const diff = (now - lastTs) / 1000;
+                if (diff < 60) { nameCell.style.color = "#fff"; }
+                else if (diff < 120) { nameCell.style.color = "#f1c40f"; }
+                else { nameCell.style.color = "#e74c3c"; }
+                const minutes = Math.floor(diff / 60), seconds = Math.floor(diff % 60).toString().padStart(2, '0');
+                const base = nameCell.getAttribute('data-base-name');
+                nameCell.innerText = `${base} (${minutes}:${seconds})`;
+            }
         });
     }
 
-    setInterval(updateMapColors, 1000);
-
+    let currentMyId = null;
     function startHeartbeat() {
         if (heartbeatInterval) clearInterval(heartbeatInterval);
         heartbeatInterval = setInterval(() => {
-            if (socket && socket.readyState === 1) {
-                socket.send(JSON.stringify({ type: 'heartbeat', nick: getHeroName(), map: lastMapName }));
+            if (socket && socket.readyState === 1 && currentMyId) {
+                socket.send(JSON.stringify({ type: 'heartbeat', nick: getHeroName(), id: currentMyId }));
             }
-        }, 1000);
+        }, 30000);
     }
 
+    setInterval(updateMapColors, 1000);
     updateBtn();
     toggleMin();
     initSocket();
