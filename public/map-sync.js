@@ -226,13 +226,13 @@
     document.getElementById('min').onclick = toggleMin;
     function updateBtn() { document.getElementById('t1').classList.toggle('active', currentTab === 1); document.getElementById('t2').classList.toggle('active', currentTab === 2); document.getElementById('t3').classList.toggle('active', currentTab === 3); }
 
-   function autoMapCheck() {
+    function autoMapCheck() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         let currentMap = win.Engine?.map?.d?.name || win.map?.name || "???";
-
+    
         if (currentMap === "???" || currentMap === "") return;
         const myNick = getHeroName();
-
+    
         let foundMatch = false;
         [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
             const prefix = ["p", "n", "s"][idx];
@@ -240,14 +240,24 @@
                 if (mapData[0] === currentMap) {
                     foundMatch = true;
                     const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
-                    
+    
                     const d1 = cachedData[id1] || { val: "", ts: 0 };
                     const d2 = cachedData[id2] || { val: "", ts: 0 };
-
-                    // Jeśli już tu jesteśmy, zapamiętaj ID dla Heartbeata
-                    if (d1.val === myNick) currentMyId = id1;
-                    else if (d2.val === myNick) currentMyId = id2;
-                    // Jeśli nas nie ma, nadpisz najstarszy wpis (największy czas/najstarszy ts)
+    
+    
+                    if (d1.val === myNick) {
+                        currentMyId = id1;
+                    } else if (d2.val === myNick) {
+                        currentMyId = id2;
+                    }
+                    else if (!d1.val || d1.val === "") {
+                        currentMyId = id1;
+                        sync(id1, myNick);
+                    }
+                    else if (!d2.val || d2.val === "") {
+                        currentMyId = id2;
+                        sync(id2, myNick);
+                    }
                     else {
                         const targetId = (d1.ts <= d2.ts) ? id1 : id2;
                         currentMyId = targetId;
@@ -256,7 +266,7 @@
                 }
             });
         });
-
+    
         if (!foundMatch) currentMyId = null;
     }
 
