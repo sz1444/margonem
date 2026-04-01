@@ -166,8 +166,14 @@
     }
 
     function getHeroName() {
-        if (typeof window.Engine !== "undefined" && Engine.hero?.d) return Engine.hero.d.nick;
-        if (typeof window.hero !== "undefined") return hero.nick;
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+
+        if (win.Engine && win.Engine.hero && win.Engine.hero.d) {
+            return win.Engine.hero.d.nick;
+        }
+        if (win.hero && win.hero.nick) {
+            return win.hero.nick;
+        }
         return "???";
     }
 
