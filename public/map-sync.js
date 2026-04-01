@@ -11,7 +11,7 @@
     let socket = null;
     let cachedData = {};
     let discordToken = localStorage.getItem('mapSync_dcToken');
-    let currentMyId = null; // ID komórki w której aktualnie jesteśmy
+    let currentMyId = null;
 
     function checkUrlForToken() {
         const hash = window.location.hash;
@@ -210,6 +210,7 @@
         else { cell.style.color = "#444"; cell.style.borderColor = "#1a1a1a"; cell.style.background = "#050505"; }
     }
 
+    // Dragging & UI Logic
     let isDragging = false, offset = { x: 0, y: 0 };
     const dH = document.getElementById('dragHandle');
     dH.onmousedown = (e) => { if (e.target.tagName === 'BUTTON') return; isDragging = true; const rect = container.getBoundingClientRect(); offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }; };
@@ -271,7 +272,6 @@
         });
     }
 
-    let currentMyId = null;
     function startHeartbeat() {
         if (heartbeatInterval) clearInterval(heartbeatInterval);
         heartbeatInterval = setInterval(() => {
