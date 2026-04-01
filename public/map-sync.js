@@ -14,7 +14,7 @@
     let currentMyId = null;
 
     function checkUrlForToken() {
-        const hash = window.location.hash;e
+        const hash = window.location.hash;
         if (hash.includes("access_token=")) {
             const params = new URLSearchParams(hash.substring(1));
             const token = params.get("access_token");
