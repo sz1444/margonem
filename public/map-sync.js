@@ -226,48 +226,38 @@
     document.getElementById('min').onclick = toggleMin;
     function updateBtn() { document.getElementById('t1').classList.toggle('active', currentTab === 1); document.getElementById('t2').classList.toggle('active', currentTab === 2); document.getElementById('t3').classList.toggle('active', currentTab === 3); }
 
-    function autoMapCheck() {
+   function autoMapCheck() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-        let currentMap = "???";
-
-        if (win.Engine && win.Engine.map && win.Engine.map.d) {
-            currentMap = win.Engine.map.d.name;
-        } else if (win.map && win.map.name) {
-            currentMap = win.map.name;
-        }
+        let currentMap = win.Engine?.map?.d?.name || win.map?.name || "???";
 
         if (currentMap === "???" || currentMap === "") return;
-        
         const myNick = getHeroName();
-        if (myNick === "???") return;
 
-        let foundMatch = false; // Flaga sprawdzająca, czy stoisz na mapie z listy
-
+        let foundMatch = false;
         [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
             const prefix = ["p", "n", "s"][idx];
             arkusz.forEach((mapData, i) => {
                 if (mapData[0] === currentMap) {
-                    foundMatch = true; // Stoisz na mapie, która jest w dodatku!
-                    
+                    foundMatch = true;
                     const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
-                    const val1 = cachedData[id1]?.val || "", val2 = cachedData[id2]?.val || "";
                     
-                    if (val1 !== myNick && val2 !== myNick) {
-                        const targetId = (val1 === "") ? id1 : id2;
+                    const d1 = cachedData[id1] || { val: "", ts: 0 };
+                    const d2 = cachedData[id2] || { val: "", ts: 0 };
+
+                    // Jeśli już tu jesteśmy, zapamiętaj ID dla Heartbeata
+                    if (d1.val === myNick) currentMyId = id1;
+                    else if (d2.val === myNick) currentMyId = id2;
+                    // Jeśli nas nie ma, nadpisz najstarszy wpis (największy czas/najstarszy ts)
+                    else {
+                        const targetId = (d1.ts <= d2.ts) ? id1 : id2;
                         currentMyId = targetId;
                         sync(targetId, myNick);
-                    } else {
-                        currentMyId = (val1 === myNick) ? id1 : id2;
                     }
                 }
             });
         });
 
-        if (!foundMatch) {
-            currentMyId = null; // Przestań wysyłać heartbeat!
-        }
-
-        lastMapName = currentMap;
+        if (!foundMatch) currentMyId = null;
     }
 
     function updateMapColors() {
@@ -296,9 +286,13 @@
         if (heartbeatInterval) clearInterval(heartbeatInterval);
         heartbeatInterval = setInterval(() => {
             if (socket && socket.readyState === 1 && currentMyId) {
-                socket.send(JSON.stringify({ type: 'heartbeat', nick: getHeroName(), id: currentMyId }));
+                socket.send(JSON.stringify({ 
+                    type: 'heartbeat', 
+                    nick: getHeroName(), 
+                    id: currentMyId 
+                }));
             }
-        }, 30000);
+        }, 1000); 
     }
 
     setInterval(updateMapColors, 1000);
