@@ -52,57 +52,61 @@
             return;
         }
 
-        socket = io(BACKEND_URL, {
-            auth: { token: discordToken },
-            transports: ['websocket']
-        });
+        const wsUrl = BACKEND_URL.replace("http", "ws") + `?token=${discordToken}`;
+        socket = new WebSocket(wsUrl);
 
-        socket.on('connect', () => {
+        socket.onopen = () => {
             console.log("%c[Mapy Sync] Połączono pomyślnie!", "color:#2ecc71; font-weight:bold;");
             const loginOverlay = document.getElementById('mapSyncLoginOverlay');
             if (loginOverlay) loginOverlay.remove();
-        });
+        };
 
-        socket.on('init_data', (data) => {
-            cachedData = data || {};
-            render();
-        });
+        socket.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'init_data') {
+                cachedData = msg.data || {};
+                render();
+            } else if (msg.type === 'cell_updated') {
+                cachedData[msg.id] = msg.val;
+                const cell = document.getElementById(msg.id);
+                if (cell) updateCellText(cell, msg.val);
+            } else if (msg.type === 'global_alert') {
+                showGlobalModal(msg.data);
+            }
+        };
 
-        socket.on('cell_updated', (payload) => {
-            cachedData[payload.id] = payload.val;
-            const cell = document.getElementById(payload.id);
-            if (cell) updateCellText(cell, payload.val);
-        });
+        socket.onclose = (e) => {
+            if (e.code === 4001) {
+                localStorage.removeItem('mapSync_dcToken');
+                showLoginModal();
+            } else {
+                setTimeout(initSocket, 5000);
+            }
+        };
 
-        socket.on('global_alert', (data) => {
-            showGlobalModal(data);
-        });
-
-        socket.on('connect_error', (err) => {
-            console.error("[Mapy Sync] Błąd połączenia:", err.message);
-            localStorage.removeItem('mapSync_dcToken');
-            showLoginModal();
-        });
+        socket.onerror = (err) => {
+            console.error("[Mapy Sync] Błąd połączenia:", err);
+        };
     }
 
     async function sync(id, val, oldVal) {
-        if (socket && socket.connected) {
-            socket.emit('update_cell', { id, val });
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'update_cell', id, val }));
         }
     }
 
     async function sendGlobalAlert(mapName) {
-        if (socket && socket.connected) {
-            const msg = { 
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            const data = { 
                 text: `Potrzebna pomoc na mapie: <b style="color:red">${mapName}</b>`, 
                 sender: getHeroName(), 
                 ts: Date.now() 
             };
-            socket.emit('send_alert', msg);
+            socket.send(JSON.stringify({ type: 'send_alert', data }));
         }
     }
 
-const arkusz1 = [
+    const arkusz1 = [
         ["Ruiny Tass Zhil", "blue"], ["Błota Sham Al", "blue"], ["Głusza Świstu", "blue"], 
         ["Las Porywów Wiatru", "blue"], ["Kwieciste Kresy", "blue"], ["Grań Gawronich Piór", "blue"],
         ["Nawiedzone Komnaty - przedsionek", "orange"], ["Nawiedzone Kazamaty p.1 s.1", "orange"], 
@@ -268,7 +272,7 @@ const arkusz1 = [
         else { cell.style.color = "#444"; cell.style.borderColor = "#1a1a1a"; cell.style.background = "#050505"; }
     }
 
-let isDragging = false, offset = { x: 0, y: 0 };
+    let isDragging = false, offset = { x: 0, y: 0 };
     const dH = document.getElementById('dragHandle');
 
     dH.onmousedown = (e) => { 

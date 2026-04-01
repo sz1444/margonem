@@ -1,16 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
+const WebSocket = require('ws');
 const axios = require('axios');
 const admin = require('firebase-admin');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
 
-app.use(express.static(path.join(__dirname, 'public')));
+const wss = new WebSocket.Server({ server });
 
 const firebaseConfig = {
     projectId: process.env.FIREBASE_PROJECT_ID,
@@ -40,7 +38,7 @@ async function hasDiscordRole(accessToken) {
         });
         
         const hasRole = res.data.roles.includes(ROLE_ID);
-        console.log(`Użytkownik ${userRes.data.username} próbuje wejść. Ranga: ${hasRole}`);
+        console.log(`[Auth] Użytkownik ${userRes.data.username}: ${hasRole ? 'DOSTĘP' : 'BRAK RANGI'}`);
         return hasRole;
     } catch (e) { 
         console.error("Błąd autoryzacji Discord:", e.response?.data || e.message);
@@ -48,30 +46,66 @@ async function hasDiscordRole(accessToken) {
     }
 }
 
-io.on('connection', async (socket) => {
-    const token = socket.handshake.auth.token;
+wss.on('connection', async (ws, req) => {
+    const urlParams = new URLSearchParams(req.url.split('?')[1]);
+    const token = urlParams.get('token');
 
     if (!token || !await hasDiscordRole(token)) {
-        console.log("Nieautoryzowane połączenie - odrzucam.");
-        socket.disconnect();
+        console.log("[WS] Odrzucono nieautoryzowane połączenie.");
+        ws.close(4001, "Unauthorized");
         return;
     }
 
-    console.log("Zalogowano pomyślnie. Wysyłam dane.");
+    console.log("[WS] Nowe połączenie zweryfikowane.");
 
-    const snapshot = await db.ref('/').once('value');
-    socket.emit('init_data', snapshot.val());
+    try {
+        const snapshot = await db.ref('/').once('value');
+        ws.send(JSON.stringify({ type: 'init_data', data: snapshot.val() }));
+    } catch (err) {
+        console.error("Błąd Firebase Init:", err);
+    }
 
-    socket.on('update_cell', async (payload) => {
-        if (!payload.id) return;
-        await db.ref(payload.id).set(payload.val);
-        io.emit('cell_updated', payload);
+    ws.on('message', async (message) => {
+        try {
+            const payload = JSON.parse(message);
+
+            if (payload.type === 'update_cell') {
+                if (!payload.id) return;
+                await db.ref(payload.id).set(payload.val);
+                
+                const broadcastData = JSON.stringify({ 
+                    type: 'cell_updated', 
+                    id: payload.id, 
+                    val: payload.val 
+                });
+
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(broadcastData);
+                    }
+                });
+            }
+
+            if (payload.type === 'send_alert') {
+                const alertData = JSON.stringify({ 
+                    type: 'global_alert', 
+                    data: payload.data 
+                });
+
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(alertData);
+                    }
+                });
+            }
+
+        } catch (e) {
+            console.error("[WS] Błąd przetwarzania wiadomości:", e.message);
+        }
     });
 
-    socket.on('send_alert', async (data) => {
-        io.emit('global_alert', data);
-    });
+    ws.on('close', () => console.log("[WS] Klient rozłączony."));
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Serwer działa na porcie ${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Serwer natywny działa na porcie ${PORT}`));
