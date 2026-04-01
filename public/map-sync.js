@@ -331,6 +331,20 @@
         document.getElementById('min').innerText = isMin ? "+" : "−";
     };
 
+    
+    scrollArea.addEventListener('wheel', (e) => {
+        const scrollTop = scrollArea.scrollTop;
+        const scrollHeight = scrollArea.scrollHeight;
+        const height = scrollArea.offsetHeight;
+        const delta = e.deltaY;
+
+        if ((delta > 0 && scrollTop + height >= scrollHeight) || (delta < 0 && scrollTop <= 0)) {
+            e.preventDefault();
+        }
+        e.stopPropagation();
+    }, { passive: false });
+
+
     document.getElementById('t1').onclick = () => { currentTab = 1; render(); updateBtn(); };
     document.getElementById('t2').onclick = () => { currentTab = 2; render(); updateBtn(); };
     document.getElementById('t3').onclick = () => { currentTab = 3; render(); updateBtn(); };
