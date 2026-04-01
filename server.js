@@ -1,4 +1,4 @@
-require('dotenv').config(); // Ładowanie zmiennych z pliku .env
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
