@@ -1,0 +1,28 @@
+{
+  "scripts": [
+    {
+      "id": "qucik_salce",
+      "name": "Quick Sale",
+      "url": "https://margonem.vercel.app/quick-sale.js",
+      "description": "Szybsze opróżnianie toreb u handlarza po naciśnięciu spacji. Przeniesienie przycisku do opróżniania toreb."
+    },
+    {
+      "id": "game_pad",
+      "name": "Game Pad Mobile",
+      "url": "https://margonem.vercel.app/game-pad.js",
+      "description": "Prosty game pad na urządzeniach mobilnych."
+    },
+    {
+      "id": "stone_timers",
+      "name": "Stone Timers",
+      "url": "https://margonem.vercel.app/stone-timers.js",
+      "description": "Informacja o timerze na kamyku teleportacyjnym."
+    },
+      {
+      "id": "map_sync",
+      "name": "Event HEROS Helper",
+      "url": "https://margonem.vercel.app/map-sync.js",
+      "description": "Obstawiaj herosa na mapie eventowej, synchronizuj z innymi graczami i sprawdzaj, kto jest na której mapie."
+    }    
+  ]
+}
