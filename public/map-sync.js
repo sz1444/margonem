@@ -5,7 +5,8 @@
     const CLIENT_ID = "1488794373775687782";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + window.location.pathname);
     const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds.members.read`;
-
+    let lastMapName = "";
+    let heartbeatInterval = null;
     let socket = null;
     let cachedData = {};
     let discordToken = localStorage.getItem('mapSync_dcToken');
@@ -90,8 +91,14 @@
     }
 
     async function sync(id, val, oldVal) {
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ type: 'update_cell', id, val }));
+       if (socket && socket.readyState === 1) {
+            const data = {
+                type: 'update_cell',
+                id: id,
+                val: val, // nick
+                ts: val !== "" ? Date.now() : 0 // timestamp zapisu
+            };
+            socket.send(JSON.stringify(data));
         }
     }
 
@@ -355,6 +362,73 @@
         document.getElementById('t1').classList.toggle('active', currentTab === 1);
         document.getElementById('t2').classList.toggle('active', currentTab === 2);
         document.getElementById('t3').classList.toggle('active', currentTab === 3);
+    }
+
+    function autoMapCheck() {
+        const currentMap = (typeof unsafeWindow !== 'undefined' && unsafeWindow.g) ? unsafeWindow.g.main_map.name : "???";
+        if (currentMap === lastMapName || currentMap === "???") return;
+    
+        lastMapName = currentMap;
+        const myNick = getHeroName();
+    
+        // Szukamy mapy w arkuszach i zapisujemy się
+        [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
+            const prefix = ["p", "n", "s"][idx];
+            arkusz.forEach((mapData, i) => {
+                if (mapData[0] === currentMap) {
+                    const id1 = `${prefix}${i}_1`;
+                    const id2 = `${prefix}${i}_2`;
+                    if (cachedData[id1] !== myNick && cachedData[id2] !== myNick) {
+                        const targetId = !cachedData[id1] ? id1 : id2;
+                        sync(targetId, myNick);
+                    }
+                }
+            });
+        });
+    }
+
+    function updateMapColors() {
+        const now = Date.now();
+        [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
+            const prefix = ["p", "n", "s"][idx];
+            arkusz.forEach((mapData, i) => {
+                const time1 = cachedData[`${prefix}${i}_1`]?.ts || 0;
+                const time2 = cachedData[`${prefix}${i}_2`]?.ts || 0;
+                const lastTs = Math.max(time1, time2);
+            
+                const mapRow = document.querySelector(`[id^="${prefix}${i}_"]`)?.closest('tr');
+                const nameCell = mapRow?.querySelector('.map-name');
+                
+                if (nameCell && lastTs > 0) {
+                    const diff = (now - lastTs) / 1000; // różnica w sekundach
+    
+                    if (diff < 60) {
+                        nameCell.style.color = "#fff"; // Świeże (poniżej minuty)
+                        nameCell.style.backgroundColor = "rgba(30,30,30,0.3)";
+                    } else if (diff < 120) {
+                        nameCell.style.color = "#f1c40f"; // Żółte (1-2 min)
+                        nameCell.style.backgroundColor = "rgba(241, 196, 15, 0.1)";
+                    } else {
+                        nameCell.style.color = "#e74c3c"; // Czerwone (powyżej 2 min)
+                        nameCell.style.backgroundColor = "rgba(231, 76, 60, 0.1)";
+                    }
+                    const minutes = Math.floor(diff / 60);
+                    const seconds = Math.floor(diff % 60).toString().padStart(2, '0');
+                    nameCell.innerText = `${mapData[0]} (${minutes}:${seconds})`;
+                }
+            });
+        });
+    }
+
+    setInterval(updateMapColors, 1000);
+
+    function startHeartbeat() {
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+        heartbeatInterval = setInterval(() => {
+            if (socket && socket.readyState === 1) {
+                socket.send(JSON.stringify({ type: 'heartbeat', nick: getHeroName(), map: lastMapName }));
+            }
+        }, 1000);
     }
 
     updateBtn();
