@@ -13,23 +13,12 @@
     <style>
         :root {
             /* Dark Mode Palette (Default) */
-            --dc-bg-main: #0e0e10;
-            --dc-bg-side: #0a0a0b;
-            --dc-bg-header: #050506;
-            --dc-blurple: #5865f2;
-            --dc-text-normal: #dbdee1;
-            --dc-text-muted: #80848e;
+         
             --dc-green: #23a559;
             --dc-yellow: #f0b232;
             --dc-red: #f23f43;
-            --dc-card-hover: rgba(255, 255, 255, 0.03);
-            --dc-border: rgba(255, 255, 255, 0.05);
-            --dc-chip-bg: #050506;
-            --dc-separator: rgba(255, 255, 255, 0.06);
-        }
+            --dc-blurple: #5865f2;
 
-        body.light-theme {
-            /* Light Mode Palette */
             --dc-bg-main: #ffffff;
             --dc-bg-side: #f2f3f5;
             --dc-bg-header: #ebedef;
@@ -39,6 +28,19 @@
             --dc-border: rgba(0, 0, 0, 0.08);
             --dc-chip-bg: #e3e5e8;
             --dc-separator: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-theme {
+            /* Light Mode Palette */
+               --dc-bg-main: #0e0e10;
+            --dc-bg-side: #0a0a0b;
+            --dc-bg-header: #050506;
+            --dc-text-normal: #dbdee1;
+            --dc-text-muted: #80848e;
+              --dc-card-hover: rgba(255, 255, 255, 0.03);
+            --dc-border: rgba(255, 255, 255, 0.05);
+            --dc-chip-bg: #050506;
+            --dc-separator: rgba(255, 255, 255, 0.06);
         }
 
         body {
@@ -84,8 +86,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 10px;
-            margin: 1px 4px;
+            padding: 4px 10px;
+            margin: 5px 4px;
             border-radius: 4px;
             cursor: default;
             transition: background 0.1s ease;
@@ -105,7 +107,6 @@
             color: var(--dc-text-muted);
             min-width: 50px;
             text-align: center;
-            text-transform: uppercase;
             border: 1px solid var(--dc-border);
         }
 
@@ -137,7 +138,6 @@
             padding: 12px 16px 8px 16px;
             font-size: 14px;
             font-weight: 700;
-            text-transform: uppercase;
             letter-spacing: 0.02em;
             display: flex;
             align-items: center;
@@ -152,6 +152,8 @@
             font-weight: 600;
             font-family: monospace;
             white-space: nowrap;
+            background-color: var(--dc-chip-bg);
+            border: 1px solid var(--dc-border);
         }
 
         /* Subtle separator */
@@ -198,9 +200,6 @@
     <!-- Discord Header -->
     <header class="dc-header shrink-0">
         <div class="flex items-center gap-3">
-            <div id="theme-toggle" title="Przełącz motyw">
-                <span class="material-icons text-lg" id="theme-icon">dark_mode</span>
-            </div>
             <div class="flex items-center gap-2 px-2 py-1 bg-black/5 dark:bg-white/5 rounded">
                 <h1 class="text-[10px] font-black uppercase tracking-widest">Event Heros Helper</h1>
             </div>
@@ -211,9 +210,9 @@
                 <span class="text-[8px] text-[#80848e] font-bold uppercase leading-tight">Status sieci</span>
                 <span id="status-indicator" class="text-[10px] font-bold text-[#23a559]">POŁĄCZONY</span>
             </div>
-            <div class="flex flex-col items-end">
-                <span class="text-[8px] text-[#80848e] font-bold uppercase leading-tight">Zarejestrowane</span>
-                <span id="global-count" class="text-[10px] font-bold var(--dc-text-normal)" style="color: var(--dc-text-normal)">0 / 82</span>
+
+                <div id="theme-toggle" title="Przełącz motyw">
+                <span class="material-icons text-lg" id="theme-icon">dark_mode</span>
             </div>
         </div>
     </header>
@@ -368,8 +367,8 @@
                     row.innerHTML = `
                         <div class="flex items-center flex-grow gap-2 min-w-0 mr-2">
                             <div class="status-dot-indicator"></div>
-                            <span class="text-[11px] font-bold truncate uppercase tracking-tighter"># ${mapData[0]}</span>
-                            <span id="timer-${id1}-${id2}" class="time-label text-[9px] text-[#4e5058]">BRAK</span>
+                            <span id="timer-${id1}-${id2}" class="time-label rounded-[3px] px-2 text-[10px] text-[#4e5058]">BRAK</span>
+                            <span class="text-[12px] font-normal truncate tracking-tighter">${mapData[0]}</span>
                         </div>
                         <div class="flex gap-1 shrink-0">
                             <div id="cell-${id1}" class="dc-chip">---</div>
@@ -382,7 +381,6 @@
                     if (cachedData[id1]?.val || cachedData[id2]?.val) activeMaps++;
                 });
             });
-            document.getElementById('global-count').innerText = `${activeMaps} / 82`;
             updateTimers();
         }
 
