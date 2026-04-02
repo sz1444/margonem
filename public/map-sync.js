@@ -330,7 +330,7 @@
             else occSpan.innerText = "";
 
             if (lastTs > 0) {
-                const diff = (now - lastTs) / 1000;
+                const diff = Math.max(0, (now - lastTs) / 1000);
                 const min = Math.floor(diff / 60);
                 const sec = Math.floor(diff % 60).toString().padStart(2, '0');
                 timerSpan.innerText = `${min}:${sec}`;
