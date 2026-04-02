@@ -5,14 +5,14 @@
     const CLIENT_ID = "1488794373775687782";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + window.location.pathname);
     const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds.members.read`;
-    
-    let lastMapName = "";
+
     let heartbeatInterval = null;
     let socket = null;
     let cachedData = {};
     let discordToken = localStorage.getItem('mapSync_dcToken');
     let currentMyId = null;
 
+    // --- Logika Tokena ---
     function checkUrlForToken() {
         const hash = window.location.hash;
         if (hash.includes("access_token=")) {
@@ -39,7 +39,7 @@
         overlay.innerHTML = `
             <div style="background:#2f3136; padding:30px; border-radius:12px; text-align:center; border:1px solid #5865f2; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
                 <div style="color:#fff; font-size:20px; margin-bottom:15px; font-weight:bold;">Wymagana Autoryzacja</div>
-                <p style="color:#b9bbbe; font-size:13px; margin-bottom:25px;">Zaloguj się przez Discord, aby uzyskać dostęp do map grupy.</p>
+                <p style="color:#b9bbbe; font-size:13px; margin-bottom:25px;">Zaloguj się przez Discord, aby uzyskać dostęp do map.</p>
                 <button id="dcLoginBtn" style="background:#5865f2; color:#fff; border:none; padding:12px 25px; border-radius:5px; cursor:pointer; font-weight:bold; font-size:14px; transition:0.2s;">
                     Połącz z Discordem
                 </button>
@@ -49,6 +49,7 @@
         document.getElementById('dcLoginBtn').onclick = () => { window.location.href = DISCORD_AUTH_URL; };
     }
 
+    // --- WebSocket ---
     function initSocket() {
         if (!discordToken) {
             showLoginModal();
@@ -59,7 +60,6 @@
         socket = new WebSocket(wsUrl);
 
         socket.onopen = () => {
-            console.log("%c[Mapy Sync] Połączono pomyślnie!", "color:#2ecc71; font-weight:bold;");
             const loginOverlay = document.getElementById('mapSyncLoginOverlay');
             if (loginOverlay) loginOverlay.remove();
             startHeartbeat();
@@ -71,12 +71,11 @@
             if (msg.type === 'init_data') {
                 cachedData = msg.data || {};
                 render();
-            } 
+            }
             else if (msg.type === 'cell_updated') {
                 cachedData[msg.id] = { val: msg.val, ts: msg.ts };
-                const cell = document.getElementById(msg.id);
-                if (cell) updateCellText(cell, msg.val);
-            } 
+                updateMapColors();
+            }
             else if (msg.type === 'global_alert') {
                 showGlobalModal(msg.data);
             }
@@ -90,36 +89,35 @@
                 setTimeout(initSocket, 5000);
             }
         };
-
-        socket.onerror = (err) => console.error("[Mapy Sync] Błąd połączenia:", err);
     }
 
     async function sync(id, val) {
         if (socket && socket.readyState === 1) {
-            const data = {
+            socket.send(JSON.stringify({
                 type: 'update_cell',
                 id: id,
                 val: val,
                 ts: val !== "" ? Date.now() : 0
-            };
-            socket.send(JSON.stringify(data));
+            }));
         }
     }
 
     async function sendGlobalAlert(mapName) {
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            const data = { 
-                text: `Potrzebna pomoc na mapie: <b style="color:red">${mapName}</b>`, 
-                sender: getHeroName(), 
-                ts: Date.now() 
+        // Używamy readyState === 1 dla większej pewności połączenia
+        if (socket && socket.readyState === 1) {
+            const data = {
+                text: `Potrzebna pomoc na mapie: <b style="color:red">${mapName}</b>`,
+                sender: getHeroName(),
+                ts: Date.now()
             };
             socket.send(JSON.stringify({ type: 'send_alert', data }));
         }
     }
 
-    const arkusz1 = [["Ruiny Tass Zhil", "blue"], ["Błota Sham Al", "blue"], ["Głusza Świstu", "blue"], ["Las Porywów Wiatru", "blue"], ["Kwieciste Kresy", "blue"], ["Grań Gawronich Piór", "blue"], ["Nawiedzone Komnaty - przedsionek", "orange"], ["Nawiedzone Kazamaty p.1 s.1", "orange"], ["Nawiedzone Kazamaty p.1 s.2", "orange"], ["Nawiedzone Kazamaty p.2 s.1", "orange"], ["Nawiedzone Kazamaty p.2 s.2", "orange"], ["Nawiedzone Kazamaty p.3 s.1", "orange"], ["Nawiedzone Kazamaty p.3 s.2", "orange"], ["Nawiedzone Kazamaty p.4", "orange"], ["Sala Dowódcy Orków", "orange"], ["Nawiedzone Komnaty - zachód", "orange"], ["Nawiedzone Komnaty - wschód", "orange"], ["Sala Rady Orków", "orange"], ["Sala Królewska", "orange"], ["Komnaty Czarnej Gwardii - wschód", "orange"], ["Komnata Czarnej Perły", "orange"], ["Komnaty Czarnej Gwardii - zachód", "orange"]];
-    const arkusz2 = [["Gęste Sploty", "green"], ["Zmurszały Łęg", "green"], ["Garb Połamanych Konarów", "green"], ["Zalesiony Step", "green"], ["Głusza Srebrnego Rogu", "green"], ["Knieja Lunarnych Głazów", "green"], ["Szepty Menhirów", "green"], ["Gaj Księżycowego Blasku", "green"], ["Zakątek Nocnych Szelestów", "green"], ["Zarosłe Szczeliny p.1 - sala 1", "green"], ["Zarosłe Szczeliny p.1 - sala 2", "green"], ["Zarosłe Szczeliny p.1 - sala 3", "green"], ["Gardziel Podgnitych Mchów p.1", "green"], ["Gardziel Podgnitych Mchów p.2", "green"], ["Zacienione Wnęki p.1 - sala 1", "green"], ["Zacienione Wnęki p.1 - sala 2", "green"], ["Zacienione Wnęki p.2 - sala 1", "green"], ["Zacienione Wnęki p.2 - sala 2", "green"], ["Skryty Azyl", "blue"], ["Dolina Potoku Śmierci", "blue"], ["Złota Dąbrowa", "blue"], ["Strumienie Szemrzących Wód", "blue"], ["Zawodzące Kaskady", "blue"], ["Jaszczurze Korytarze p.1 - sala 1", "blue"], ["Jaszczurze Korytarze p.1 - sala 2", "blue"], ["Jaszczurze Korytarze p.1 - sala 3", "blue"], ["Jaszczurze Korytarze p.1 - sala 4", "blue"], ["Jaszczurze Korytarze p.2 - sala 1", "blue"], ["Jaszczurze Korytarze p.2 - sala 2", "blue"], ["Jaszczurze Korytarze p.2 - sala 3", "blue"], ["Jaszczurze Korytarze p.2 - sala 4", "blue"]];
-    const arkusz3 = [["Potępione Zamczysko", "cyan"], ["Potępione Zamczysko - lochy zachodnie p.1", "cyan"], ["Potępione Zamczysko - lochy zachodnie p.2", "cyan"], ["Potępione Zamczysko - głębokie lochy", "cyan"], ["Potępione Zamczysko - lochy wschodnie p.2", "cyan"], ["Potępione Zamczysko - lochy wschodnie p.1", "cyan"], ["Potępione Zamczysko - korytarz zachodni", "cyan"], ["Potępione Zamczysko - korytarz wschodni", "cyan"], ["Potępione Zamczysko - zachodnia komnata", "cyan"], ["Potępione Zamczysko - wschodnia komnata", "cyan"], ["Potępione Zamczysko - sala ofiarna", "cyan"], ["Potępione Zamczysko - łącznik zachodni", "cyan"], ["Potępione Zamczysko - łącznik wschodni", "cyan"], ["Potępione Zamczysko - północna komnata", "cyan"], ["Zachodnie Zbocze", "cyan"], ["Plugawe Pustkowie", "cyan"], ["Jęczywąwóz", "cyan"], ["Pogranicze Wisielców", "cyan"], ["Skalisty Styk", "cyan"], ["Zacisze Zimnych Wiatrów", "cyan"], ["Pustynne Katakumby", "magenta"], ["Pustynne Katakumby - sala 1", "magenta"], ["Pustynne Katakumby - sala 2", "magenta"], ["Komnaty Bezdusznych - sala 1", "magenta"], ["Komnaty Bezdusznych - sala 2", "magenta"], ["Katakumby Odnalezionych Skrytobójców", "magenta"], ["Katakumby Opętanych Dusz", "magenta"], ["Korytarz Porzuconych Marzeń", "magenta"], ["Katakumby Gwałtownej Śmierci", "magenta"]];
+    // --- Dane Map ---
+    const arkusz1 = [["Ruiny Tass Zhil", "#3498db"], ["Błota Sham Al", "#3498db"], ["Głusza Świstu", "#3498db"], ["Las Porywów Wiatru", "#3498db"], ["Kwieciste Kresy", "#3498db"], ["Grań Gawronich Piór", "#3498db"], ["Nawiedzone Komnaty - przedsionek", "#e67e22"], ["Nawiedzone Kazamaty p.1 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.1 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.2 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.2 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.3 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.3 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.4", "#e67e22"], ["Sala Dowódcy Orków", "#e67e22"], ["Nawiedzone Komnaty - zachód", "#e67e22"], ["Nawiedzone Komnaty - wschód", "#e67e22"], ["Sala Rady Orków", "#e67e22"], ["Sala Królewska", "#e67e22"], ["Komnaty Czarnej Gwardii - wschód", "#e67e22"], ["Komnata Czarnej Perły", "#e67e22"], ["Komnaty Czarnej Gwardii - zachód", "#e67e22"]];
+    const arkusz2 = [["Gęste Sploty", "#2ecc71"], ["Zmurszały Łęg", "#2ecc71"], ["Garb Połamanych Konarów", "#2ecc71"], ["Zalesiony Step", "#2ecc71"], ["Głusza Srebrnego Rogu", "#2ecc71"], ["Knieja Lunarnych Głazów", "#2ecc71"], ["Szepty Menhirów", "#2ecc71"], ["Gaj Księżycowego Blasku", "#2ecc71"], ["Zakątek Nocnych Szelestów", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 1", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 2", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 3", "#2ecc71"], ["Gardziel Podgnitych Mchów p.1", "#2ecc71"], ["Gardziel Podgnitych Mchów p.2", "#2ecc71"], ["Zacienione Wnęki p.1 - sala 1", "#2ecc71"], ["Zacienione Wnęki p.1 - sala 2", "#2ecc71"], ["Zacienione Wnęki p.2 - sala 1", "#2ecc71"], ["Zacienione Wnęki p.2 - sala 2", "#2ecc71"], ["Skryty Azyl", "#3498db"], ["Dolina Potoku Śmierci", "#3498db"], ["Złota Dąbrowa", "#3498db"], ["Strumienie Szemrzących Wód", "#3498db"], ["Zawodzące Kaskady", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 1", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 2", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 3", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 4", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 1", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 2", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 3", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 4", "#3498db"]];
+    const arkusz3 = [["Potępione Zamczysko", "#1abc9c"], ["Potępione Zamczysko - lochy zachodnie p.1", "#1abc9c"], ["Potępione Zamczysko - lochy zachodnie p.2", "#1abc9c"], ["Potępione Zamczysko - głębokie lochy", "#1abc9c"], ["Potępione Zamczysko - lochy wschodnie p.2", "#1abc9c"], ["Potępione Zamczysko - lochy wschodnie p.1", "#1abc9c"], ["Potępione Zamczysko - korytarz zachodni", "#1abc9c"], ["Potępione Zamczysko - korytarz wschodni", "#1abc9c"], ["Potępione Zamczysko - zachodnia komnata", "#1abc9c"], ["Potępione Zamczysko - wschodnia komnata", "#1abc9c"], ["Potępione Zamczysko - sala ofiarna", "#1abc9c"], ["Potępione Zamczysko - łącznik zachodni", "#1abc9c"], ["Potępione Zamczysko - łącznik wschodni", "#1abc9c"], ["Potępione Zamczysko - północna komnata", "#1abc9c"], ["Zachodnie Zbocze", "#1abc9c"], ["Plugawe Pustkowie", "#1abc9c"], ["Jęczywąwóz", "#1abc9c"], ["Pogranicze Wisielców", "#1abc9c"], ["Skalisty Styk", "#1abc9c"], ["Zacisze Zimnych Wiatrów", "#1abc9c"], ["Pustynne Katakumby", "#9b59b6"], ["Pustynne Katakumby - sala 1", "#9b59b6"], ["Pustynne Katakumby - sala 2", "#9b59b6"], ["Komnaty Bezdusznych - sala 1", "#9b59b6"], ["Komnaty Bezdusznych - sala 2", "#9b59b6"], ["Katakumby Odnalezionych Skrytobójców", "#9b59b6"], ["Katakumby Opętanych Dusz", "#9b59b6"], ["Korytarz Porzuconych Marzeń", "#9b59b6"], ["Katakumby Gwałtownej Śmierci", "#9b59b6"]];
 
     function showGlobalModal(data) {
         if (!data || !data.text) return;
@@ -140,99 +138,278 @@
         return "???";
     }
 
-    const savedPos = JSON.parse(localStorage.getItem('mapSyncPos')) || { top: "5px", left: "auto", right: "5px" };
-    const savedSize = JSON.parse(localStorage.getItem('mapSyncSize')) || { width: "330px", height: "400px" };
+    // --- Budowa Kontenera ---
+    const savedPos = JSON.parse(localStorage.getItem('mapSyncPos')) || { top: "5px", right: "5px", left: "auto" };
+    const savedSize = JSON.parse(localStorage.getItem('mapSyncSize')) || { width: "280px", height: "400px" };
+    const isSavedMinimized = localStorage.getItem('mapSyncMinimized') !== 'false';
 
     const container = document.createElement('div');
     container.id = "mapSyncContainer";
     const styleSheet = document.createElement("style");
-    styleSheet.innerText = `#mapSyncScroll::-webkit-scrollbar { width: 4px !important; } #mapSyncScroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2) !important; } #mapSyncScroll::-webkit-scrollbar-thumb { background: #333 !important; border-radius: 10px !important; } #mapSyncContainer.minimized { width: 58px !important; min-width: 150px !important; height: 28px !important; resize: none !important; border-color: #444 !important; } .nav-btn { cursor:pointer; background:none; border:none; font-size:10px; font-weight:bold; color: #666; padding: 4px 8px; transition: all 0.2s; position: relative; letter-spacing: 0.5px; } .nav-btn.active { color: #fff; } .nav-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 8px; right: 8px; height: 2px; background: #fff; border-radius: 2px; } .sync-cell { transition: border-color 0.2s, color 0.2s; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); } .map-name { text-shadow: 1px 1px 1px rgba(0,0,0,0.8); cursor: pointer; }`;
+    styleSheet.innerText = `
+        #mapSyncScroll::-webkit-scrollbar { width: 4px !important; }
+        #mapSyncScroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2) !important; }
+        #mapSyncScroll::-webkit-scrollbar-thumb { background: #555 !important; border-radius: 10px !important; }
+        #mapSyncContainer.minimized { width: 150px !important; height: 28px !important; resize: none !important; border-radius: 8px !important; }
+        .nav-btn { cursor:pointer; background:none; border:none; font-size:10px; font-weight:bold; color: rgba(255,255,255,0.5); padding: 4px 8px; transition: all 0.2s; position: relative; letter-spacing: 0.5px; }
+        .nav-btn.active { color: #fff; }
+        .nav-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 8px; right: 8px; height: 2px; background: #fff; border-radius: 2px; }
+        .map-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 8px;
+            margin-bottom: 3px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            font-size: 11px;
+            border-left: 3px solid transparent;
+            transition: background 0.2s;
+            border: 1px solid rgba(255,255,255,0.03);
+            cursor: help;
+        }
+        .map-row:hover { background: rgba(255,255,255,0.1); }
+        .m-name-container { display: flex; align-items: center; flex-grow: 1; overflow: hidden; padding-right: 10px; pointer-events: none; }
+        .m-occ { font-size: 10px; margin-right: 6px; min-width: 14px; text-align: center; opacity: 0.8; }
+        .m-name { color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 1px #000; }
+        .m-timer { font-family: monospace; font-size: 11px; font-weight: bold; color: #666; min-width: 40px; text-align: right; pointer-events: none; }
+        .group-sep {
+            width: 100%;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 8px 0 5px 0;
+        }
+        #msCustomTooltip {
+            position: fixed;
+            z-index: 100000;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            pointer-events: none;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            white-space: nowrap;
+            font-family: Verdana, sans-serif;
+        }
+    `;
     document.head.appendChild(styleSheet);
 
-    container.style = `position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; min-width: 280px; min-height: 28px; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; padding: 6px; border: 1px solid #222; border-radius: 8px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; resize: both; overflow: hidden; display: flex; flex-direction: column;`;
-    container.innerHTML = `<div id="dragHandle" style="display:flex; margin-bottom:8px; justify-content:space-between; cursor: move; flex-shrink: 0; align-items: center; padding: 2px 4px;"><div id="tabsHeader" style="display:flex; gap:4px;"><button id="t1" class="nav-btn active">POULET (173h)</button><button id="t2" class="nav-btn">NADWORNY (231p)</button><button id="t3" class="nav-btn">ŚLEPIEC (266b)</button></div><div style="font-weight: bold; color: #fff; font-size: 10px; pointer-events:none; display:none; letter-spacing: 1px;" id="miniTitle">Wielkanoc 2026</div><button id="min" style="background:rgba(255,255,255,0.05); color:#fff; border:none; width: 22px; height: 22px; border-radius: 4px; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;">−</button></div><div id="mapSyncScroll" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;"><table style="width:100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed;"><tbody id="mBody"></tbody></table></div>`;
+    const tooltip = document.createElement('div');
+    tooltip.id = "msCustomTooltip";
+    document.body.appendChild(tooltip);
+
+    container.style = `position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; display: flex; flex-direction: column; resize: both; overflow: hidden;`;
+    container.innerHTML = `
+        <div id="dragHandle" style="display:flex; justify-content:space-between; align-items:center; cursor: move; margin-bottom:8px; padding: 2px 6px; flex-shrink: 0;">
+            <div id="tabsHeader" style="display:flex; gap:6px;">
+                <button id="t1" class="nav-btn active">173h</button>
+                <button id="t2" class="nav-btn">231p</button>
+                <button id="t3" class="nav-btn">266b</button>
+            </div>
+            <div id="miniTitle" style="display:none; font-size:10px; font-weight:bold; color:#fff; text-shadow: 0 0 5px #5865f2;">Wielkanoc 2026</div>
+            <div id="min" style="cursor:pointer; font-size:18px; color:rgba(255,255,255,0.4); font-weight: bold; line-height: 1;">−</div>
+        </div>
+        <div id="mapSyncScroll" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 2px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
+            <div id="mList"></div>
+        </div>
+    `;
     document.body.appendChild(container);
 
+    const mList = document.getElementById('mList');
     const scrollArea = document.getElementById('mapSyncScroll');
-    const mBody = document.getElementById('mBody');
     let currentTab = 1;
 
+    scrollArea.onwheel = (e) => {
+        const atTop = scrollArea.scrollTop === 0;
+        const atBottom = scrollArea.scrollHeight - scrollArea.scrollTop === scrollArea.clientHeight;
+        if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) return;
+        e.stopPropagation();
+    };
+
+    function applyMinState(isMin) {
+        if (isMin) container.classList.add('minimized');
+        else container.classList.remove('minimized');
+
+        scrollArea.style.display = isMin ? 'none' : 'block';
+        document.getElementById('tabsHeader').style.display = isMin ? 'none' : 'flex';
+        document.getElementById('miniTitle').style.display = isMin ? 'block' : 'none';
+        document.getElementById('min').innerText = isMin ? "+" : "−";
+        localStorage.setItem('mapSyncMinimized', isMin);
+    }
+
+    applyMinState(isSavedMinimized);
+
     function render() {
-        mBody.innerHTML = "";
+        mList.innerHTML = "";
         let data, prefix;
         if (currentTab === 1) { data = arkusz1; prefix = "p"; }
         else if (currentTab === 2) { data = arkusz2; prefix = "n"; }
         else { data = arkusz3; prefix = "s"; }
-        data.forEach((mapData, i) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="map-name" data-base-name="${mapData[0]}" style="padding:4px; color:#ddd; border: 1px solid #1a1a1a; background: rgba(30,30,30,0.3); font-size: 10px; border-left: 3px solid ${mapData[1]}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 2px;">${mapData[0]}</td><td class="sync-cell" id="${prefix}${i}_1" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td><td class="sync-cell" id="${prefix}${i}_2" style="line-height: 1.2; position:relative; width:80px; background:#050505; text-align:center; color:#444; border: 1px solid #1a1a1a; height:18px; font-size:10px; border-radius: 3px;"></td>`;
-            const nameCell = tr.querySelector('.map-name');
-            nameCell.oncontextmenu = (e) => { e.preventDefault(); sendGlobalAlert(mapData[0]); };
-            mBody.appendChild(tr);
 
-            ["_1", "_2"].forEach(os => {
-                const id = `${prefix}${i}${os}`;
-                const cell = document.getElementById(id);
-                if (cachedData[id]) updateCellText(cell, cachedData[id].val || "");
-                
-                const btn = document.createElement('div');
-                btn.style = "position:absolute; right:0; top:0; bottom:0; width:18px; background:rgba(255,255,255,0.08); color:#fff; cursor:pointer; display:none; align-items:center; justify-content:center; font-size:12px; z-index:5; font-weight:bold; border-radius: 0 2px 2px 0;";
-                cell.appendChild(btn);
-                
-                cell.onmouseenter = () => { 
-                    const isMe = getCellText(cell) === getHeroName(); 
-                    btn.innerText = isMe ? "×" : "+"; 
-                    btn.style.background = isMe ? "rgba(231, 76, 60, 0.3)" : "rgba(46, 204, 113, 0.2)"; 
-                    btn.style.display = "flex"; 
-                };
-                cell.onmouseleave = () => btn.style.display = "none";
-                btn.onclick = (e) => { 
-                    e.stopPropagation(); 
-                    const myNick = getHeroName(); 
-                    const oldVal = getCellText(cell); 
-                    const newVal = (oldVal !== myNick) ? myNick : ""; 
-                    updateCellText(cell, newVal); 
-                    sync(id, newVal); 
-                };
-            });
+        let lastColor = null;
+
+        data.forEach((mapData, i) => {
+            if (lastColor !== null && mapData[1] !== lastColor) {
+                const sep = document.createElement('div');
+                sep.className = "group-sep";
+                mList.appendChild(sep);
+            }
+            lastColor = mapData[1];
+
+            const row = document.createElement('div');
+            row.className = "map-row";
+            row.style.borderLeftColor = mapData[1];
+            row.id = `row_${prefix}${i}`;
+            row.setAttribute('data-ids', JSON.stringify([`${prefix}${i}_1`, `${prefix}${i}_2`]));
+
+            row.innerHTML = `
+                <div class="m-name-container">
+                    <span class="m-occ" id="occ_${prefix}${i}"></span>
+                    <span class="m-name">${mapData[0]}</span>
+                </div>
+                <span class="m-timer" id="timer_${prefix}${i}">--:--</span>
+            `;
+
+            row.onmouseenter = (e) => {
+                const occupants = getRowOccupants(row);
+                tooltip.innerHTML = occupants.length > 0 ? "Gracze: <span style='color:#2ecc71; font-weight:bold;'>" + occupants.join(", ") + "</span>" : "Brak graczy na mapie";
+                tooltip.style.display = "block";
+            };
+            row.onmousemove = (e) => {
+                tooltip.style.left = (e.clientX + 15) + "px";
+                tooltip.style.top = (e.clientY + 15) + "px";
+            };
+            row.onmouseleave = () => {
+                tooltip.style.display = "none";
+            };
+
+            // Poprawiona obsługa PPM (ContextMenu) - używamy oncontextmenu dla pełnej kontroli
+            row.oncontextmenu = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                sendGlobalAlert(mapData[0]);
+                return false;
+            };
+
+            mList.appendChild(row);
         });
         updateMapColors();
     }
 
-    function getCellText(cell) { let text = ""; for (let node of cell.childNodes) if (node.nodeType === 3) text += node.nodeValue; return text.trim(); }
-
-    function updateCellText(cell, text) {
-        let textNode = Array.from(cell.childNodes).find(n => n.nodeType === 3);
-        if (textNode) textNode.nodeValue = text; else cell.prepend(document.createTextNode(text));
-        const myNick = getHeroName();
-        if (text === myNick && text !== "") { cell.style.color = "#2ecc71"; cell.style.fontWeight = "bold"; cell.style.borderColor = "#27ae60"; cell.style.background = "rgba(46, 204, 113, 0.05)"; }
-        else if (text !== "") { cell.style.color = "#fff"; cell.style.fontWeight = "normal"; cell.style.borderColor = "#fff"; cell.style.background = "rgba(243, 156, 18, 0.05)"; }
-        else { cell.style.color = "#444"; cell.style.borderColor = "#1a1a1a"; cell.style.background = "#050505"; }
+    function getRowOccupants(row) {
+        const ids = JSON.parse(row.getAttribute('data-ids'));
+        const d1 = cachedData[ids[0]] || { val: "" };
+        const d2 = cachedData[ids[1]] || { val: "" };
+        let occupants = [];
+        if (d1.val) occupants.push(d1.val);
+        if (d2.val) occupants.push(d2.val);
+        return occupants;
     }
 
-    // Dragging & UI Logic
+    function updateMapColors() {
+        const now = Date.now();
+        document.querySelectorAll('.map-row').forEach(row => {
+            const ids = JSON.parse(row.getAttribute('data-ids'));
+            const d1 = cachedData[ids[0]] || { val: "", ts: 0 };
+            const d2 = cachedData[ids[1]] || { val: "", ts: 0 };
+            const lastTs = Math.max(d1.ts, d2.ts);
+
+            const timerSpan = row.querySelector('.m-timer');
+            const nameSpan = row.querySelector('.m-name');
+            const occSpan = row.querySelector('.m-occ');
+
+            let occupants = [];
+            if (d1.val) occupants.push(d1.val);
+            if (d2.val) occupants.push(d2.val);
+
+            if (occupants.length === 1) occSpan.innerText = "👤";
+            else if (occupants.length === 2) occSpan.innerText = "👥";
+            else occSpan.innerText = "";
+
+            if (lastTs > 0) {
+                const diff = (now - lastTs) / 1000;
+                const min = Math.floor(diff / 60);
+                const sec = Math.floor(diff % 60).toString().padStart(2, '0');
+                timerSpan.innerText = `${min}:${sec}`;
+
+                if (diff < 60) {
+                    timerSpan.style.color = "#2ecc71";
+                    nameSpan.style.color = "#fff";
+                } else if (diff < 150) {
+                    timerSpan.style.color = "#f1c40f";
+                    nameSpan.style.color = "#ddd";
+                } else {
+                    timerSpan.style.color = "#e74c3c";
+                    nameSpan.style.color = "#888";
+                }
+            } else {
+                timerSpan.innerText = "--:--";
+                timerSpan.style.color = "#444";
+                nameSpan.style.color = "#555";
+            }
+        });
+    }
+
     let isDragging = false, offset = { x: 0, y: 0 };
     const dH = document.getElementById('dragHandle');
-    dH.onmousedown = (e) => { if (e.target.tagName === 'BUTTON') return; isDragging = true; const rect = container.getBoundingClientRect(); offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }; };
-    window.onmousemove = (e) => { if (!isDragging) return; const vW = window.innerWidth, vH = window.innerHeight, cW = container.offsetWidth, cH = container.offsetHeight; let newX = e.clientX - offset.x, newY = e.clientY - offset.y; if (newX < 0) newX = 0; if (newX + cW > vW) newX = vW - cW; if (newY < 0) newY = 0; if (newY + cH > vH) newY = vH - cH; container.style.right = "auto"; container.style.left = newX + "px"; container.style.top = newY + "px"; };
-    window.onmouseup = () => { if (isDragging) { isDragging = false; localStorage.setItem('mapSyncPos', JSON.stringify({ top: container.style.top, left: container.style.left, right: "auto" })); } };
-    new ResizeObserver(() => { if (!container.classList.contains('minimized')) { localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: container.style.height })); } }).observe(container);
-    const toggleMin = () => { const isMin = container.classList.toggle('minimized'); scrollArea.style.display = isMin ? 'none' : 'block'; document.getElementById('miniTitle').style.display = isMin ? 'block' : 'none'; document.getElementById('tabsHeader').style.display = isMin ? 'none' : 'flex'; document.getElementById('min').innerText = isMin ? "+" : "−"; };
-    scrollArea.addEventListener('wheel', (e) => { const scrollTop = scrollArea.scrollTop, scrollHeight = scrollArea.scrollHeight, height = scrollArea.offsetHeight, delta = e.deltaY; if ((delta > 0 && scrollTop + height >= scrollHeight) || (delta < 0 && scrollTop <= 0)) e.preventDefault(); e.stopPropagation(); }, { passive: false });
-    
+    dH.onmousedown = (e) => { if (e.target.tagName === 'BUTTON' || e.target.id === 'min') return; isDragging = true; const rect = container.getBoundingClientRect(); offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }; };
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const vW = window.innerWidth, vH = window.innerHeight;
+        const cW = container.offsetWidth, cH = container.offsetHeight;
+        let newX = e.clientX - offset.x;
+        let newY = e.clientY - offset.y;
+
+        if (newX < 0) newX = 0;
+        if (newY < 0) newY = 0;
+        if (newX + cW > vW) newX = vW - cW;
+        if (newY + cH > vH) newY = vH - cH;
+
+        container.style.right = "auto";
+        container.style.left = newX + "px";
+        container.style.top = newY + "px";
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            localStorage.setItem('mapSyncPos', JSON.stringify({ top: container.style.top, left: container.style.left, right: "auto" }));
+        }
+    });
+
+    new ResizeObserver(() => {
+        if (!container.classList.contains('minimized')) {
+            localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: container.style.height }));
+        }
+    }).observe(container);
+
+    document.getElementById('min').onclick = () => {
+        const isMinNow = !container.classList.contains('minimized');
+        applyMinState(isMinNow);
+    };
+
     document.getElementById('t1').onclick = () => { currentTab = 1; render(); updateBtn(); };
     document.getElementById('t2').onclick = () => { currentTab = 2; render(); updateBtn(); };
     document.getElementById('t3').onclick = () => { currentTab = 3; render(); updateBtn(); };
-    document.getElementById('min').onclick = toggleMin;
-    function updateBtn() { document.getElementById('t1').classList.toggle('active', currentTab === 1); document.getElementById('t2').classList.toggle('active', currentTab === 2); document.getElementById('t3').classList.toggle('active', currentTab === 3); }
 
+    function updateBtn() {
+        document.getElementById('t1').classList.toggle('active', currentTab === 1);
+        document.getElementById('t2').classList.toggle('active', currentTab === 2);
+        document.getElementById('t3').classList.toggle('active', currentTab === 3);
+    }
+
+    // --- ORYGINALNA LOGIKA autoMapCheck ---
     function autoMapCheck() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         let currentMap = win.Engine?.map?.d?.name || win.map?.name || "???";
-    
+
         if (currentMap === "???" || currentMap === "") return;
         const myNick = getHeroName();
-    
+
         let foundMatch = false;
         [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
             const prefix = ["p", "n", "s"][idx];
@@ -240,11 +417,10 @@
                 if (mapData[0] === currentMap) {
                     foundMatch = true;
                     const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
-    
+
                     const d1 = cachedData[id1] || { val: "", ts: 0 };
                     const d2 = cachedData[id2] || { val: "", ts: 0 };
-    
-    
+
                     if (d1.val === myNick) {
                         currentMyId = id1;
                     } else if (d2.val === myNick) {
@@ -266,47 +442,26 @@
                 }
             });
         });
-    
+
         if (!foundMatch) currentMyId = null;
     }
 
-    function updateMapColors() {
-        const now = Date.now();
-        document.querySelectorAll('.map-name').forEach(nameCell => {
-            const row = nameCell.closest('tr');
-            if (!row) return;
-            const cells = row.querySelectorAll('.sync-cell');
-            if (cells.length < 2) return;
-            const ts1 = cachedData[cells[0].id]?.ts || 0;
-            const ts2 = cachedData[cells[1].id]?.ts || 0;
-            const lastTs = Math.max(ts1, ts2);
-            if (lastTs > 0) {
-                const diff = (now - lastTs) / 1000;
-                if (diff < 60) { nameCell.style.color = "#fff"; }
-                else if (diff < 120) { nameCell.style.color = "#f1c40f"; }
-                else { nameCell.style.color = "#e74c3c"; }
-                const minutes = Math.floor(diff / 60), seconds = Math.floor(diff % 60).toString().padStart(2, '0');
-                const base = nameCell.getAttribute('data-base-name');
-                nameCell.innerText = `(${minutes}:${seconds}) ${base}`;
-            }
-        });
-    }
-
+    // --- ORYGINALNA LOGIKA startHeartbeat ---
     function startHeartbeat() {
         if (heartbeatInterval) clearInterval(heartbeatInterval);
         heartbeatInterval = setInterval(() => {
             if (socket && socket.readyState === 1 && currentMyId) {
-                socket.send(JSON.stringify({ 
-                    type: 'heartbeat', 
-                    nick: getHeroName(), 
-                    id: currentMyId 
+                socket.send(JSON.stringify({
+                    type: 'heartbeat',
+                    nick: getHeroName(),
+                    id: currentMyId
                 }));
             }
-        }, 1000); 
+        }, 1000);
     }
 
     setInterval(updateMapColors, 1000);
+    render();
     updateBtn();
-    toggleMin();
     initSocket();
 })();
