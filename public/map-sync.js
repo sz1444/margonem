@@ -201,7 +201,7 @@
     tooltip.id = "msCustomTooltip";
     document.body.appendChild(tooltip);
 
-    container.style = `min-width: 160px; position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; display: flex; flex-direction: column; resize: both; overflow: hidden;`;
+    container.style = `min-height: 25px; min-width: 160px; position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; display: flex; flex-direction: column; resize: both; overflow: hidden;`;
     container.innerHTML = `
         <div id="dragHandle" style="display:flex; justify-content:space-between; align-items:center; cursor: move; margin-bottom:8px; padding: 2px 6px; flex-shrink: 0;">
             <div id="tabsHeader" style="display:flex; gap:6px;">
