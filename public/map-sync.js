@@ -178,7 +178,7 @@
         /* Grid Mode Styles - Compact Grid Layout */
         #mapSyncContainer.grid-view #mList {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Zwiększono min szerokość z 95px na 120px */
             gap: 4px;
             padding: 1px;
         }
@@ -205,11 +205,9 @@
             line-height: 1.1;
             word-break: break-word;
             font-size: 8.5px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            width: calc(100% - 10px);
+            display: block; /* Zmieniono z -webkit-box na block, aby nie ucinało linii */
+            overflow: visible; /* Pozwala tekstowi zająć tyle miejsca, ile potrzebuje */
+            width: calc(100% - 15px); /* Zostawia miejsce na ikonkę 👤 */
         }
         #mapSyncContainer.grid-view .m-timer {
             position: absolute;
