@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    const BACKEND_URL = "https://margone-api.onrender.com";
+    const BACKEND_URL = "https:/e/margone-api.onrender.com";
     const CLIENT_ID = "1488794373775687782";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + window.location.pathname);
     const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds.members.read`;
@@ -270,7 +270,7 @@
                 <button id="t2" class="nav-btn">231p</button>
                 <button id="t3" class="nav-btn">266b</button>
             </div>
-            <div id="miniTitle" style="display:none; font-size:10px; font-weight:bold; color:#fff; text-shadow: 0 0 5px #5865f2;">MapSync</div>
+            <div id="miniTitle" style="display:none; font-size:10px; font-weight:bold; color:#fff; text-shadow: 0 0 5px #5865f2;">Wielkanoc 2026</div>
             <div id="min" style="cursor:pointer; font-size:18px; color:rgba(255,255,255,0.4); font-weight: bold; line-height: 1;">−</div>
         </div>
         <div id="mapSyncScroll" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 2px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
