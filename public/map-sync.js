@@ -103,7 +103,6 @@
     }
 
     async function sendGlobalAlert(mapName) {
-        // Używamy readyState === 1 dla większej pewności połączenia
         if (socket && socket.readyState === 1) {
             const data = {
                 text: `Potrzebna pomoc na mapie: <b style="color:red">${mapName}</b>`,
@@ -151,9 +150,11 @@
         #mapSyncScroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2) !important; }
         #mapSyncScroll::-webkit-scrollbar-thumb { background: #555 !important; border-radius: 10px !important; }
         #mapSyncContainer.minimized { width: 150px !important; height: 28px !important; resize: none !important; border-radius: 8px !important; }
+
         .nav-btn { cursor:pointer; background:none; border:none; font-size:10px; font-weight:bold; color: rgba(255,255,255,0.5); padding: 4px 8px; transition: all 0.2s; position: relative; letter-spacing: 0.5px; }
         .nav-btn.active { color: #fff; }
         .nav-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 8px; right: 8px; height: 2px; background: #fff; border-radius: 2px; }
+
         .map-row {
             display: flex;
             justify-content: space-between;
@@ -171,8 +172,68 @@
         .map-row:hover { background: rgba(255,255,255,0.1); }
         .m-name-container { display: flex; align-items: center; flex-grow: 1; overflow: hidden; padding-right: 10px; pointer-events: none; }
         .m-occ { font-size: 10px; margin-right: 6px; min-width: 14px; text-align: center; opacity: 0.8; }
-        .m-name { color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 1px #000; }
+        .m-name { color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 1px #000; transition: color 0.2s; }
         .m-timer { font-family: monospace; font-size: 11px; font-weight: bold; color: #666; min-width: 40px; text-align: right; pointer-events: none; }
+
+        /* Grid Mode Styles - Compact Grid Layout */
+        #mapSyncContainer.grid-view #mList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+            gap: 4px;
+            padding: 1px;
+        }
+        #mapSyncContainer.grid-view .map-row {
+            flex-direction: column;
+            align-items: stretch;
+            height: auto;
+            min-height: 30px;
+            padding: 3px 5px;
+            margin-bottom: 0;
+            text-align: left;
+            position: relative;
+            justify-content: center;
+        }
+        #mapSyncContainer.grid-view .m-name-container {
+            padding-right: 0;
+            margin-bottom: 0;
+            flex-direction: row;
+            align-items: flex-start;
+            width: 100%;
+        }
+        #mapSyncContainer.grid-view .m-name {
+            white-space: normal;
+            line-height: 1.1;
+            word-break: break-word;
+            font-size: 8.5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            width: calc(100% - 10px);
+        }
+        #mapSyncContainer.grid-view .m-timer {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 8px;
+            opacity: 0.7;
+            min-width: unset;
+        }
+        #mapSyncContainer.grid-view .m-occ {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 8px;
+            margin: 0;
+            opacity: 0.8;
+        }
+        #mapSyncContainer.grid-view .group-sep {
+            grid-column: 1 / -1;
+            margin: 3px 0 1px 0;
+            height: 1px;
+            opacity: 0.4;
+        }
+
         .group-sep {
             width: 100%;
             height: 1px;
@@ -209,7 +270,7 @@
                 <button id="t2" class="nav-btn">231p</button>
                 <button id="t3" class="nav-btn">266b</button>
             </div>
-            <div id="miniTitle" style="display:none; font-size:10px; font-weight:bold; color:#fff; text-shadow: 0 0 5px #5865f2;">Wielkanoc 2026</div>
+            <div id="miniTitle" style="display:none; font-size:10px; font-weight:bold; color:#fff; text-shadow: 0 0 5px #5865f2;">MapSync</div>
             <div id="min" style="cursor:pointer; font-size:18px; color:rgba(255,255,255,0.4); font-weight: bold; line-height: 1;">−</div>
         </div>
         <div id="mapSyncScroll" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 2px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
@@ -286,7 +347,6 @@
                 tooltip.style.display = "none";
             };
 
-            // Poprawiona obsługa PPM (ContextMenu) - używamy oncontextmenu dla pełnej kontroli
             row.oncontextmenu = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -381,9 +441,19 @@
         }
     });
 
-    new ResizeObserver(() => {
-        if (!container.classList.contains('minimized')) {
-            localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: container.style.height }));
+    // ResizeObserver sterujący przełączaniem widoku
+    new ResizeObserver((entries) => {
+        for (let entry of entries) {
+            const width = entry.contentRect.width;
+            if (width > 330) {
+                container.classList.add('grid-view');
+            } else {
+                container.classList.remove('grid-view');
+            }
+
+            if (!container.classList.contains('minimized')) {
+                localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: container.style.height }));
+            }
         }
     }).observe(container);
 
@@ -402,7 +472,6 @@
         document.getElementById('t3').classList.toggle('active', currentTab === 3);
     }
 
-    // --- ORYGINALNA LOGIKA autoMapCheck ---
     function autoMapCheck() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         let currentMap = win.Engine?.map?.d?.name || win.map?.name || "???";
@@ -446,7 +515,6 @@
         if (!foundMatch) currentMyId = null;
     }
 
-    // --- ORYGINALNA LOGIKA startHeartbeat ---
     function startHeartbeat() {
         if (heartbeatInterval) clearInterval(heartbeatInterval);
         heartbeatInterval = setInterval(() => {
