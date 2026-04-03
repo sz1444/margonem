@@ -1,0 +1,47 @@
+{
+  "event_metadata": {
+    "title": "Groli - Event Heros Helper",
+    "footer": "2026 © By Groli"
+  },
+  "columns": [
+    {
+      "id": "p",
+      "boss_name": "Monsieur Poulet (173h)",
+      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h3-monsieur.gif",
+      "items": [
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1403.gif", "count": "0" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1404.gif", "count": "0" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1402.gif", "count": "2" }
+      ],
+      "maps": [
+        ["Ruiny Tass Zhil", "#3b82f6"], ["Błota Sham Al", "#3b82f6"], ["Głusza Świstu", "#3b82f6"], ["Las Porywów Wiatru", "#3b82f6"], ["Kwieciste Kresy", "#3b82f6"], ["Grań Gawronich Piór", "#3b82f6"], ["Nawiedzone Komnaty - przedsionek", "#f97316"], ["Nawiedzone Kazamaty p.1 s.1", "#f97316"], ["Nawiedzone Kazamaty p.1 s.2", "#f97316"], ["Nawiedzone Kazamaty p.2 s.1", "#f97316"], ["Nawiedzone Kazamaty p.2 s.2", "#f97316"], ["Nawiedzone Kazamaty p.3 s.1", "#f97316"], ["Nawiedzone Kazamaty p.3 s.2", "#f97316"], ["Nawiedzone Kazamaty p.4", "#f97316"], ["Sala Dowódcy Orków", "#f97316"], ["Nawiedzone Komnaty - zachód", "#f97316"], ["Nawiedzone Komnaty - wschód", "#f97316"], ["Sala Rady Orków", "#f97316"], ["Sala Królewska", "#f97316"], ["Komnaty Czarnej Gwardii - wschód", "#f97316"], ["Komnata Czarnej Perły", "#f97316"], ["Komnaty Czarnej Gwardii - zachód", "#f97316"]
+      ]
+    },
+    {
+      "id": "n",
+      "boss_name": "Kur Nadworny (231p)",
+      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h4-kur.gif",
+      "items": [
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1471.gif", "count": "2" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1470.gif", "count": "0" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1463.gif", "count": "0" }
+      ],
+      "maps": [
+        ["Gęste Sploty", "#22c55e"], ["Zmurszały Łęg", "#22c55e"], ["Garb Połamanych Konarów", "#22c55e"], ["Zalesiony Step", "#22c55e"], ["Głusza Srebrnego Rogu", "#22c55e"], ["Knieja Lunarnych Głazów", "#22c55e"], ["Szepty Menhirów", "#22c55e"], ["Gaj Księżycowego Blasku", "#22c55e"], ["Zakątek Nocnych Szelestów", "#22c55e"], ["Zarosłe Szczeliny p.1 s.1", "#22c55e"], ["Zarosłe Szczeliny p.1 s.2", "#22c55e"], ["Zarosłe Szczeliny p.1 s.3", "#22c55e"], ["Gardziel Podgnitych Mchów p.1", "#22c55e"], ["Gardziel Podgnitych Mchów p.2", "#22c55e"], ["Zacienione Wnęki p.1 s.1", "#22c55e"], ["Zacienione Wnęki p.1 s.2", "#22c55e"], ["Zacienione Wnęki p.2 s.1", "#22c55e"], ["Zacienione Wnęki p.2 s.2", "#22c55e"], ["Skryty Azyl", "#3b82f6"], ["Dolina Potoku Śmierci", "#3b82f6"], ["Złota Dąbrowa", "#3b82f6"], ["Strumienie Szemrzących Wód", "#3b82f6"], ["Zawodzące Kaskady", "#3b82f6"], ["Jaszczurze Korytarze p.1 s.1", "#3b82f6"], ["Jaszczurze Korytarze p.1 s.2", "#3b82f6"], ["Jaszczurze Korytarze p.1 s.3", "#3b82f6"], ["Jaszczurze Korytarze p.1 s.4", "#3b82f6"], ["Jaszczurze Korytarze p.2 s.1", "#3b82f6"], ["Jaszczurze Korytarze p.2 s.2", "#3b82f6"], ["Jaszczurze Korytarze p.2 s.3", "#3b82f6"], ["Jaszczurze Korytarze p.2 s.4", "#3b82f6"]
+      ]
+    },
+    {
+      "id": "s",
+      "boss_name": "Kurzy Ślepiec (266b)",
+      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h5-slepiec.gif",
+      "items": [
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1410.gif", "count": "0" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1409.gif", "count": "1" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1408.gif", "count": "0" }
+      ],
+      "maps": [
+        ["Potępione Zamczysko", "#06b6d4"], ["Potępione Zamczysko - lochy z. p.1", "#06b6d4"], ["Potępione Zamczysko - lochy z. p.2", "#06b6d4"], ["Potępione Zamczysko - głębokie", "#06b6d4"], ["Potępione Zamczysko - lochy w. p.2", "#06b6d4"], ["Potępione Zamczysko - lochy w. p.1", "#06b6d4"], ["Potępione Zamczysko - korytarz z.", "#06b6d4"], ["Potępione Zamczysko - korytarz w.", "#06b6d4"], ["Potępione Zamczysko - zachodnia", "#06b6d4"], ["Potępione Zamczysko - wschodnia", "#06b6d4"], ["Potępione Zamczysko - sala ofiarna", "#06b6d4"], ["Potępione Zamczysko - łącznik z.", "#06b6d4"], ["Potępione Zamczysko - łącznik w.", "#06b6d4"], ["Potępione Zamczysko - północna", "#06b6d4"], ["Zachodnie Zbocze", "#06b6d4"], ["Plugawe Pustkowie", "#06b6d4"], ["Jęczywąwóz", "#06b6d4"], ["Pogranicze Wisielców", "#06b6d4"], ["Skalisty Styk", "#06b6d4"], ["Zacisze Zimnych Wiatrów", "#06b6d4"], ["Pustynne Katakumby", "#d946ef"], ["Pustynne Katakumby - sala 1", "#d946ef"], ["Pustynne Katakumby - sala 2", "#d946ef"], ["Komnaty Bezdusznych - sala 1", "#d946ef"], ["Komnaty Bezdusznych - sala 2", "#d946ef"], ["Katakumby Skrytobójców", "#d946ef"], ["Katakumby Opętanych Dusz", "#d946ef"], ["Korytarz Porzuconych Marzeń", "#d946ef"], ["Katakumby Gwałtownej ŚMIERCI", "#d946ef"]
+      ]
+    }
+  ]
+}

@@ -8,12 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
             /* Dark Mode Palette (Default) */
-         
             --dc-green: #23a559;
             --dc-yellow: #f0b232;
             --dc-red: #f23f43;
@@ -31,12 +29,12 @@
 
         body.light-theme {
             /* Light Mode Palette */
-               --dc-bg-main: #0e0e10;
+            --dc-bg-main: #0e0e10;
             --dc-bg-side: #0a0a0b;
             --dc-bg-header: #050506;
             --dc-text-normal: #dbdee1;
             --dc-text-muted: #80848e;
-              --dc-card-hover: rgba(255, 255, 255, 0.03);
+            --dc-card-hover: rgba(255, 255, 255, 0.03);
             --dc-border: rgba(255, 255, 255, 0.05);
             --dc-chip-bg: #050506;
             --dc-separator: rgba(255, 255, 255, 0.06);
@@ -153,7 +151,6 @@
             background: #92471A;
             border: 1px solid #92471A;
             box-shadow:inset 0 0 3px 3px #000000a7;
-            /* background: radial-gradient(circle,rgba(146, 71, 26, 1) 59%, rgba(0, 0, 0, 1) 100%); */
         }
 
         .group-separator {
@@ -177,41 +174,11 @@
             background-color: var(--dc-card-hover);
             color: var(--dc-text-normal);
         }
-
-        /* --- TOOLTIP STYLES --- */
-        #tooltip {
-            position: fixed;
-            pointer-events: none;
-            background-color: rgba(0, 0, 0, 0.95);
-            border: 1px solid #555;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            line-height: 1.3;
-            min-width: 260px;
-            max-width: 320px;
-            z-index: 9999;
-            display: none;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-            color: #fff;
-        }
-        .legendary { color: #fb6a10; font-weight: bold; }
-        .item-name { font-size: 14px; margin-bottom: 2px; }
-        .item-type { color: #aaa; font-style: italic; margin-bottom: 4px; }
-        .item-tip-section { border-top: 1px solid #333; padding: 4px 0; margin-top: 2px; }
-        .no-border { border-top: none; }
-        .damage { color: #f00; font-weight: bold; }
-        .text-light-green { color: #00ff00; }
-        .looter { color: #9b59b6; font-size: 10px; display: none; }
-        .val { color: #f1c40f; }
-        .tip-item-stat-opis { color: #ccc; font-style: italic; font-size: 11px; }
-        .prof-icons-holder { color: #3498db; }
     </style>
     <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body class="h-screen flex flex-col">
 
-    <!-- Auth Backdrop -->
     <div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-black hidden">
         <div class="bg-[#111214] p-10 rounded-xl shadow-2xl max-w-sm w-full mx-4 text-center border border-white/5">
             <div class="w-16 h-16 bg-[#5865f2] rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -225,11 +192,10 @@
         </div>
     </div>
 
-    <!-- Discord Header -->
     <header class="dc-header shrink-0">
         <div class="flex items-center gap-3">
             <div class="flex items-center gap-2 px-2 py-1 bg-black/5 dark:bg-white/5 rounded">
-                <h1 class="text-[10px] font-black uppercase tracking-widest">Event Heros Helper</h1>
+                <h1 id="header-title" class="text-[10px] font-black uppercase tracking-widest">Event Heros Helper</h1>
             </div>
         </div>
         
@@ -245,97 +211,14 @@
         </div>
     </header>
 
-    <!-- Main Content Grid -->
     <main class="flex-grow p-2 overflow-hidden bg-transparent">
-        <div class="grid grid-cols-1 lg:grid-cols-3 h-full gap-2">
-            
-            <!-- Column: P -->
-            <div class="dc-column">
-                <div class="category-header flex justify-between items-center">
-                    <span class="flex-shrink-0 flex items-center gap-2">
-                        <img class="h-12" src="https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h3-monsieur.gif">
-                        Monsieur Poulet (173h)
-                    </span>
-                    
-                    <div class="flex gap-0">
-                        <div class="relative flex-shrink-0 group item-legends">
-                            <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">0</div>
-                            <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1403.gif" stats="Dziedzictwo kurzego rodu||binds;crit=2;critmval=6;da=51;di=388;etiquette=Wielkanoc 2026 r.;evade=17;heal=1052;legbon=curse,173;loot=Crawk,k,6,1774521249,Monsieur Poulet;lvl=173;opis=Ostre szpony, krwawy grzebień[br]- atrybuty to Pouleta![br]Najwspanialsza jednak kura[br]pod postacią jest kotleta!;rarity=legendary;reqp=mt;sa=138;slow=107||12||783111" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Dziedzictwo kurzego rodu&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Pierścienie&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+2%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-critmval&quot; &gt;Moc ciosu krytycznego magicznego &lt;span class=&quot;damage&quot;&gt;+6%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-da&quot; &gt;Wszystkie cechy &lt;span class=&quot;damage&quot;&gt;+51&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-di&quot; &gt;Intelekt &lt;span class=&quot;damage&quot;&gt;+388&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-evade&quot; &gt;Unik &lt;span class=&quot;damage&quot;&gt;+17&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-heal&quot; &gt;Przywraca &lt;span class=&quot;damage&quot;&gt;1 052&lt;/span&gt; punktów życia podczas walki&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+1.38&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-slow&quot; &gt;Obniża szybkość ataku przeciwnika o &lt;span class=&quot;damage&quot;&gt;1.07&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Klątwa: podczas udanego ataku 9% szans na aktywację klątwy, która zablokuje najbliższą wykonywaną przez przeciwnika akcję.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Monsieur Poulet przez Crawk wraz z drużyną&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Ostre szpony, krwawy grzebień&lt;br&gt;- atrybuty to Pouleta!&lt;br&gt;Najwspanialsza jednak kura&lt;br&gt;pod postacią jest kotleta!&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-binds&quot; &gt;Wiąże po założeniu&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Mag, Tropiciel&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 173&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;783.1k&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                        <div class="relative flex-shrink-0 group item-legends">
-                            <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">0</div>
-                           <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1404.gif" stats="Grzebień wściekłego koguta||acdmg=32;binds;crit=3;critval=12;dmgmulphysical=3;dz=100;energybon=22;etiquette=Wielkanoc 2026 r.;heal=356;hp=1203;legbon=verycrit,173;loot=Hytale,k,10,1774521046,Monsieur Poulet;lvl=173;opis=Ostre szpony, krwawy grzebień[br]- atrybuty to Pouleta![br]Najwspanialsza jednak kura[br]pod postacią jest kotleta!;rarity=legendary;reqp=pw;sa=138;slow=107||12||783111" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Grzebień wściekłego koguta&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Pierścienie&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-acdmg&quot; &gt;Niszczy &lt;span class=&quot;damage&quot;&gt;32&lt;/span&gt; punktów pancerza podczas ciosu&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+3%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-critval&quot; &gt;Moc ciosu krytycznego fizycznego &lt;span class=&quot;damage&quot;&gt;+12%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dmgmulphysical&quot; &gt;Obrażenia fizyczne &lt;span class=&quot;damage&quot;&gt;+3%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dz&quot; &gt;Zręczność &lt;span class=&quot;damage&quot;&gt;+100&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-energybon&quot; &gt;Energia &lt;span class=&quot;damage&quot;&gt;+22&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-heal&quot; &gt;Przywraca &lt;span class=&quot;damage&quot;&gt;356&lt;/span&gt; punktów życia podczas walki&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-hp&quot; &gt;Życie &lt;span class=&quot;damage&quot;&gt;+1203&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+1.38&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-slow&quot; &gt;Obniża szybkość ataku przeciwnika o &lt;span class=&quot;damage&quot;&gt;1.07&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Cios bardzo krytyczny: 17% szansy na zwiększenie mocy ciosu krytycznego o 75%.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Monsieur Poulet przez Hytale wraz z drużyną&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Ostre szpony, krwawy grzebień&lt;br&gt;- atrybuty to Pouleta!&lt;br&gt;Najwspanialsza jednak kura&lt;br&gt;pod postacią jest kotleta!&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-binds&quot; &gt;Wiąże po założeniu&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Paladyn, Wojownik&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 173&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;783.1k&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                        <div class="relative flex-shrink-0 group item-legends">
-                        <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">2</div>
-                          <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1402.gif" stats="Sygnet złotych pazurów||binds;crit=3;dmgmulphysical=3;energybon=22;etiquette=Wielkanoc 2026 r.;evade=69;hp=2382;legbon=holytouch,173;loot=miśka lubi jabłko,m,9,1774524075,Monsieur Poulet;lowevade=17;lvl=173;opis=Ostre szpony, krwawy grzebień[br]- atrybuty to Pouleta![br]Najwspanialsza jednak kura[br]pod postacią jest kotleta!;rarity=legendary;reqp=bh;sa=224||12||783111" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Sygnet złotych pazurów&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Pierścienie&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+3%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dmgmulphysical&quot; &gt;Obrażenia fizyczne &lt;span class=&quot;damage&quot;&gt;+3%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-energybon&quot; &gt;Energia &lt;span class=&quot;damage&quot;&gt;+22&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-evade&quot; &gt;Unik &lt;span class=&quot;damage&quot;&gt;+69&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-hp&quot; &gt;Życie &lt;span class=&quot;damage&quot;&gt;+2382&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lowevade&quot; &gt;Podczas ataku unik przeciwnika jest mniejszy o &lt;span class=&quot;damage&quot;&gt;17&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+2.24&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Dotyk anioła: podczas ataku 7% szansy na regenerację po 6% życia przez trzy najbliższe tury.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Monsieur Poulet przez miśka lubi jabłko wraz z drużyną&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Ostre szpony, krwawy grzebień&lt;br&gt;- atrybuty to Pouleta!&lt;br&gt;Najwspanialsza jednak kura&lt;br&gt;pod postacią jest kotleta!&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-binds&quot; &gt;Wiąże po założeniu&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Tancerz ostrzy, Łowca&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 173&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;783.1k&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                    </div>
-                </div>
-                <div id="grid-p" class="flex-grow overflow-y-auto dc-scroll px-1 pb-4"></div>
+        <div id="main-grid" class="grid grid-cols-1 lg:grid-cols-3 h-full gap-2">
             </div>
-
-            <!-- Column: N -->
-            <div class="dc-column">
-                <div class="category-header flex justify-between items-center">
-                    <span class="flex-shrink-0 flex items-center gap-2">
-                        <img class="h-12" src="https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h4-kur.gif">
-                        Kur Nadworny (231p)
-                    </span> 
-                    <div class="flex gap-0">
-                        <div class="relative flex-shrink-0 group item-legends">
-                            <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">2</div>
-                            <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1471.gif" stats="Kogucie zaloty||absorb=1088;absorbm=544;ac=261;acdmg=26;act=6;binds;crit=2;critmval=6;di=132;dmgmullight=4;etiquette=Wielkanoc 2026 r.;evade=23;heal=276;legbon=curse,231;loot=Lainesse,k,5,1774521231,Kur Nadworny;lvl=231;opis=Jak rozkochać kurzą damę? [br]Wręczyć ziarno? Podać trawę? [br]Może wspólne pogdakanie[br]to odpowiedź na tę sprawę?;rarity=legendary;reqp=mt;resfrost=6;reslight=9;sa=239||11||1232463" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Kogucie zaloty&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Rękawice&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-ac&quot; &gt;Pancerz &lt;span class=&quot;damage&quot;&gt;261&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-act&quot; &gt;Odporność na truciznę &lt;span class=&quot;damage&quot;&gt;+6%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-resfrost&quot; &gt;Odporność na zimno &lt;span class=&quot;damage&quot;&gt;+6%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-reslight&quot; &gt;Odporność na błyskawice &lt;span class=&quot;damage&quot;&gt;+9%&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-absorb&quot; &gt;Absorbuje do &lt;span class=&quot;damage&quot;&gt;1 088&lt;/span&gt; obrażeń fizycznych&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-absorbm&quot; &gt;Absorbuje do &lt;span class=&quot;damage&quot;&gt;544&lt;/span&gt; obrażeń magicznych&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-acdmg&quot; &gt;Niszczy &lt;span class=&quot;damage&quot;&gt;26&lt;/span&gt; punktów pancerza podczas ciosu&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+2%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-critmval&quot; &gt;Moc ciosu krytycznego magicznego &lt;span class=&quot;damage&quot;&gt;+6%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-di&quot; &gt;Intelekt &lt;span class=&quot;damage&quot;&gt;+132&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dmgmullight&quot; &gt;Obrażenia od błyskawic &lt;span class=&quot;damage&quot;&gt;+4%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-evade&quot; &gt;Unik &lt;span class=&quot;damage&quot;&gt;+23&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-heal&quot; &gt;Przywraca &lt;span class=&quot;damage&quot;&gt;276&lt;/span&gt; punktów życia podczas walki&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+2.39&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Klątwa: podczas udanego ataku 9% szans na aktywację klątwy, która zablokuje najbliższą wykonywaną przez przeciwnika akcję.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Kur Nadworny przez Lainesse wraz z drużyną&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Jak rozkochać kurzą damę? &lt;br&gt;Wręczyć ziarno? Podać trawę? &lt;br&gt;Może wspólne pogdakanie&lt;br&gt;to odpowiedź na tę sprawę?&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-binds&quot; &gt;Wiąże po założeniu&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Mag, Tropiciel&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 231&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;1.2m&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                        <div class="relative flex-shrink-0 group item-legends">
-                            <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">0</div>
-                          <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1470.gif" stats="Drobiowe osłony||ac=452;act=1;blok=35;crit=4;dmgmulphysical=3;etiquette=Wielkanoc 2026 r.;legbon=cleanse,231;loot=Rufuzeg,m,10,1774524522,Kur Nadworny;lowevade=69;lvl=231;opis=Jak rozkochać kurzą damę? [br]Wręczyć ziarno? Podać trawę? [br]Może wspólne pogdakanie[br]to odpowiedź na tę sprawę?;rarity=legendary;reqp=pw;reslight=6;sa=181;soulbound||11||1232463" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Drobiowe osłony&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Rękawice&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-ac&quot; &gt;Pancerz &lt;span class=&quot;damage&quot;&gt;452&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-act&quot; &gt;Odporność na truciznę &lt;span class=&quot;damage&quot;&gt;+1%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-reslight&quot; &gt;Odporność na błyskawice &lt;span class=&quot;damage&quot;&gt;+6%&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-blok&quot; &gt;Blok &lt;span class=&quot;damage&quot;&gt;+35&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+4%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dmgmulphysical&quot; &gt;Obrażenia fizyczne &lt;span class=&quot;damage&quot;&gt;+3%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lowevade&quot; &gt;Podczas ataku unik przeciwnika jest mniejszy o &lt;span class=&quot;damage&quot;&gt;69&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+1.81&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Płomienne oczyszczenie: podczas otrzymywania celnego ataku 12% szans na usunięcie z Postaci efektów obezwładnienia, spowolnienia i obrażeń warunkowych.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Kur Nadworny przez Rufuzeg wraz z drużyną&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Jak rozkochać kurzą damę? &lt;br&gt;Wręczyć ziarno? Podać trawę? &lt;br&gt;Może wspólne pogdakanie&lt;br&gt;to odpowiedź na tę sprawę?&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-soulbound&quot; &gt;Związany z właścicielem&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Paladyn, Wojownik&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 231&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;1.2m&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                        <div class="relative flex-shrink-0 group item-legends">
-                        <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">0</div>
-                          <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1463.gif" stats="Pazury dorodnej kury||ac=370;act=12;binds;combo_multiplier=5;crit=1;dmgmulwound=5;dz=132;etiquette=Wielkanoc 2026 r.;evade=69;legbon=anguish,231;loot=Tanarochi,m,1,1774527451,Kur Nadworny;lvl=231;opis=Jak rozkochać kurzą damę? [br]Wręczyć ziarno? Podać trawę? [br]Może wspólne pogdakanie[br]to odpowiedź na tę sprawę?;rarity=legendary;reqp=bh;resfrost=6;sa=181;slow=140||11||1232463" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Pazury dorodnej kury&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Rękawice&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-ac&quot; &gt;Pancerz &lt;span class=&quot;damage&quot;&gt;370&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-act&quot; &gt;Odporność na truciznę &lt;span class=&quot;damage&quot;&gt;+12%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-resfrost&quot; &gt;Odporność na zimno &lt;span class=&quot;damage&quot;&gt;+6%&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+1%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-combo_multiplier&quot; &gt;Obrażenia nieuchronne &lt;span class=&quot;damage&quot;&gt;+5%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dmgmulwound&quot; &gt;Obrażenia od głębokiej rany &lt;span class=&quot;damage&quot;&gt;+5%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dz&quot; &gt;Zręczność &lt;span class=&quot;damage&quot;&gt;+132&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-evade&quot; &gt;Unik &lt;span class=&quot;damage&quot;&gt;+69&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+1.81&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-slow&quot; &gt;Obniża szybkość ataku przeciwnika o &lt;span class=&quot;damage&quot;&gt;1.4&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Krwawa udręka: trafiony atak ma 8% szansy na wywołanie u przeciwnika krwawienia na pięć tur.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Kur Nadworny przez Tanarochi&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Jak rozkochać kurzą damę? &lt;br&gt;Wręczyć ziarno? Podać trawę? &lt;br&gt;Może wspólne pogdakanie&lt;br&gt;to odpowiedź na tę sprawę?&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-binds&quot; &gt;Wiąże po założeniu&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Tancerz ostrzy, Łowca&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 231&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;1.2m&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                    </div>
-                </div>
-                <div id="grid-n" class="flex-grow overflow-y-auto dc-scroll px-1 pb-4"></div>
-            </div>
-
-            <!-- Column: S -->
-            <div class="dc-column">
-                <div class="category-header flex justify-between items-center">
-                    <span class="flex-shrink-0 flex items-center gap-2">
-                        <img class="h-12" src="https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h5-slepiec.gif">
-                        Kurzy Ślepiec (266b)
-                    </span>
-
-                    <div class="flex gap-0">
-                        <div class="relative flex-shrink-0 group item-legends">
-                            <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">0</div>
-                            <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1410.gif" stats="Atrybut malarza pisanek||binds;blok=40;crit=4;di=152;dmgmulfrost=4;etiquette=Wielkanoc 2026 r.;heal=1276;legbon=verycrit,266;loot=Sush,m,8,1774521063,Kurzy ślepiec;lvl=266;manabon=72;opis=Ptasią formą sygnet kusi,[br]wiosny aurę nam roztacza! [br]Gdy na palcu połyskuje,[br]siłę daję, umysł spacza!;rarity=legendary;reqp=mp;resdmg=1;sa=208;slow=236||12||1394136" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Atrybut malarza pisanek&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Pierścienie&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-blok&quot; &gt;Blok &lt;span class=&quot;damage&quot;&gt;+40&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+4%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-di&quot; &gt;Intelekt &lt;span class=&quot;damage&quot;&gt;+152&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dmgmulfrost&quot; &gt;Obrażenia od zimna &lt;span class=&quot;damage&quot;&gt;+4%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-heal&quot; &gt;Przywraca &lt;span class=&quot;damage&quot;&gt;1 276&lt;/span&gt; punktów życia podczas walki&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-manabon&quot; &gt;Mana &lt;span class=&quot;damage&quot;&gt;+72&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-resdmg&quot; &gt;Niszczenie odporności magicznych o &lt;span class=&quot;damage&quot;&gt;1%&lt;/span&gt; podczas ciosu&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+2.08&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-slow&quot; &gt;Obniża szybkość ataku przeciwnika o &lt;span class=&quot;damage&quot;&gt;2.36&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Cios bardzo krytyczny: 17% szansy na zwiększenie mocy ciosu krytycznego o 75%.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Kurzy ślepiec przez Sush wraz z drużyną&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Ptasią formą sygnet kusi,&lt;br&gt;wiosny aurę nam roztacza! &lt;br&gt;Gdy na palcu połyskuje,&lt;br&gt;siłę daję, umysł spacza!&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-binds&quot; &gt;Wiąże po założeniu&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Mag, Paladyn&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 266&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;1.4m&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                        <div class="relative flex-shrink-0 group item-legends">
-                            <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">1</div>
-                          <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1409.gif" stats="Wiosenne skrzydełka||binds;combo_multiplier=5;crit=3;da=75;dz=300;evade=80;heal=642;hp=2142;legbon=curse,266;loot=Litovel Visnovy Lezak,m,10,1774520878,Kurzy ślepiec;lvl=266;opis=Ptasią formą sygnet kusi,[br]wiosny aurę nam roztacza! [br]Gdy na palcu połyskuje,[br]siłę daję, umysł spacza!;rarity=legendary;reqp=ht;sa=208;slow=160||12||1394136" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Wiosenne skrzydełka&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Pierścienie&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+3%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-da&quot; &gt;Wszystkie cechy &lt;span class=&quot;damage&quot;&gt;+75&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-combo_multiplier&quot; &gt;Obrażenia nieuchronne &lt;span class=&quot;damage&quot;&gt;+5%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dz&quot; &gt;Zręczność &lt;span class=&quot;damage&quot;&gt;+300&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-evade&quot; &gt;Unik &lt;span class=&quot;damage&quot;&gt;+80&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-heal&quot; &gt;Przywraca &lt;span class=&quot;damage&quot;&gt;642&lt;/span&gt; punktów życia podczas walki&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-hp&quot; &gt;Życie &lt;span class=&quot;damage&quot;&gt;+2142&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+2.08&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-slow&quot; &gt;Obniża szybkość ataku przeciwnika o &lt;span class=&quot;damage&quot;&gt;1.6&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Klątwa: podczas udanego ataku 9% szans na aktywację klątwy, która zablokuje najbliższą wykonywaną przez przeciwnika akcję.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Kurzy ślepiec przez Litovel Visnovy Lezak wraz z drużyną&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Ptasią formą sygnet kusi,&lt;br&gt;wiosny aurę nam roztacza! &lt;br&gt;Gdy na palcu połyskuje,&lt;br&gt;siłę daję, umysł spacza!&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-binds&quot; &gt;Wiąże po założeniu&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Łowca, Tropiciel&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 266&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;1.4m&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                        <div class="relative flex-shrink-0 group item-legends">
-                        <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">0</div>
-                          <img class="w-8 h-8" src="https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1408.gif" stats="Latawiec||binds;crit=3;critval=6;da=75;dmgmulphysical=3;ds=152;energybon=28;heal=1276;hp=4259;legbon=curse,266;loot=Dr Pozdro,m,8,1774523705,Kurzy ślepiec;lvl=266;opis=Ptasią formą sygnet kusi,[br]wiosny aurę nam roztacza! [br]Gdy na palcu połyskuje,[br]siłę daję, umysł spacza!;rarity=legendary;reqp=bw;sa=208;slow=160||12||1394136" ctip="item" tip="&lt;div class=&quot;item-head&quot;&gt;&lt;div class=&quot;legendary&quot;&gt;&lt;div  class=&quot;tip-item-stat-item-name item-name&quot; &gt;Latawiec&lt;/div&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item-type item-type&quot; &gt;Typ:  Pierścienie&lt;/div&gt;&lt;div class=&quot;head-icons&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-1 no-border&quot;&gt;&lt;div  class=&quot;tip-item-stat-rarity item-rarity legendary&quot; &gt;Legendarny&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-3&quot;&gt;&lt;div  class=&quot;tip-item-stat-crit&quot; &gt;Cios krytyczny &lt;span class=&quot;damage&quot;&gt;+3%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-critval&quot; &gt;Moc ciosu krytycznego fizycznego &lt;span class=&quot;damage&quot;&gt;+6%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-da&quot; &gt;Wszystkie cechy &lt;span class=&quot;damage&quot;&gt;+75&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-dmgmulphysical&quot; &gt;Obrażenia fizyczne &lt;span class=&quot;damage&quot;&gt;+3%&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-ds&quot; &gt;Siła &lt;span class=&quot;damage&quot;&gt;+152&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-energybon&quot; &gt;Energia &lt;span class=&quot;damage&quot;&gt;+28&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-heal&quot; &gt;Przywraca &lt;span class=&quot;damage&quot;&gt;1 276&lt;/span&gt; punktów życia podczas walki&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-hp&quot; &gt;Życie &lt;span class=&quot;damage&quot;&gt;+4259&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-sa&quot; &gt;Szybkość ataku &lt;span class=&quot;damage&quot;&gt;+2.08&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-slow&quot; &gt;Obniża szybkość ataku przeciwnika o &lt;span class=&quot;damage&quot;&gt;1.6&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-5&quot;&gt;&lt;div  class=&quot;tip-item-stat-legbon  text-light-green&quot; &gt;Klątwa: podczas udanego ataku 9% szans na aktywację klątwy, która zablokuje najbliższą wykonywaną przez przeciwnika akcję.&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-6&quot;&gt;&lt;i  class=&quot;tip-item-stat-loot  looter&quot; &gt;W dniu 26/3/2026 został(a) pokonany(a) Kurzy ślepiec przez Dr Pozdro wraz z drużyną&lt;/i&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-7&quot;&gt;&lt;div  class=&quot;tip-item-stat-opis&quot; &gt;Ptasią formą sygnet kusi,&lt;br&gt;wiosny aurę nam roztacza! &lt;br&gt;Gdy na palcu połyskuje,&lt;br&gt;siłę daję, umysł spacza!&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-8&quot;&gt;&lt;div  class=&quot;tip-item-stat-binds&quot; &gt;Wiąże po założeniu&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;item-tip-section s-9&quot;&gt;&lt;div  class=&quot;tip-item-stat-reqp  prof-icons-holder&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagana profesja:  Tancerz ostrzy, Wojownik&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-lvl  level-required&quot; &gt;&lt;span class=&quot;&quot;&gt;Wymagany poziom: 266&lt;/span&gt;&lt;/div&gt;&lt;div  class=&quot;tip-item-stat-item_value value-item&quot; &gt;Wartość: &lt;span class=&quot;val&quot;&gt;1.4m&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;">
-                        </div>
-                    </div>
-                </div>
-                <div id="grid-s" class="flex-grow overflow-y-auto dc-scroll px-1 pb-4"></div>
-            </div>
-
-        </div>
     </main>
 
-    <!-- Footer -->
     <footer class="py-4 text-center">
-        <span class="text-[9px] font-bold text-[#4e5058] uppercase tracking-widest">2026 &copy; By Groli</span>
+        <span id="footer-text" class="text-[9px] font-bold text-[#4e5058] uppercase tracking-widest">2026 &copy; By Groli</span>
     </footer>
-
-    <!-- Tooltip Container -->
-    <div id="tooltip"></div>
 
     <script>
         const BACKEND_URL = "https://margone-api.onrender.com";
@@ -343,20 +226,29 @@
         const REDIRECT_URI = encodeURIComponent(window.location.origin + window.location.pathname);
         const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds.members.read`;
 
-        const sections = [
-            { id: "p", data: [["Ruiny Tass Zhil", "#3b82f6"], ["Błota Sham Al", "#3b82f6"], ["Głusza Świstu", "#3b82f6"], ["Las Porywów Wiatru", "#3b82f6"], ["Kwieciste Kresy", "#3b82f6"], ["Grań Gawronich Piór", "#3b82f6"], ["Nawiedzone Komnaty - przedsionek", "#f97316"], ["Nawiedzone Kazamaty p.1 s.1", "#f97316"], ["Nawiedzone Kazamaty p.1 s.2", "#f97316"], ["Nawiedzone Kazamaty p.2 s.1", "#f97316"], ["Nawiedzone Kazamaty p.2 s.2", "#f97316"], ["Nawiedzone Kazamaty p.3 s.1", "#f97316"], ["Nawiedzone Kazamaty p.3 s.2", "#f97316"], ["Nawiedzone Kazamaty p.4", "#f97316"], ["Sala Dowódcy Orków", "#f97316"], ["Nawiedzone Komnaty - zachód", "#f97316"], ["Nawiedzone Komnaty - wschód", "#f97316"], ["Sala Rady Orków", "#f97316"], ["Sala Królewska", "#f97316"], ["Komnaty Czarnej Gwardii - wschód", "#f97316"], ["Komnata Czarnej Perły", "#f97316"], ["Komnaty Czarnej Gwardii - zachód", "#f97316"]] },
-            { id: "n", data: [["Gęste Sploty", "#22c55e"], ["Zmurszały Łęg", "#22c55e"], ["Garb Połamanych Konarów", "#22c55e"], ["Zalesiony Step", "#22c55e"], ["Głusza Srebrnego Rogu", "#22c55e"], ["Knieja Lunarnych Głazów", "#22c55e"], ["Szepty Menhirów", "#22c55e"], ["Gaj Księżycowego Blasku", "#22c55e"], ["Zakątek Nocnych Szelestów", "#22c55e"], ["Zarosłe Szczeliny p.1 s.1", "#22c55e"], ["Zarosłe Szczeliny p.1 s.2", "#22c55e"], ["Zarosłe Szczeliny p.1 s.3", "#22c55e"], ["Gardziel Podgnitych Mchów p.1", "#22c55e"], ["Gardziel Podgnitych Mchów p.2", "#22c55e"], ["Zacienione Wnęki p.1 s.1", "#22c55e"], ["Zacienione Wnęki p.1 s.2", "#22c55e"], ["Zacienione Wnęki p.2 s.1", "#22c55e"], ["Zacienione Wnęki p.2 s.2", "#22c55e"], ["Skryty Azyl", "#3b82f6"], ["Dolina Potoku Śmierci", "#3b82f6"], ["Złota Dąbrowa", "#3b82f6"], ["Strumienie Szemrzących Wód", "#3b82f6"], ["Zawodzące Kaskady", "#3b82f6"], ["Jaszczurze Korytarze p.1 s.1", "#3b82f6"], ["Jaszczurze Korytarze p.1 s.2", "#3b82f6"], ["Jaszczurze Korytarze p.1 s.3", "#3b82f6"], ["Jaszczurze Korytarze p.1 s.4", "#3b82f6"], ["Jaszczurze Korytarze p.2 s.1", "#3b82f6"], ["Jaszczurze Korytarze p.2 s.2", "#3b82f6"], ["Jaszczurze Korytarze p.2 s.3", "#3b82f6"], ["Jaszczurze Korytarze p.2 s.4", "#3b82f6"]] },
-            { id: "s", data: [["Potępione Zamczysko", "#06b6d4"], ["Potępione Zamczysko - lochy z. p.1", "#06b6d4"], ["Potępione Zamczysko - lochy z. p.2", "#06b6d4"], ["Potępione Zamczysko - głębokie", "#06b6d4"], ["Potępione Zamczysko - lochy w. p.2", "#06b6d4"], ["Potępione Zamczysko - lochy w. p.1", "#06b6d4"], ["Potępione Zamczysko - korytarz z.", "#06b6d4"], ["Potępione Zamczysko - korytarz w.", "#06b6d4"], ["Potępione Zamczysko - zachodnia", "#06b6d4"], ["Potępione Zamczysko - wschodnia", "#06b6d4"], ["Potępione Zamczysko - sala ofiarna", "#06b6d4"], ["Potępione Zamczysko - łącznik z.", "#06b6d4"], ["Potępione Zamczysko - łącznik w.", "#06b6d4"], ["Potępione Zamczysko - północna", "#06b6d4"], ["Zachodnie Zbocze", "#06b6d4"], ["Plugawe Pustkowie", "#06b6d4"], ["Jęczywąwóz", "#06b6d4"], ["Pogranicze Wisielców", "#06b6d4"], ["Skalisty Styk", "#06b6d4"], ["Zacisze Zimnych Wiatrów", "#06b6d4"], ["Pustynne Katakumby", "#d946ef"], ["Pustynne Katakumby - sala 1", "#d946ef"], ["Pustynne Katakumby - sala 2", "#d946ef"], ["Komnaty Bezdusznych - sala 1", "#d946ef"], ["Komnaty Bezdusznych - sala 2", "#d946ef"], ["Katakumby Skrytobójców", "#d946ef"], ["Katakumby Opętanych Dusz", "#d946ef"], ["Korytarz Porzuconych Marzeń", "#d946ef"], ["Katakumby Gwałtownej ŚMIERCI", "#d946ef"]] }
-        ];
-
         let discordToken = localStorage.getItem('mapSync_dcToken');
         let cachedData = {};
         let socket = null;
+        let sections = []; // Dane map pobrane z JSON
 
-        function init() {
+        async function init() {
             initTheme();
             checkUrlForToken();
-            initTooltipEngine();
+            
+            // Pobieranie danych z JSONa
+            try {
+                const response = await fetch('data.json');
+                const config = await response.json();
+                
+                sections = config.columns;
+                document.getElementById('header-title').innerText = config.event_metadata.title;
+                document.getElementById('footer-text').innerHTML = config.event_metadata.footer;
+
+                renderStructure(config.columns);
+            } catch (error) {
+                console.error("Błąd podczas ładowania data.json:", error);
+            }
+
             if (!discordToken) {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('dc-login-btn').onclick = () => window.location.href = DISCORD_AUTH_URL;
@@ -367,40 +259,68 @@
             document.getElementById('theme-toggle').onclick = toggleTheme;
         }
 
-        /* --- TOOLTIP ENGINE --- */
-        function initTooltipEngine() {
-            const tooltip = document.getElementById('tooltip');
-            const decodeHtml = (html) => {
-                const txt = document.createElement("textarea");
-                txt.innerHTML = html;
-                return txt.value;
-            };
+        function renderStructure(columns) {
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = "";
 
-            document.addEventListener('mouseover', (e) => {
-                const target = e.target.closest('img[tip]');
-                if (target) {
-                    tooltip.innerHTML = decodeHtml(target.getAttribute('tip'));
-                    tooltip.style.display = 'block';
-                }
+            columns.forEach(col => {
+                const columnDiv = document.createElement('div');
+                columnDiv.className = "dc-column";
+
+                let itemsHtml = col.items.map(item => `
+                    <div class="relative flex-shrink-0 group item-legends">
+                        <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">${item.count}</div>
+                        <img class="w-8 h-8" src="${item.img}">
+                    </div>
+                `).join('');
+
+                columnDiv.innerHTML = `
+                    <div class="category-header flex justify-between items-center">
+                        <span class="flex-shrink-0 flex items-center gap-2">
+                            <img class="h-12" src="${col.boss_gif}">
+                            ${col.boss_name}
+                        </span>
+                        <div class="flex gap-0">${itemsHtml}</div>
+                    </div>
+                    <div id="grid-${col.id}" class="flex-grow overflow-y-auto dc-scroll px-1 pb-4"></div>
+                `;
+                grid.appendChild(columnDiv);
+                renderMapsInColumn(col);
             });
+        }
 
-            document.addEventListener('mousemove', (e) => {
-                if (tooltip.style.display === 'block') {
-                    const offset = 15;
-                    let x = e.clientX + offset;
-                    let y = e.clientY + offset;
+        function renderMapsInColumn(col) {
+            const gridContainer = document.getElementById(`grid-${col.id}`);
+            let lastColor = null;
 
-                    // Zapobieganie wychodzeniu poza ekran
-                    if (x + tooltip.offsetWidth > window.innerWidth) x = e.clientX - tooltip.offsetWidth - offset;
-                    if (y + tooltip.offsetHeight > window.innerHeight) y = e.clientY - tooltip.offsetHeight - offset;
+            col.maps.forEach((mapData, i) => {
+                const idBase = `${col.id}${i}`;
+                const id1 = `${idBase}_1`, id2 = `${idBase}_2`;
 
-                    tooltip.style.left = x + 'px';
-                    tooltip.style.top = y + 'px';
+                if (lastColor && lastColor !== mapData[1]) {
+                    const sep = document.createElement('hr');
+                    sep.className = "group-separator";
+                    gridContainer.appendChild(sep);
                 }
-            });
+                lastColor = mapData[1];
 
-            document.addEventListener('mouseout', (e) => {
-                if (e.target.closest('img[tip]')) tooltip.style.display = 'none';
+                const row = document.createElement('div');
+                row.id = `row-${idBase}`;
+                row.className = "location-item";
+                row.innerHTML = `
+                    <div class="flex items-center flex-grow gap-2 min-w-0 mr-2">
+                        <div class="status-dot-indicator"></div>
+                        <span id="timer-${id1}-${id2}" class="time-label rounded-[3px] px-2 text-[10px] text-[#4e5058]">BRAK</span>
+                        <span class="text-[12px] font-normal truncate tracking-tighter">${mapData[0]}</span>
+                    </div>
+                    <div class="flex gap-1 shrink-0">
+                        <div id="cell-${id1}" class="dc-chip">---</div>
+                        <div id="cell-${id2}" class="dc-chip">---</div>
+                    </div>
+                `;
+                gridContainer.appendChild(row);
+                updateCellInUI(id1, cachedData[id1]?.val || "");
+                updateCellInUI(id2, cachedData[id2]?.val || "");
             });
         }
 
@@ -438,14 +358,13 @@
             socket.onopen = () => {
                 document.getElementById('status-indicator').innerText = "POŁĄCZONY";
                 document.getElementById('status-indicator').className = "text-[10px] font-bold text-[#23a559]";
-                render();
             };
 
             socket.onmessage = (event) => {
                 const msg = JSON.parse(event.data);
                 if (msg.type === 'init_data') {
                     cachedData = msg.data || {};
-                    render();
+                    renderStructure(sections);
                 } else if (msg.type === 'cell_updated') {
                     cachedData[msg.id] = { val: msg.val, ts: msg.ts };
                     updateCellInUI(msg.id, msg.val);
@@ -459,47 +378,6 @@
             };
         }
 
-        function render() {
-            sections.forEach(sec => {
-                const grid = document.getElementById(`grid-${sec.id}`);
-                if(!grid) return;
-                grid.innerHTML = "";
-                let lastColor = null;
-
-                sec.data.forEach((mapData, i) => {
-                    const idBase = `${sec.id}${i}`;
-                    const id1 = `${idBase}_1`, id2 = `${idBase}_2`;
-                    
-                    if (lastColor && lastColor !== mapData[1]) {
-                        const sep = document.createElement('hr');
-                        sep.className = "group-separator";
-                        grid.appendChild(sep);
-                    }
-                    lastColor = mapData[1];
-
-                    const row = document.createElement('div');
-                    row.id = `row-${idBase}`;
-                    row.className = "location-item";
-                    
-                    row.innerHTML = `
-                        <div class="flex items-center flex-grow gap-2 min-w-0 mr-2">
-                            <div class="status-dot-indicator"></div>
-                            <span id="timer-${id1}-${id2}" class="time-label rounded-[3px] px-2 text-[10px] text-[#4e5058]">BRAK</span>
-                            <span class="text-[12px] font-normal truncate tracking-tighter">${mapData[0]}</span>
-                        </div>
-                        <div class="flex gap-1 shrink-0">
-                            <div id="cell-${id1}" class="dc-chip">---</div>
-                            <div id="cell-${id2}" class="dc-chip">---</div>
-                        </div>
-                    `;
-                    grid.appendChild(row);
-                    updateCellInUI(id1, cachedData[id1]?.val || "");
-                    updateCellInUI(id2, cachedData[id2]?.val || "");
-                });
-            });
-            updateTimers();
-        }
-
         function updateCellInUI(id, val) {
             const cell = document.getElementById(`cell-${id}`);
             if (!cell) return;
@@ -510,7 +388,7 @@
         function updateTimers() {
             const now = Date.now();
             sections.forEach(sec => {
-                sec.data.forEach((_, i) => {
+                sec.maps.forEach((_, i) => {
                     const idBase = `${sec.id}${i}`;
                     const id1 = `${idBase}_1`, id2 = `${idBase}_2`;
                     const ts1 = cachedData[id1]?.ts || 0, ts2 = cachedData[id2]?.ts || 0;
