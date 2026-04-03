@@ -119,7 +119,7 @@
 
     async function loadData() {
         try {
-            const response = await fetch('data.json');
+            const response = await fetch('https://margonem.vercel.app/data.json');
             const config = await response.json();
             arkusz1 = config.columns.find(c => c.id === 'p')?.maps || [];
             arkusz2 = config.columns.find(c => c.id === 'n')?.maps || [];
