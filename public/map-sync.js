@@ -113,10 +113,22 @@
         }
     }
 
-    // --- Dane Map ---
-    const arkusz1 = [["Ruiny Tass Zhil", "#3498db"], ["Błota Sham Al", "#3498db"], ["Głusza Świstu", "#3498db"], ["Las Porywów Wiatru", "#3498db"], ["Kwieciste Kresy", "#3498db"], ["Grań Gawronich Piór", "#3498db"], ["Nawiedzone Komnaty - przedsionek", "#e67e22"], ["Nawiedzone Kazamaty p.1 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.1 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.2 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.2 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.3 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.3 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.4", "#e67e22"], ["Sala Dowódcy Orków", "#e67e22"], ["Nawiedzone Komnaty - zachód", "#e67e22"], ["Nawiedzone Komnaty - wschód", "#e67e22"], ["Sala Rady Orków", "#e67e22"], ["Sala Królewska", "#e67e22"], ["Komnaty Czarnej Gwardii - wschód", "#e67e22"], ["Komnata Czarnej Perły", "#e67e22"], ["Komnaty Czarnej Gwardii - zachód", "#e67e22"]];
-    const arkusz2 = [["Gęste Sploty", "#2ecc71"], ["Zmurszały Łęg", "#2ecc71"], ["Garb Połamanych Konarów", "#2ecc71"], ["Zalesiony Step", "#2ecc71"], ["Głusza Srebrnego Rogu", "#2ecc71"], ["Knieja Lunarnych Głazów", "#2ecc71"], ["Szepty Menhirów", "#2ecc71"], ["Gaj Księżycowego Blasku", "#2ecc71"], ["Zakątek Nocnych Szelestów", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 1", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 2", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 3", "#2ecc71"], ["Gardziel Podgnitych Mchów p.1", "#2ecc71"], ["Gardziel Podgnitych Mchów p.2", "#2ecc71"], ["Zacienione Wnęki p.1 - sala 1", "#2ecc71"], ["Zacienione Wnęki p.1 - sala 2", "#2ecc71"], ["Zacienione Wnęki p.2 - sala 1", "#2ecc71"], ["Zacienione Wnęki p.2 - sala 2", "#2ecc71"], ["Skryty Azyl", "#3498db"], ["Dolina Potoku Śmierci", "#3498db"], ["Złota Dąbrowa", "#3498db"], ["Strumienie Szemrzących Wód", "#3498db"], ["Zawodzące Kaskady", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 1", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 2", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 3", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 4", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 1", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 2", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 3", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 4", "#3498db"]];
-    const arkusz3 = [["Potępione Zamczysko", "#1abc9c"], ["Potępione Zamczysko - lochy zachodnie p.1", "#1abc9c"], ["Potępione Zamczysko - lochy zachodnie p.2", "#1abc9c"], ["Potępione Zamczysko - głębokie lochy", "#1abc9c"], ["Potępione Zamczysko - lochy wschodnie p.2", "#1abc9c"], ["Potępione Zamczysko - lochy wschodnie p.1", "#1abc9c"], ["Potępione Zamczysko - korytarz zachodni", "#1abc9c"], ["Potępione Zamczysko - korytarz wschodni", "#1abc9c"], ["Potępione Zamczysko - zachodnia komnata", "#1abc9c"], ["Potępione Zamczysko - wschodnia komnata", "#1abc9c"], ["Potępione Zamczysko - sala ofiarna", "#1abc9c"], ["Potępione Zamczysko - łącznik zachodni", "#1abc9c"], ["Potępione Zamczysko - łącznik wschodni", "#1abc9c"], ["Potępione Zamczysko - północna komnata", "#1abc9c"], ["Zachodnie Zbocze", "#1abc9c"], ["Plugawe Pustkowie", "#1abc9c"], ["Jęczywąwóz", "#1abc9c"], ["Pogranicze Wisielców", "#1abc9c"], ["Skalisty Styk", "#1abc9c"], ["Zacisze Zimnych Wiatrów", "#1abc9c"], ["Pustynne Katakumby", "#9b59b6"], ["Pustynne Katakumby - sala 1", "#9b59b6"], ["Pustynne Katakumby - sala 2", "#9b59b6"], ["Komnaty Bezdusznych - sala 1", "#9b59b6"], ["Komnaty Bezdusznych - sala 2", "#9b59b6"], ["Katakumby Odnalezionych Skrytobójców", "#9b59b6"], ["Katakumby Opętanych Dusz", "#9b59b6"], ["Korytarz Porzuconych Marzeń", "#9b59b6"], ["Katakumby Gwałtownej Śmierci", "#9b59b6"]];
+    let arkusz1 = [];
+    let arkusz2 = [];
+    let arkusz3 = [];
+
+    async function loadData() {
+        try {
+            const response = await fetch('data.json');
+            const config = await response.json();
+            arkusz1 = config.columns.find(c => c.id === 'p')?.maps || [];
+            arkusz2 = config.columns.find(c => c.id === 'n')?.maps || [];
+            arkusz3 = config.columns.find(c => c.id === 's')?.maps || [];
+            render();
+            updateBtn();
+            initSocket();
+        } catch (e) { console.error("JSON error", e); }
+    }
 
     function showGlobalModal(data) {
         if (!data || !data.text) return;
@@ -439,7 +451,6 @@
         }
     });
 
-    // ResizeObserver sterujący przełączaniem widoku
     new ResizeObserver((entries) => {
         for (let entry of entries) {
             const width = entry.contentRect.width;
@@ -527,7 +538,8 @@
     }
 
     setInterval(updateMapColors, 1000);
-    render();
-    updateBtn();
-    initSocket();
+    
+    // START
+    loadData();
+
 })();
