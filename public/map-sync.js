@@ -11,6 +11,7 @@
     let cachedData = {};
     let discordToken = localStorage.getItem('mapSync_dcToken');
     let currentMyId = null;
+    let filterActive = false; // DODANE
 
     // --- Logika Tokena ---
     function checkUrlForToken() {
@@ -190,7 +191,7 @@
         /* Grid Mode Styles - Compact Grid Layout */
         #mapSyncContainer.grid-view #mList {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Zwiększono min szerokość z 95px na 120px */
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 4px;
             padding: 1px;
         }
@@ -217,9 +218,9 @@
             line-height: 1.1;
             word-break: break-word;
             font-size: 8.5px;
-            display: block; /* Zmieniono z -webkit-box na block, aby nie ucinało linii */
-            overflow: visible; /* Pozwala tekstowi zająć tyle miejsca, ile potrzebuje */
-            width: calc(100% - 15px); /* Zostawia miejsce na ikonkę 👤 */
+            display: block;
+            overflow: visible;
+            width: calc(100% - 15px);
         }
         #mapSyncContainer.grid-view .m-timer {
             position: absolute;
@@ -272,13 +273,14 @@
     tooltip.id = "msCustomTooltip";
     document.body.appendChild(tooltip);
 
-    container.style = `min-height: 25px; min-width: 160px; position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; display: flex; flex-direction: column; resize: both; overflow: hidden;`;
+    container.style = `min-height: 25px; min-width: 190px; position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; display: flex; flex-direction: column; resize: both; overflow: hidden;`;
     container.innerHTML = `
         <div id="dragHandle" style="display:flex; justify-content:space-between; align-items:center; cursor: move; margin-bottom:8px; padding: 2px 6px; flex-shrink: 0;">
             <div id="tabsHeader" style="display:flex; gap:6px;">
                 <button id="t1" class="nav-btn active">173h</button>
                 <button id="t2" class="nav-btn">231p</button>
                 <button id="t3" class="nav-btn">266b</button>
+                <button id="filterBtn" class="nav-btn" style="font-size:12px; filter:grayscale(100%); opacity:0.5; transition:0.3s;">⌛</button>
             </div>
             <div id="miniTitle" style="display:none; font-size:10px; font-weight:bold; color:#fff; text-shadow: 0 0 5px #5865f2;">Wielkanoc 2026</div>
             <div id="min" style="cursor:pointer; font-size:18px; color:rgba(255,255,255,0.4); font-weight: bold; line-height: 1;">−</div>
@@ -399,8 +401,9 @@
             else if (occupants.length === 2) occSpan.innerText = "👥";
             else occSpan.innerText = "";
 
+            let diff = -1;
             if (lastTs > 0) {
-                const diff = Math.max(0, (now - lastTs) / 1000);
+                diff = Math.max(0, (now - lastTs) / 1000);
                 const min = Math.floor(diff / 60);
                 const sec = Math.floor(diff % 60).toString().padStart(2, '0');
                 timerSpan.innerText = `${min}:${sec}`;
@@ -419,6 +422,12 @@
                 timerSpan.innerText = "--:--";
                 timerSpan.style.color = "#444";
                 nameSpan.style.color = "#555";
+            }
+
+            if (filterActive) {
+                row.style.display = (diff !== -1 && diff <= 180) ? "none" : "flex";
+            } else {
+                row.style.display = "flex";
             }
         });
     }
@@ -474,6 +483,14 @@
     document.getElementById('t1').onclick = () => { currentTab = 1; render(); updateBtn(); };
     document.getElementById('t2').onclick = () => { currentTab = 2; render(); updateBtn(); };
     document.getElementById('t3').onclick = () => { currentTab = 3; render(); updateBtn(); };
+
+    document.getElementById('filterBtn').onclick = function() {
+        filterActive = !filterActive;
+        this.style.filter = filterActive ? "grayscale(0%)" : "grayscale(100%)";
+        this.style.opacity = filterActive ? "1" : "0.5";
+        this.style.color = filterActive ? "#ff4444" : "rgba(255,255,255,0.5)";
+        updateMapColors();
+    };
 
     function updateBtn() {
         document.getElementById('t1').classList.toggle('active', currentTab === 1);
