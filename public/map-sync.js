@@ -11,7 +11,7 @@
     let cachedData = {};
     let discordToken = localStorage.getItem('mapSync_dcToken');
     let currentMyId = null;
-    let filterActive = false; // DODANE
+    let filterActive = false;
 
     // --- Logika Tokena ---
     function checkUrlForToken() {
@@ -188,7 +188,6 @@
         .m-name { color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 1px #000; transition: color 0.2s; }
         .m-timer { font-family: monospace; font-size: 11px; font-weight: bold; color: #666; min-width: 40px; text-align: right; pointer-events: none; }
 
-        /* Grid Mode Styles - Compact Grid Layout */
         #mapSyncContainer.grid-view #mList {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -273,14 +272,15 @@
     tooltip.id = "msCustomTooltip";
     document.body.appendChild(tooltip);
 
-    container.style = `min-height: 25px; min-width: 190px; position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; display: flex; flex-direction: column; resize: both; overflow: hidden;`;
+    container.style = `min-height: 25px; min-width: 160px; position: fixed; top: ${savedPos.top}; right: ${savedPos.right}; left: ${savedPos.left}; width: ${savedSize.width}; height: ${savedSize.height}; z-index: 10000; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; padding: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-family: 'Verdana', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,0.6); user-select: none; display: flex; flex-direction: column; resize: both; overflow: hidden;`;
     container.innerHTML = `
         <div id="dragHandle" style="display:flex; justify-content:space-between; align-items:center; cursor: move; margin-bottom:8px; padding: 2px 6px; flex-shrink: 0;">
-            <div id="tabsHeader" style="display:flex; gap:6px;">
+            <div id="tabsHeader" style="display:flex; gap:6px; align-items: center;">
                 <button id="t1" class="nav-btn active">173h</button>
                 <button id="t2" class="nav-btn">231p</button>
                 <button id="t3" class="nav-btn">266b</button>
-                <button id="filterBtn" class="nav-btn" style="font-size:12px; filter:grayscale(100%); opacity:0.5; transition:0.3s;">⌛</button>
+                <div style="width:1px; height:10px; background:rgba(255,255,255,0.1); margin:0 4px;"></div>
+                <button id="filterBtn" class="nav-btn" style="font-size:12px; padding: 0 4px; opacity:0.5; filter: grayscale(100%); transition: all 0.3s;">⌛</button>
             </div>
             <div id="miniTitle" style="display:none; font-size:10px; font-weight:bold; color:#fff; text-shadow: 0 0 5px #5865f2;">Wielkanoc 2026</div>
             <div id="min" style="cursor:pointer; font-size:18px; color:rgba(255,255,255,0.4); font-weight: bold; line-height: 1;">−</div>
@@ -305,7 +305,6 @@
     function applyMinState(isMin) {
         if (isMin) container.classList.add('minimized');
         else container.classList.remove('minimized');
-
         scrollArea.style.display = isMin ? 'none' : 'block';
         document.getElementById('tabsHeader').style.display = isMin ? 'none' : 'flex';
         document.getElementById('miniTitle').style.display = isMin ? 'block' : 'none';
@@ -325,6 +324,7 @@
         let lastColor = null;
 
         data.forEach((mapData, i) => {
+            const rowId = `${prefix}${i}`;
             if (lastColor !== null && mapData[1] !== lastColor) {
                 const sep = document.createElement('div');
                 sep.className = "group-sep";
@@ -335,15 +335,15 @@
             const row = document.createElement('div');
             row.className = "map-row";
             row.style.borderLeftColor = mapData[1];
-            row.id = `row_${prefix}${i}`;
-            row.setAttribute('data-ids', JSON.stringify([`${prefix}${i}_1`, `${prefix}${i}_2`]));
+            row.id = `row_${rowId}`;
+            row.setAttribute('data-ids', JSON.stringify([`${rowId}_1`, `${rowId}_2`]));
 
             row.innerHTML = `
                 <div class="m-name-container">
-                    <span class="m-occ" id="occ_${prefix}${i}"></span>
+                    <span class="m-occ" id="occ_${rowId}"></span>
                     <span class="m-name">${mapData[0]}</span>
                 </div>
-                <span class="m-timer" id="timer_${prefix}${i}">--:--</span>
+                <span class="m-timer" id="timer_${rowId}">--:--</span>
             `;
 
             row.onmouseenter = (e) => {
@@ -355,17 +355,11 @@
                 tooltip.style.left = (e.clientX + 15) + "px";
                 tooltip.style.top = (e.clientY + 15) + "px";
             };
-            row.onmouseleave = () => {
-                tooltip.style.display = "none";
-            };
-
+            row.onmouseleave = () => { tooltip.style.display = "none"; };
             row.oncontextmenu = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                sendGlobalAlert(mapData[0]);
-                return false;
+                e.preventDefault(); e.stopPropagation();
+                sendGlobalAlert(mapData[0]); return false;
             };
-
             mList.appendChild(row);
         });
         updateMapColors();
@@ -383,11 +377,16 @@
 
     function updateMapColors() {
         const now = Date.now();
-        document.querySelectorAll('.map-row').forEach(row => {
+        const rows = Array.from(document.querySelectorAll('.map-row'));
+        
+        rows.forEach(row => {
             const ids = JSON.parse(row.getAttribute('data-ids'));
             const d1 = cachedData[ids[0]] || { val: "", ts: 0 };
             const d2 = cachedData[ids[1]] || { val: "", ts: 0 };
             const lastTs = Math.max(d1.ts, d2.ts);
+            
+            // Przechowujemy TS dla potrzeb sortowania
+            row.setAttribute('data-last-ts', lastTs);
 
             const timerSpan = row.querySelector('.m-timer');
             const nameSpan = row.querySelector('.m-name');
@@ -408,20 +407,12 @@
                 const sec = Math.floor(diff % 60).toString().padStart(2, '0');
                 timerSpan.innerText = `${min}:${sec}`;
 
-                if (diff < 90) {
-                    timerSpan.style.color = "#2ecc71";
-                    nameSpan.style.color = "#fff";
-                } else if (diff < 180) {
-                    timerSpan.style.color = "#f1c40f";
-                    nameSpan.style.color = "#ddd";
-                } else {
-                    timerSpan.style.color = "#e74c3c";
-                    nameSpan.style.color = "#888";
-                }
+                if (diff < 90) { timerSpan.style.color = "#2ecc71"; nameSpan.style.color = "#fff"; }
+                else if (diff < 180) { timerSpan.style.color = "#f1c40f"; nameSpan.style.color = "#ddd"; }
+                else { timerSpan.style.color = "#e74c3c"; nameSpan.style.color = "#888"; }
             } else {
                 timerSpan.innerText = "--:--";
-                timerSpan.style.color = "#444";
-                nameSpan.style.color = "#555";
+                timerSpan.style.color = "#444"; nameSpan.style.color = "#555";
             }
 
             if (filterActive) {
@@ -430,6 +421,18 @@
                 row.style.display = "flex";
             }
         });
+
+        if (filterActive) {
+            rows.sort((a, b) => {
+                return parseInt(a.getAttribute('data-last-ts')) - parseInt(b.getAttribute('data-last-ts'));
+            });
+            
+            document.querySelectorAll('.group-sep').forEach(s => s.style.display = 'none');
+            
+            rows.forEach(row => mList.appendChild(row));
+        } else {
+            document.querySelectorAll('.group-sep').forEach(s => s.style.display = 'block');
+        }
     }
 
     let isDragging = false, offset = { x: 0, y: 0 };
@@ -440,17 +443,10 @@
         if (!isDragging) return;
         const vW = window.innerWidth, vH = window.innerHeight;
         const cW = container.offsetWidth, cH = container.offsetHeight;
-        let newX = e.clientX - offset.x;
-        let newY = e.clientY - offset.y;
-
-        if (newX < 0) newX = 0;
-        if (newY < 0) newY = 0;
-        if (newX + cW > vW) newX = vW - cW;
-        if (newY + cH > vH) newY = vH - cH;
-
-        container.style.right = "auto";
-        container.style.left = newX + "px";
-        container.style.top = newY + "px";
+        let newX = e.clientX - offset.x, newY = e.clientY - offset.y;
+        if (newX < 0) newX = 0; if (newY < 0) newY = 0;
+        if (newX + cW > vW) newX = vW - cW; if (newY + cH > vH) newY = vH - cH;
+        container.style.right = "auto"; container.style.left = newX + "px"; container.style.top = newY + "px";
     });
 
     window.addEventListener('mouseup', () => {
@@ -463,23 +459,15 @@
     new ResizeObserver((entries) => {
         for (let entry of entries) {
             const width = entry.contentRect.width;
-            if (width > 330) {
-                container.classList.add('grid-view');
-            } else {
-                container.classList.remove('grid-view');
-            }
-
+            if (width > 330) container.classList.add('grid-view');
+            else container.classList.remove('grid-view');
             if (!container.classList.contains('minimized')) {
                 localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: container.style.height }));
             }
         }
     }).observe(container);
 
-    document.getElementById('min').onclick = () => {
-        const isMinNow = !container.classList.contains('minimized');
-        applyMinState(isMinNow);
-    };
-
+    document.getElementById('min').onclick = () => applyMinState(!container.classList.contains('minimized'));
     document.getElementById('t1').onclick = () => { currentTab = 1; render(); updateBtn(); };
     document.getElementById('t2').onclick = () => { currentTab = 2; render(); updateBtn(); };
     document.getElementById('t3').onclick = () => { currentTab = 3; render(); updateBtn(); };
@@ -489,7 +477,10 @@
         this.style.filter = filterActive ? "grayscale(0%)" : "grayscale(100%)";
         this.style.opacity = filterActive ? "1" : "0.5";
         this.style.color = filterActive ? "#ff4444" : "rgba(255,255,255,0.5)";
-        updateMapColors();
+        this.style.textShadow = filterActive ? "0 0 8px #ff4444" : "none";
+        
+        if (!filterActive) render(); 
+        else updateMapColors();
     };
 
     function updateBtn() {
@@ -501,10 +492,8 @@
     function autoMapCheck() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         let currentMap = win.Engine?.map?.d?.name || win.map?.name || "???";
-
         if (currentMap === "???" || currentMap === "") return;
         const myNick = getHeroName();
-
         let foundMatch = false;
         [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
             const prefix = ["p", "n", "s"][idx];
@@ -512,32 +501,19 @@
                 if (mapData[0] === currentMap) {
                     foundMatch = true;
                     const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
-
                     const d1 = cachedData[id1] || { val: "", ts: 0 };
                     const d2 = cachedData[id2] || { val: "", ts: 0 };
-
-                    if (d1.val === myNick) {
-                        currentMyId = id1;
-                    } else if (d2.val === myNick) {
-                        currentMyId = id2;
-                    }
-                    else if (!d1.val || d1.val === "") {
-                        currentMyId = id1;
-                        sync(id1, myNick);
-                    }
-                    else if (!d2.val || d2.val === "") {
-                        currentMyId = id2;
-                        sync(id2, myNick);
-                    }
+                    if (d1.val === myNick) currentMyId = id1;
+                    else if (d2.val === myNick) currentMyId = id2;
+                    else if (!d1.val || d1.val === "") { currentMyId = id1; sync(id1, myNick); }
+                    else if (!d2.val || d2.val === "") { currentMyId = id2; sync(id2, myNick); }
                     else {
                         const targetId = (d1.ts <= d2.ts) ? id1 : id2;
-                        currentMyId = targetId;
-                        sync(targetId, myNick);
+                        currentMyId = targetId; sync(targetId, myNick);
                     }
                 }
             });
         });
-
         if (!foundMatch) currentMyId = null;
     }
 
@@ -545,18 +521,11 @@
         if (heartbeatInterval) clearInterval(heartbeatInterval);
         heartbeatInterval = setInterval(() => {
             if (socket && socket.readyState === 1 && currentMyId) {
-                socket.send(JSON.stringify({
-                    type: 'heartbeat',
-                    nick: getHeroName(),
-                    id: currentMyId
-                }));
+                socket.send(JSON.stringify({ type: 'heartbeat', nick: getHeroName(), id: currentMyId }));
             }
         }, 1000);
     }
 
     setInterval(updateMapColors, 1000);
-    
-    // START
     loadData();
-
 })();
