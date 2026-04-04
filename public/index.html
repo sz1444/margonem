@@ -406,10 +406,10 @@
                         
                         rowEl.classList.remove('row-fresh', 'row-warning', 'row-danger');
                         
-                        if (diff < 60) {
+                        if (diff < 90) {
                             rowEl.classList.add('row-fresh');
                             timerEl.style.color = "var(--dc-green)";
-                        } else if (diff < 120) {
+                        } else if (diff < 180) {
                             rowEl.classList.add('row-warning');
                             timerEl.style.color = "var(--dc-yellow)";
                         } else {

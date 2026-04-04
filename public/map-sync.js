@@ -408,10 +408,10 @@
                 const sec = Math.floor(diff % 60).toString().padStart(2, '0');
                 timerSpan.innerText = `${min}:${sec}`;
 
-                if (diff < 60) {
+                if (diff < 90) {
                     timerSpan.style.color = "#2ecc71";
                     nameSpan.style.color = "#fff";
-                } else if (diff < 150) {
+                } else if (diff < 180) {
                     timerSpan.style.color = "#f1c40f";
                     nameSpan.style.color = "#ddd";
                 } else {
