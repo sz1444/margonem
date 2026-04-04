@@ -176,6 +176,16 @@
             background-color: var(--dc-card-hover);
             color: var(--dc-text-normal);
         }
+
+        /* --- FILTR STYLE --- */
+        .hide-row { display: none !important; }
+        .dc-switch-wrap { display: flex; align-items: center; gap: 8px; padding-right: 12px; border-right: 1px solid var(--dc-border); margin-right: 8px; }
+        .dc-switch { position: relative; width: 28px; height: 16px; }
+        .dc-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #80848e; transition: .2s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .2s; border-radius: 50%; }
+        input:checked + .slider { background-color: #23a559; }
+        input:checked + .slider:before { transform: translateX(12px); }
     </style>
     <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -201,14 +211,24 @@
             </div>
         </div>
         
-        <div class="flex gap-5 items-center">
-            <div class="flex flex-col items-end">
-                <span class="text-[8px] text-[#80848e] font-bold uppercase leading-tight">Status sieci</span>
-                <span id="status-indicator" class="text-[10px] font-bold text-[#23a559]">POŁĄCZONY</span>
+        <div class="flex gap-2 items-center">
+            <div class="dc-switch-wrap">
+                <span style="font-size: 10px; font-weight: 700; color: var(--dc-text-muted); text-transform: uppercase;">Pokaż tylko wolne respy</span>
+                <label class="dc-switch">
+                    <input type="checkbox" id="global-filter">
+                    <span class="slider"></span>
+                </label>
             </div>
 
-            <div id="theme-toggle" title="Przełącz motyw">
-                <span class="material-icons text-lg" id="theme-icon">dark_mode</span>
+            <div class="flex gap-5 items-center">
+                <div class="flex flex-col items-end">
+                    <span class="text-[8px] text-[#80848e] font-bold uppercase leading-tight">Status sieci</span>
+                    <span id="status-indicator" class="text-[10px] font-bold text-[#23a559]">POŁĄCZONY</span>
+                </div>
+
+                <div id="theme-toggle" title="Przełącz motyw">
+                    <span class="material-icons text-lg" id="theme-icon">dark_mode</span>
+                </div>
             </div>
         </div>
     </header>
@@ -231,25 +251,20 @@
         let discordToken = localStorage.getItem('mapSync_dcToken');
         let cachedData = {};
         let socket = null;
-        let sections = []; // Dane map pobrane z JSON
+        let sections = []; 
 
         async function init() {
             initTheme();
             checkUrlForToken();
             
-            // Pobieranie danych z JSONa
             try {
                 const response = await fetch('data.json');
                 const config = await response.json();
-                
                 sections = config.columns;
                 document.getElementById('header-title').innerText = config.event_metadata.title;
                 document.getElementById('footer-text').innerHTML = config.event_metadata.footer;
-
                 renderStructure(config.columns);
-            } catch (error) {
-                console.error("Błąd podczas ładowania data.json:", error);
-            }
+            } catch (error) { console.error(error); }
 
             if (!discordToken) {
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -259,23 +274,32 @@
             initSocket();
             setInterval(updateTimers, 1000);
             document.getElementById('theme-toggle').onclick = toggleTheme;
+            
+            const filterEl = document.getElementById('global-filter');
+            filterEl.checked = new URLSearchParams(window.location.search).get('filter') === 'true';
+            filterEl.onchange = (e) => {
+                const url = new URL(window.location);
+                const isActive = e.target.checked;
+                isActive ? url.searchParams.set('filter', 'true') : url.searchParams.delete('filter');
+                window.history.replaceState({}, '', url);
+                
+                if (!isActive) renderStructure(sections); // Przywróć sep
+                updateTimers(); // Natychmiastowa aktualizacja (bez lagu 1s)
+            };
         }
 
         function renderStructure(columns) {
             const grid = document.getElementById('main-grid');
             grid.innerHTML = "";
-
             columns.forEach(col => {
                 const columnDiv = document.createElement('div');
                 columnDiv.className = "dc-column";
-
                 let itemsHtml = col.items.map(item => `
                     <div class="relative flex-shrink-0 group item-legends">
                         <div class="border border-[#999] text-md absolute bottom-0 right-0 z-10 px-[2px] py-0 text-[8px] font-bold uppercase rounded-[3px] bg-[#00000054] text-white pointer-events-none">${item.count}</div>
                         <img class="w-8 h-8" src="${item.img}">
                     </div>
                 `).join('');
-
                 columnDiv.innerHTML = `
                     <div class="category-header flex justify-between items-center">
                         <span class="flex-shrink-0 flex items-center gap-2">
@@ -294,52 +318,46 @@
         function renderMapsInColumn(col) {
             const gridContainer = document.getElementById(`grid-${col.id}`);
             let lastColor = null;
-
             col.maps.forEach((mapData, i) => {
                 const idBase = `${col.id}${i}`;
-                const id1 = `${idBase}_1`, id2 = `${idBase}_2`;
-
                 if (lastColor && lastColor !== mapData[1]) {
                     const sep = document.createElement('hr');
                     sep.className = "group-separator";
                     gridContainer.appendChild(sep);
                 }
                 lastColor = mapData[1];
-
                 const row = document.createElement('div');
                 row.id = `row-${idBase}`;
                 row.className = "location-item";
+                row.dataset.originalIndex = i; 
                 row.innerHTML = `
                     <div class="flex items-center flex-grow gap-2 min-w-0 mr-2">
                         <div class="status-dot-indicator"></div>
-                        <span id="timer-${id1}-${id2}" class="time-label rounded-[3px] px-2 text-[10px] text-[#4e5058]">BRAK</span>
+                        <span id="timer-${idBase}_1-${idBase}_2" class="time-label rounded-[3px] px-2 text-[10px] text-[#4e5058]">BRAK</span>
                         <span class="text-[12px] font-normal truncate tracking-tighter">${mapData[0]}</span>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                        <div id="cell-${id1}" class="dc-chip">---</div>
-                        <div id="cell-${id2}" class="dc-chip">---</div>
+                        <div id="cell-${idBase}_1" class="dc-chip">---</div>
+                        <div id="cell-${idBase}_2" class="dc-chip">---</div>
                     </div>
                 `;
                 gridContainer.appendChild(row);
-                updateCellInUI(id1, cachedData[id1]?.val || "");
-                updateCellInUI(id2, cachedData[id2]?.val || "");
+                updateCellInUI(`${idBase}_1`, cachedData[`${idBase}_1`]?.val || "");
+                updateCellInUI(`${idBase}_2`, cachedData[`${idBase}_2`]?.val || "");
             });
         }
 
         function initTheme() {
-            const saved = localStorage.getItem('groli_theme');
-            if (saved === 'light') {
+            if (localStorage.getItem('groli_theme') === 'light') {
                 document.body.classList.add('light-theme');
                 document.getElementById('theme-icon').innerText = 'light_mode';
             }
         }
-
         function toggleTheme() {
             const isLight = document.body.classList.toggle('light-theme');
             document.getElementById('theme-icon').innerText = isLight ? 'light_mode' : 'dark_mode';
             localStorage.setItem('groli_theme', isLight ? 'light' : 'dark');
         }
-
         function checkUrlForToken() {
             const hash = window.location.hash;
             if (hash.includes("access_token=")) {
@@ -352,16 +370,12 @@
                 }
             }
         }
-
         function initSocket() {
-            const wsUrl = BACKEND_URL.replace("http", "ws") + `?token=${discordToken}`;
-            socket = new WebSocket(wsUrl);
-
+            socket = new WebSocket(BACKEND_URL.replace("http", "ws") + `?token=${discordToken}`);
             socket.onopen = () => {
                 document.getElementById('status-indicator').innerText = "POŁĄCZONY";
                 document.getElementById('status-indicator').className = "text-[10px] font-bold text-[#23a559]";
             };
-
             socket.onmessage = (event) => {
                 const msg = JSON.parse(event.data);
                 if (msg.type === 'init_data') {
@@ -372,55 +386,64 @@
                     updateCellInUI(msg.id, msg.val);
                 }
             };
-
-            socket.onclose = () => {
-                document.getElementById('status-indicator').innerText = "ROZŁĄCZONY";
-                document.getElementById('status-indicator').className = "text-[10px] font-bold text-[#f23f43]";
-                setTimeout(initSocket, 5000);
-            };
+            socket.onclose = () => setTimeout(initSocket, 5000);
         }
-
         function updateCellInUI(id, val) {
             const cell = document.getElementById(`cell-${id}`);
-            if (!cell) return;
-            cell.innerText = val ? val : "---";
-            cell.className = val ? "dc-chip active" : "dc-chip";
+            if (cell) {
+                cell.innerText = val ? val : "---";
+                cell.className = val ? "dc-chip active" : "dc-chip";
+            }
         }
 
         function updateTimers() {
             const now = Date.now();
+            const filterActive = document.getElementById('global-filter')?.checked;
+            
             sections.forEach(sec => {
+                const grid = document.getElementById(`grid-${sec.id}`);
+                if (!grid) return;
+                const rowsInCol = [];
+
                 sec.maps.forEach((_, i) => {
                     const idBase = `${sec.id}${i}`;
-                    const id1 = `${idBase}_1`, id2 = `${idBase}_2`;
-                    const ts1 = cachedData[id1]?.ts || 0, ts2 = cachedData[id2]?.ts || 0;
+                    const ts1 = cachedData[`${idBase}_1`]?.ts || 0;
+                    const ts2 = cachedData[`${idBase}_2`]?.ts || 0;
                     const lastTs = Math.max(ts1, ts2);
-                    
-                    const timerEl = document.getElementById(`timer-${id1}-${id2}`);
+                    const timerEl = document.getElementById(`timer-${idBase}_1-${idBase}_2`);
                     const rowEl = document.getElementById(`row-${idBase}`);
 
-                    if (timerEl && rowEl && lastTs > 0) {
-                        const diff = (now - lastTs) / 1000;
-                        const mins = Math.floor(diff / 60), secs = Math.floor(diff % 60).toString().padStart(2, '0');
-                        timerEl.innerText = `${mins}:${secs}`;
-                        
-                        rowEl.classList.remove('row-fresh', 'row-warning', 'row-danger');
-                        
-                        if (diff < 90) {
-                            rowEl.classList.add('row-fresh');
-                            timerEl.style.color = "var(--dc-green)";
-                        } else if (diff < 180) {
-                            rowEl.classList.add('row-warning');
-                            timerEl.style.color = "var(--dc-yellow)";
+                    if (timerEl && rowEl) {
+                        const diff = lastTs > 0 ? (now - lastTs) / 1000 : 9999999;
+                        rowEl.dataset.ts = lastTs; 
+
+                        if (lastTs > 0) {
+                            const mins = Math.floor(diff / 60), secs = Math.floor(diff % 60).toString().padStart(2, '0');
+                            timerEl.innerText = `${mins}:${secs}`;
+                            rowEl.classList.remove('row-fresh', 'row-warning', 'row-danger');
+                            if (diff < 90) { rowEl.classList.add('row-fresh'); timerEl.style.color = "var(--dc-green)"; }
+                            else if (diff < 180) { rowEl.classList.add('row-warning'); timerEl.style.color = "var(--dc-yellow)"; }
+                            else { rowEl.classList.add('row-danger'); timerEl.style.color = "var(--dc-red)"; }
                         } else {
-                            rowEl.classList.add('row-danger');
-                            timerEl.style.color = "var(--dc-red)";
+                            timerEl.innerText = "BRAK";
+                            timerEl.style.color = "var(--dc-text-muted)";
+                            rowEl.classList.remove('row-fresh', 'row-warning', 'row-danger');
                         }
+
+                        if (filterActive && diff < 180 && lastTs > 0) rowEl.classList.add('hide-row');
+                        else rowEl.classList.remove('hide-row');
+                        
+                        rowsInCol.push(rowEl);
                     }
                 });
+
+                if (filterActive) {
+                    grid.querySelectorAll('.group-separator').forEach(s => s.style.display = 'none');
+                    rowsInCol.sort((a, b) => parseInt(a.dataset.ts) - parseInt(b.dataset.ts));
+                    rowsInCol.forEach(row => grid.appendChild(row));
+                }
             });
         }
-
         window.onload = init;
     </script>
 </body>
