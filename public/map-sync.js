@@ -538,7 +538,7 @@
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         const mapName = getMapName();
 
-        return `${mapName} (${win.Engine?.hero?.rx || "?"}, ${win.Engine?.hero?.ry || "?"})`;
+        return `${mapName} (${Math.floor(win.Engine?.hero?.rx)|| "?"}, ${Math.floor(win.Engine?.hero?.ry) || "?"})`;
     }
 
     let assignedKey = localStorage.getItem("mapsync-userKey") || "y";
