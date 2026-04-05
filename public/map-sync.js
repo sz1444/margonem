@@ -558,6 +558,13 @@
     }
 
     window.addEventListener("keydown", (event) => {
+        const isTyping = event.target.tagName === 'INPUT' || 
+                     event.target.tagName === 'TEXTAREA' || 
+                     event.target.isContentEditable;
+
+        if (isTyping) return; 
+
+
         if (event.key.toLowerCase() === assignedKey) {
             sendGlobalAlert(getMapNameWithXY());
         }
