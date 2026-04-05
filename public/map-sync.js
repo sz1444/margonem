@@ -138,9 +138,22 @@
         const modal = document.createElement('div');
         modal.id = "globalAlertModal";
         modal.style = `position: fixed; top: 15%; left: 50%; transform: translateX(-50%); background: rgba(20, 20, 20, 0.9); color: white; padding: 12px 25px; z-index: 30000; border-radius: 4px; font-family: 'Verdana', sans-serif; text-align: center; border-left: 4px solid #e74c3c; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px); pointer-events: none; border-bottom: 1px solid rgba(255,255,255,0.1);`;
-        modal.innerHTML = `<div style="font-size: 10px; opacity: 0.6; margin-bottom: 2px;">WEZWANIE: ${data.sender}</div><div style="font-size: 13px; letter-spacing: 0.5px;">${data.text}</div>`;
+        modal.innerHTML = `
+            <div id="closeGlobalAlert" style="position: absolute; top: 2px; right: 6px; cursor: pointer; font-size: 14px; opacity: 0.5; pointer-events: auto;">×</div>
+            <div style="font-size: 10px; opacity: 0.6; margin-bottom: 2px;">WEZWANIE: ${data.sender}</div>
+            <div style="font-size: 13px; letter-spacing: 0.5px;">${data.text}</div>
+        `;
         document.body.appendChild(modal);
-        setTimeout(() => { modal.style.transition = "opacity 0.8s"; modal.style.opacity = "0"; setTimeout(() => modal.remove(), 800); }, 5000);
+
+        document.getElementById('closeGlobalAlert').onclick = () => modal.remove();
+
+        setTimeout(() => { 
+            if(document.getElementById('globalAlertModal')) {
+                modal.style.transition = "opacity 0.8s"; 
+                modal.style.opacity = "0"; 
+                setTimeout(() => { if(modal.parentNode) modal.remove(); }, 800); 
+            }
+        }, 5000);
     }
 
     function getHeroName() {
@@ -381,7 +394,6 @@
             const d2 = cachedData[ids[1]] || { val: "", ts: 0 };
             const lastTs = Math.max(d1.ts, d2.ts);
             
-            // Przechowujemy TS dla potrzeb sortowania
             row.setAttribute('data-last-ts', lastTs);
 
             const timerSpan = row.querySelector('.m-timer');
@@ -436,9 +448,7 @@
 
     dH.onmousedown = (e) => { 
         if (e.button !== 0) return; 
-
         if (e.target.tagName === 'BUTTON' || e.target.id === 'min') return; 
-
         isDragging = true; 
         const rect = container.getBoundingClientRect(); 
         offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }; 
@@ -541,7 +551,6 @@
     function getMapNameWithXY() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         const mapName = getMapName();
-
         return `${mapName} (${Math.floor(win.Engine?.hero?.rx)|| "?"}, ${Math.floor(win.Engine?.hero?.ry) || "?"})`;
     }
 
@@ -565,10 +574,7 @@
         const isTyping = event.target.tagName === 'INPUT' || 
                      event.target.tagName === 'TEXTAREA' || 
                      event.target.isContentEditable;
-
         if (isTyping) return; 
-
-
         if (event.key.toLowerCase() === assignedKey) {
             sendGlobalAlert(getMapNameWithXY());
         }
