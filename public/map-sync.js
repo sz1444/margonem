@@ -276,7 +276,7 @@
     container.innerHTML = `
         <div id="dragHandle" style="display:flex; justify-content:space-between; align-items:center; cursor: move; margin-bottom:8px; padding: 2px 6px; flex-shrink: 0;">
             <div id="tabsHeader" style="display:flex; gap:6px; align-items: center;">
-                <button id="t1" class="nav-btn active">173h</button>
+                <button id="t1" class="nav-btn">173h</button>
                 <button id="t2" class="nav-btn">231p</button>
                 <button id="t3" class="nav-btn">266b</button>
                 <div style="width:1px; height:10px; background:rgba(255,255,255,0.1); margin:0 4px;"></div>
@@ -293,7 +293,7 @@
 
     const mList = document.getElementById('mList');
     const scrollArea = document.getElementById('mapSyncScroll');
-    let currentTab = 1;
+    let currentTab = parseInt(localStorage.getItem('mapSync_currentTab')) || 1;
 
     scrollArea.onwheel = (e) => {
         const atTop = scrollArea.scrollTop === 0;
@@ -473,9 +473,13 @@
     }).observe(container);
 
     document.getElementById('min').onclick = () => applyMinState(!container.classList.contains('minimized'));
-    document.getElementById('t1').onclick = () => { currentTab = 1; render(); updateBtn(); };
-    document.getElementById('t2').onclick = () => { currentTab = 2; render(); updateBtn(); };
-    document.getElementById('t3').onclick = () => { currentTab = 3; render(); updateBtn(); };
+    document.getElementById('t1').onclick = () => { currentTab = 1; saveTab(); render(); updateBtn(); };
+    document.getElementById('t2').onclick = () => { currentTab = 2; saveTab(); render(); updateBtn(); };
+    document.getElementById('t3').onclick = () => { currentTab = 3; saveTab(); render(); updateBtn(); };
+
+    function saveTab() {
+        localStorage.setItem('mapSync_currentTab', currentTab);
+    }
 
     document.getElementById('filterBtn').onclick = function() {
         filterActive = !filterActive;
