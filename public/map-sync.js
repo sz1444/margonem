@@ -356,10 +356,6 @@
                 tooltip.style.top = (e.clientY + 15) + "px";
             };
             row.onmouseleave = () => { tooltip.style.display = "none"; };
-            row.oncontextmenu = (e) => {
-                e.preventDefault(); e.stopPropagation();
-                sendGlobalAlert(mapData[0]); return false;
-            };
             mList.appendChild(row);
         });
         updateMapColors();
@@ -437,7 +433,16 @@
 
     let isDragging = false, offset = { x: 0, y: 0 };
     const dH = document.getElementById('dragHandle');
-    dH.onmousedown = (e) => { if (e.target.tagName === 'BUTTON' || e.target.id === 'min') return; isDragging = true; const rect = container.getBoundingClientRect(); offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }; };
+
+    dH.onmousedown = (e) => { 
+        if (e.button !== 0) return; 
+
+        if (e.target.tagName === 'BUTTON' || e.target.id === 'min') return; 
+
+        isDragging = true; 
+        const rect = container.getBoundingClientRect(); 
+        offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }; 
+    };
 
     window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
@@ -490,9 +495,7 @@
     }
 
     function autoMapCheck() {
-        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-        let currentMap = win.Engine?.map?.d?.name || win.map?.name || "???";
-        if (currentMap === "???" || currentMap === "") return;
+        let currentMap = getMapName();
         const myNick = getHeroName();
         let foundMatch = false;
         [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
@@ -525,6 +528,40 @@
             }
         }, 1000);
     }
+
+    function getMapName() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        return win.Engine?.map?.d?.name || win.map?.name || "???";
+    }
+
+    function getMapNameWithXY() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        const mapName = getMapName();
+
+        return `${mapName} (${win.Engine?.hero?.rx || "?"}, ${win.Engine?.hero?.ry || "?"})`;
+    }
+
+    let assignedKey = localStorage.getItem("mapsync-userKey") || "y";
+
+    function changeKey() {
+        const input = prompt("Przypisz klawisz:", assignedKey);
+
+        if (input && input.length === 1) {
+            assignedKey = input.toLowerCase();
+            localStorage.setItem("mapsync-userKey", assignedKey);
+        }
+    }
+
+    document.getElementById('mapSyncContainer').oncontextmenu = function(event) {
+        event.preventDefault();
+        changeKey();
+    }
+
+    window.addEventListener("keydown", (event) => {
+        if (event.key.toLowerCase() === assignedKey) {
+            sendGlobalAlert(getMapNameWithXY());
+        }
+    });
 
     setInterval(updateMapColors, 1000);
     loadData();
