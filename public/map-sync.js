@@ -103,10 +103,10 @@
         }
     }
 
-    async function sendGlobalAlert(mapName) {
+    async function sendGlobalAlert(message) {
         if (socket && socket.readyState === 1) {
             const data = {
-                text: `Potrzebna pomoc na mapie: <b style="color:red">${mapName}</b>`,
+                text: message,
                 sender: getHeroName(),
                 ts: Date.now()
             };
@@ -359,6 +359,13 @@
                 <span class="m-timer" id="timer_${rowId}">--:--</span>
             `;
 
+            row.oncontextmenu = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                sendGlobalAlert(`Nikogo nie ma na <b style="color:red">${mapData[0]}</b>`);
+            };
+
             row.onmouseenter = (e) => {
                 const occupants = getRowOccupants(row);
                 tooltip.innerHTML = occupants.length > 0 ? "Gracze: <span style='color:#2ecc71; font-weight:bold;'>" + occupants.join(", ") + "</span>" : "Brak graczy na mapie";
@@ -576,7 +583,7 @@
                      event.target.isContentEditable;
         if (isTyping) return; 
         if (event.key.toLowerCase() === assignedKey) {
-            sendGlobalAlert(getMapNameWithXY());
+            sendGlobalAlert(`Potrzebna pomoc na: <b style="color:red">${getMapNameWithXY()}</b>`);
         }
     });
 
