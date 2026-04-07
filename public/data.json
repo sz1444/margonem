@@ -9,7 +9,7 @@
       "boss_name": "Monsieur Poulet (173h)",
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h3-monsieur.gif",
       "items": [
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1403.gif", "count": "0" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1403.gif", "count": "1" },
         { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1404.gif", "count": "0" },
         { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1402.gif", "count": "2" }
       ],
@@ -23,8 +23,8 @@
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h4-kur.gif",
       "items": [
         { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1471.gif", "count": "3" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1470.gif", "count": "1" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1463.gif", "count": "1" }
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1470.gif", "count": "2" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1463.gif", "count": "2" }
       ],
       "maps": [
         ["Gęste Sploty", "#2ecc71"], ["Zmurszały Łęg", "#2ecc71"], ["Garb Połamanych Konarów", "#2ecc71"], ["Zalesiony Step", "#2ecc71"], ["Głusza Srebrnego Rogu", "#2ecc71"], ["Knieja Lunarnych Głazów", "#2ecc71"], ["Szepty Menhirów", "#2ecc71"], ["Gaj Księżycowego Blasku", "#2ecc71"], ["Zakątek Nocnych Szelestów", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 1", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 2", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 3", "#2ecc71"], ["Gardziel Podgnitych Mchów p.1", "#2ecc71"], ["Gardziel Podgnitych Mchów p.2", "#2ecc71"], ["Zacienione Wnęki p.1 - sala 1", "#2ecc71"], ["Zacienione Wnęki p.1 - sala 2", "#2ecc71"], ["Zacienione Wnęki p.2 - sala 1", "#2ecc71"], ["Zacienione Wnęki p.2 - sala 2", "#2ecc71"], ["Skryty Azyl", "#3498db"], ["Dolina Potoku Śmierci", "#3498db"], ["Złota Dąbrowa", "#3498db"], ["Strumienie Szemrzących Wód", "#3498db"], ["Zawodzące Kaskady", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 1", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 2", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 3", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 4", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 1", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 2", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 3", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 4", "#3498db"]
@@ -35,7 +35,7 @@
       "boss_name": "Kurzy Ślepiec (266b)",
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h5-slepiec.gif",
       "items": [
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1410.gif", "count": "0" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1410.gif", "count": "1" },
         { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1409.gif", "count": "2" },
         { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1408.gif", "count": "1" }
       ],
