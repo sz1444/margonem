@@ -409,7 +409,6 @@
                 if (sortActive) {
                     seps.forEach(s => s.style.display = 'none');
                     rowsInCol.sort((a, b) => parseInt(a.dataset.ts) - parseInt(b.dataset.ts));
-                    console.log(rowsInCol);
                     rowsInCol.forEach(row => grid.appendChild(row));
                 } else if (filterActive) {
                     seps.forEach(s => s.style.display = 'none');
