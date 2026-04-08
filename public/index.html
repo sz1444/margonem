@@ -240,10 +240,8 @@
                 renderStructure(config.columns);
             } catch (error) { console.error(error); }
             if (!discordToken) {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('dc-login-btn').onclick = () => window.location.href = DISCORD_AUTH_URL;
-                return;
-            }
+                showLogin();
+            }   
             initSocket();
             setInterval(updateTimers, 1000);
             document.getElementById('theme-toggle').onclick = toggleTheme;
@@ -266,6 +264,10 @@
             filterEl.onchange = handleToggle;
             sortEl.onchange = handleToggle;
             if(filterEl.checked || sortEl.checked) updateTimers();
+        }
+        function showLogin() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('dc-login-btn').onclick = () => { window.location.href = DISCORD_AUTH_URL; };
         }
         function renderStructure(columns) {
             const grid = document.getElementById('main-grid');
@@ -354,6 +356,13 @@
             };
             socket.onmessage = (event) => {
                 const msg = JSON.parse(event.data);
+
+                if (msg.type === 'auth_error') {
+                    localStorage.removeItem('mapSync_dcToken');
+                    discordToken = null;
+                    showLogin();
+                    return;
+                }
                 if (msg.type === 'init_data') {
                     cachedData = msg.data || {};
                     renderStructure(sections);
