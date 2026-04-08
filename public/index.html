@@ -26,6 +26,7 @@
             --dc-border: rgba(0, 0, 0, 0.08);
             --dc-chip-bg: #e3e5e8;
             --dc-separator: rgba(0, 0, 0, 0.1);
+            --shadow-main: 1px 2px 5px rgba(0, 0, 0, 0.2)
         }
         body.light-theme {
             --dc-bg-main: #0e0e10;
@@ -37,6 +38,7 @@
             --dc-border: rgba(255, 255, 255, 0.05);
             --dc-chip-bg: #050506;
             --dc-separator: rgba(255, 255, 255, 0.06);
+            --shadow-main: 1px 2px 5px rgba(255, 255, 255, 0.2);
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -62,19 +64,19 @@
             justify-content: space-between;
         }
         .dc-column {
-            background-color: var(--dc-bg-side);
+            background-color: var(--dc-bg-main);
             border-radius: 8px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--dc-border);
+            box-shadow:  var(--shadow-main);
         }
         .location-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 4px 10px;
-            margin: 5px 4px;
+            margin: 5px 0px;
             border-radius: 4px;
             cursor: default;
             transition: background 0.1s ease;
@@ -84,14 +86,14 @@
         }
         .dc-chip {
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 600;
             padding: 2px 6px;
+            letter-spacing: -.5px;
             border-radius: 3px;
             background-color: var(--dc-chip-bg);
             color: var(--dc-text-muted);
             min-width: 50px;
             text-align: center;
-            border: 1px solid var(--dc-border);
         }
         .dc-chip.active {
             background-color: var(--dc-blurple);
@@ -123,12 +125,13 @@
             border-bottom: 1px solid var(--dc-border);
         }
         .time-label {
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 600;
             font-family: monospace;
+            min-width: 45px;
+            text-align: center;
             white-space: nowrap;
-            background-color: var(--dc-chip-bg);
-            border: 1px solid var(--dc-border);
+            background-color: var(--dc-bg-side);
         }
         .item-legends {
             background: #92471A;
@@ -190,14 +193,14 @@
                     <input type="checkbox" id="global-filter">
                     <span class="slider"></span>
                 </label>
-                <span style="font-size: 10px; font-weight: 700; color: var(--dc-text-muted); text-transform: uppercase; line-height: 0;">Pokaż tylko wolne respy</span>
+                <span style="font-size: 10px;  color: var(--dc-text-muted); text-transform: uppercase; line-height: 0;">Pokaż tylko wolne respy</span>
             </div>
             <div class="dc-switch-wrap">
                 <label class="dc-switch">
                     <input type="checkbox" id="sort-toggle">
                     <span class="slider"></span>
                 </label>
-                <span style="font-size: 10px; font-weight: 700; color: var(--dc-text-muted); text-transform: uppercase; line-height: 0;">Sortuj po czasie</span>
+                <span style="font-size: 10px;  color: var(--dc-text-muted); text-transform: uppercase;  line-height: 0;">Sortuj po czasie</span>
             </div>
             <div class="flex gap-5 items-center">
                 <div class="flex flex-col items-end">
@@ -282,7 +285,7 @@
                             <img class="h-12" src="${col.boss_gif}">
                             ${col.boss_name}
                         </span>
-                        <div class="flex gap-0">${itemsHtml}</div>
+                        <div class="flex gap-1">${itemsHtml}</div>
                     </div>
                     <div id="grid-${col.id}" class="flex-grow overflow-y-auto dc-scroll px-1 pb-4"></div>
                 `;
@@ -307,7 +310,6 @@
                 row.dataset.originalIndex = i; 
                 row.innerHTML = `
                     <div class="flex items-center flex-grow gap-2 min-w-0 mr-2">
-                        <div class="status-dot-indicator"></div>
                         <span id="timer-${idBase}_1-${idBase}_2" class="time-label rounded-[3px] px-2 text-[10px] text-[#4e5058]">BRAK</span>
                         <span class="text-[12px] font-normal truncate tracking-tighter">${mapData[0]}</span>
                     </div>
