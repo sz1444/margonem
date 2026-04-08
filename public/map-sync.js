@@ -69,6 +69,15 @@
 
         socket.onmessage = (event) => {
             const msg = JSON.parse(event.data);
+
+            if (msg.type === 'auth_error') {
+                console.error("Serwer odrzucił token!");
+                localStorage.removeItem('mapSync_dcToken');
+                discordToken = null;
+                showLoginModal();
+                return;
+            }
+
             if (msg.type === 'init_data') {
                 cachedData = msg.data || {};
                 render();
