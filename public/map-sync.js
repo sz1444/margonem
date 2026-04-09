@@ -32,22 +32,64 @@
     if (tokenFromUrl) discordToken = tokenFromUrl;
 
     function showLoginModal() {
+        const parentId = 'mList';
+        const parent = document.getElementById(parentId);
+        if (!parent) return;
+
         const existing = document.getElementById('mapSyncLoginOverlay');
         if (existing) return;
+
         const overlay = document.createElement('div');
         overlay.id = "mapSyncLoginOverlay";
-        overlay.style = `position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px); font-family:Verdana,sans-serif;`;
-        overlay.innerHTML = `
-            <div style="background:#2f3136; padding:30px; border-radius:12px; text-align:center; border:1px solid #5865f2; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-                <div style="color:#fff; font-size:20px; margin-bottom:15px; font-weight:bold;">Wymagana Autoryzacja</div>
-                <p style="color:#b9bbbe; font-size:13px; margin-bottom:25px;">Zaloguj się przez Discord, aby uzyskać dostęp do map.</p>
-                <button id="dcLoginBtn" style="background:#5865f2; color:#fff; border:none; padding:12px 25px; border-radius:5px; cursor:pointer; font-weight:bold; font-size:14px; transition:0.2s;">
-                    Połącz z Discordem
-                </button>
-            </div>
+        
+        overlay.style = `
+            display: flex;
+            position: absolute;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            left: 0;
+            top: 38px;
+            height: calc(100% - 38px);
+            background-color: #000000b3;
         `;
-        document.body.appendChild(overlay);
-        document.getElementById('dcLoginBtn').onclick = () => { window.location.href = DISCORD_AUTH_URL; };
+
+        overlay.innerHTML = `
+            <div style="color: #eee; font-size: 13px; font-weight: 500; margin-bottom: 10px; line-height: 1.3;">
+                Zaloguj się przez Discord,<br>aby zobaczyć mapy
+            </div>
+            <button id="dcLoginBtn" style="
+                background: #5865f2; 
+                color: #fff; 
+                border: none; 
+                padding: 6px 12px; 
+                border-radius: 4px; 
+                cursor: pointer; 
+                font-weight: 600; 
+                font-size: 11px; 
+                transition: background 0.2s;
+            ">
+                Połącz konto
+            </button>
+        `;
+
+        parent.appendChild(overlay);
+
+        const btn = document.getElementById('dcLoginBtn');
+        if (btn) {
+            btn.onmouseover = () => btn.style.background = '#4752c4';
+            btn.onmouseout = () => btn.style.background = '#5865f2';
+            btn.onclick = () => {
+                if (typeof DISCORD_AUTH_URL !== 'undefined') {
+                    window.location.href = DISCORD_AUTH_URL;
+                }
+            };
+        }
     }
 
     // --- WebSocket ---
@@ -71,7 +113,6 @@
             const msg = JSON.parse(event.data);
 
             if (msg.type === 'auth_error') {
-                console.error("Serwer odrzucił token!");
                 localStorage.removeItem('mapSync_dcToken');
                 discordToken = null;
                 showLoginModal();
