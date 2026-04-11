@@ -502,8 +502,8 @@
                 const sec = Math.floor(diff % 60).toString().padStart(2, '0');
                 timerEl.innerText = `${min}:${sec}`;
 
-                if (diff < 90) timerEl.style.color = "#2ecc71";
-                else if (diff < 180) timerEl.style.color = "#f1c40f";
+                if (diff < 300) timerEl.style.color = "#2ecc71";
+                else if (diff < 600) timerEl.style.color = "#f1c40f";
                 else timerEl.style.color = "#e74c3c";
             } else if (timerEl) {
                 timerEl.innerText = "--:--";
