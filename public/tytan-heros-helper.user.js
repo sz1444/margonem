@@ -130,8 +130,7 @@
             align-items: center;
             padding: 4px 8px;
             cursor: move;
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgb(18 17 17);
         }
         #msLiteTitle {
             font-size: 10px;
