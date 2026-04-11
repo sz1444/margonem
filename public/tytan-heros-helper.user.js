@@ -16,47 +16,56 @@
         {
             name: "Sala Tronowa",
             monster: "Tanroth",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/ice_king.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/ice_king.gif",
+            fallbackId: "p2758"
         },
         {
             name: "Sala Zrujnowanej Świątyni",
             monster: "Barbatos",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/hebrehoth_smokoludzie.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/hebrehoth_smokoludzie.gif",
+            fallbackId: "p238"
         },
         {
             name: "Teotihuacan",
             monster: "Tezcatlipoca",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/tezcatlipoca.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/tezcatlipoca.gif",
+            fallbackId: "n166"
         },
         {
             name: "Nora Jaszczurzych Koszmarów - źródło",
             monster: "Maddok Magua",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/maddok_magua-1a.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/maddok_magua-1a.gif",
+            fallbackId: "s85"
         },
         {
             name: "Komnata Krwawych Obrzędów",
             monster: "Demon Sekty",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/przyz_demon_sekta.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/przyz_demon_sekta.gif",
+            fallbackId: "p157"
         },
         {
             name: "Źródło Wspomnień",
             monster: "Łowczyni Wspomnień",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/lowcz-wspo-driady.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/lowcz-wspo-driady.gif",
+            fallbackId: "p211"
         },
         {
             name: "Lokum Złych Goblinów - pracownia",
             monster: "Versus Zoons",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/versus-zoons.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/versus-zoons.gif",
+            fallbackId: "p182"
         },
         {
             name: "Wulkan Politraki - Piekielne Czeluście",
             monster: "Archdemon",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/archdemon.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/archdemon.gif",
+            fallbackId: "p251"
         },
         {
             name: "Bandyckie Chowisko - skarbiec",
             monster: "Renegat Baulus",
-            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/renegat_baulus.gif"
+            icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/renegat_baulus.gif",
+            fallbackId: "p172"
         },
     ];
 
@@ -69,7 +78,6 @@
 
     const BACKEND_URL = "https://margone-api.onrender.com";
     const CLIENT_ID = "1488794373775687782";
-    // --------------------
 
     let socket = null;
     let cachedData = {};
@@ -160,6 +168,7 @@
             border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 6px;
             transition: background 0.2s;
+            cursor: help;
         }
         .ms-lite-item:hover {
             background: rgba(255, 255, 255, 0.1);
@@ -183,7 +192,6 @@
             pointer-events: none;
         }
 
-        /* Menu kontekstowe - styl ujednolicony */
         #msLiteCtxMenu {
             position: fixed;
             display: none;
@@ -220,7 +228,6 @@
             text-transform: uppercase;
         }
 
-        /* Alerty - identyczne z wersją Pro */
         .ms-lite-alert-box {
             position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
             background: rgba(20, 20, 20, 0.9);
@@ -241,15 +248,13 @@
 
     const container = document.createElement('div');
     container.id = "msLiteContainer";
-
-    // Pozycjonowanie
     container.style.top = savedPos.top;
     container.style.left = savedPos.left;
     container.style.right = savedPos.right;
 
     container.innerHTML = `
         <div id="msLiteHeader">
-            <div id="msLiteTitle">Tytan Helper</div>
+            <div id="msLiteTitle">Wielkanoc 2026</div>
             <div id="msLiteToggle">${isCollapsed ? '+' : '−'}</div>
         </div>
         <div id="msLiteContent" style="display: ${isCollapsed ? 'none' : 'grid'};"></div>
@@ -322,16 +327,23 @@
                 });
             });
 
-            if (!mapMapping["sala tronowa"]) mapMapping["sala tronowa"] = { id: "p2758" };
-            if (!mapMapping["sala zrujnowanej świątyni"]) mapMapping["sala zrujnowanej świątyni"] = { id: "p238" };
+            // Inteligentne fallbacki dla wszystkich map z konfiguracji
+            MAP_CONFIG.forEach(map => {
+                const mapKey = map.name.toLowerCase().trim();
+                if (!mapMapping[mapKey] && map.fallbackId) {
+                    mapMapping[mapKey] = { id: map.fallbackId };
+                }
+            });
 
             isInitialized = true;
             render();
 
             if (discordToken) connectWS(); else showLoginButton();
         } catch (e) {
-            if (!mapMapping["sala tronowa"]) mapMapping["sala tronowa"] = { id: "p2758" };
-            if (!mapMapping["sala zrujnowanej świątyni"]) mapMapping["sala zrujnowanej świątyni"] = { id: "p238" };
+            // W razie błędu sieci, użyj wszystkich fallbacków z MAP_CONFIG
+            MAP_CONFIG.forEach(map => {
+                mapMapping[map.name.toLowerCase().trim()] = { id: map.fallbackId };
+            });
             isInitialized = true; render();
             if (discordToken) connectWS(); else showLoginButton();
         }
