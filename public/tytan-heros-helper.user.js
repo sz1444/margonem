@@ -254,7 +254,7 @@
 
     container.innerHTML = `
         <div id="msLiteHeader">
-            <div id="msLiteTitle">Wielkanoc 2026</div>
+            <div id="msLiteTitle">Tytan Helper</div>
             <div id="msLiteToggle">${isCollapsed ? '+' : '−'}</div>
         </div>
         <div id="msLiteContent" style="display: ${isCollapsed ? 'none' : 'grid'};"></div>
