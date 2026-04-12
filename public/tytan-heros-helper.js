@@ -1,13 +1,3 @@
-// ==UserScript==
-// @name         Tytan Helper BETA
-// @namespace    http://tampermonkey.net/
-// @version      10.5
-// @description  Tytan Helper BETA
-// @author       Groli
-// @match        *://nubes.margonem.pl/*
-// @grant        none
-// ==/UserScript==
-
 (function() {
     'use strict';
 
