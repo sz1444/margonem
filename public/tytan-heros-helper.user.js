@@ -4,7 +4,7 @@
 // @version      10.5
 // @description  Tytan Helper BETA
 // @author       Groli
-// @match         *://*.margonem.pl/*e
+// @match         *://*.margonem.pl/*
 // @grant        none
 // ==/UserScript==
 
