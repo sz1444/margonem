@@ -45,14 +45,10 @@
 
     const playPing = () => {
         try {
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.connect(gain); gain.connect(context.destination);
-            osc.type = "sine"; osc.frequency.value = 880;
-            gain.gain.setValueAtTime(0.05, context.currentTime);
-            osc.start(); osc.stop(context.currentTime + 0.2);
-        } catch(e) {}
+            const audio = new Audio('https://margonem.vercel.app/ping.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {});
+        } catch(e) { console.log(e)}
     };
 
     const savedPos = JSON.parse(localStorage.getItem('mapSyncLite_pos')) || { top: "5px", left: "auto", right: "5px" };
