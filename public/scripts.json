@@ -24,6 +24,12 @@
       "url": "https://margonem.vercel.app/map-sync.js",
       "description": "Obstawiaj herosa na mapie eventowej, synchronizuj z innymi graczami i sprawdzaj, kto jest na której mapie.",
       "tm_context": true
-    }  
+  } ,
+        {
+      "id": "tytan_helper",
+      "name": "Tytan Helper",
+      "url": "https://margonem.vercel.app/tytan-helper.js",
+      "description": "Obstawiaj tytana, synchronizuj z innymi graczami i sprawdzaj, kto jest na której mapie."
+    },
   ]
 }
