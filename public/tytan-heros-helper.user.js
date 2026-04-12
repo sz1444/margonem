@@ -194,8 +194,8 @@
     function showGlobalAlert(data) {
         if (!data?.text) return;
         MAP_CONFIG.forEach(map => { if (data.text.includes(`[${map.monster}]`)) flashCardByMonster(map.monster); });
-        if (document.getElementById('globalAlertModal') || document.getElementById('mapSyncContainer')) return;
         playPing();
+        if (document.getElementById('globalAlertModal') || document.getElementById('mapSyncContainer')) return;
         const alert = document.createElement('div');
         alert.id = "globalAlertModal";
         alert.className = "ms-lite-alert-box";
