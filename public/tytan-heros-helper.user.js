@@ -342,7 +342,7 @@
                     const btn = document.createElement('div');
                     btn.className = "ms-ctx-item";
                     const keyName = a.code.replace('Digit','').replace('Key','').toUpperCase();
-                    btn.innerText = `[A/C+${keyName}] ${a.label}`;
+                    btn.innerText = `[Alt+${keyName}] ${a.label}`;
                     btn.onclick = (ev) => { ev.stopPropagation(); sendAlert(monster, a.msg); };
                     btn.oncontextmenu = (ev) => {
                         ev.preventDefault(); ev.stopPropagation();
