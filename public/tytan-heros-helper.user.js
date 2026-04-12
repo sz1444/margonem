@@ -11,6 +11,7 @@
 (function() {
     'use strict';
 
+    // --- KONFIGURACJA MAP ---
     const MAP_CONFIG = [
         { name: "Sala Tronowa", monster: "Tanroth", icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/ice_king.gif", fallbackId: "p2758" },
         { name: "Sala Zrujnowanej Świątyni", monster: "Barbatos", icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/hebrehoth_smokoludzie.gif", fallbackId: "p238" },
@@ -55,23 +56,27 @@
     };
 
     const savedPos = JSON.parse(localStorage.getItem('mapSyncLite_pos')) || { top: "5px", left: "auto", right: "5px" };
+    const savedSize = JSON.parse(localStorage.getItem('msLite_size')) || { width: "164px", height: "200px" };
     let isCollapsed = localStorage.getItem('mapSyncLite_collapsed') === 'true';
 
     const style = document.createElement('style');
     style.innerText = `
         #msLiteContainer {
-            position: fixed; z-index: 10001; user-select: none; cursor: move;
+            position: fixed; z-index: 10001; user-select: none;
             display: flex; flex-direction: column; background: rgba(10, 10, 10, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px;
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0,0,0,0.6); font-family: 'Verdana', sans-serif;
-            transition: height 0.2s ease-in-out; overflow: hidden; min-width: 150px;
+            overflow: hidden;
+            min-width: 150px; min-height: 24px;
         }
         #msLiteHeader {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 4px 8px; cursor: move; background: rgb(18 17 17);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4px 8px; cursor: grab; background: rgb(18 17 17);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); flex-shrink: 0;
+            height: 24px; box-sizing: border-box;
         }
+        #msLiteHeader:active { cursor: grabbing; }
         #msLiteTitle { font-size: 10px; font-weight: bold; color: #fff; text-shadow: 0 0 5px #5865f2; letter-spacing: 0.5px; pointer-events: none; }
         #msLiteControls { display: flex; align-items: center; gap: 8px; }
         #msLiteRestore { cursor: pointer; font-size: 12px; color: #5865f2; display: none; transition: transform 0.2s; }
@@ -79,12 +84,31 @@
         #msLiteToggle { cursor: pointer; font-size: 18px; color: rgba(255,255,255,0.4); font-weight: bold; line-height: 1; transition: color 0.2s; }
         #msLiteToggle:hover { color: #fff; }
 
-        #msLiteContent { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px; }
+        #msLiteContent {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+            align-content: start;
+            gap: 4px;
+            padding: 6px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+            pointer-events: auto;
+        }
+
+        #msLiteContent::-webkit-scrollbar { width: 3px; }
+        #msLiteContent::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        #msLiteContent::-webkit-scrollbar-thumb { background: rgba(88, 101, 242, 0.6); border-radius: 10px; }
+        #msLiteContent::-webkit-scrollbar-thumb:hover { background: rgba(88, 101, 242, 0.9); }
+
         .ms-lite-item {
             position: relative; display: flex; flex-direction: column; align-items: center;
-            width: 46px; padding: 4px; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 6px; transition: 0.3s;
+            padding: 4px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 6px; transition: 0.2s;
             cursor: pointer;
+            height: 58px;
+            box-sizing: border-box;
+            justify-content: center;
         }
         .ms-lite-item:hover { background: rgba(255, 255, 255, 0.1); }
         .ms-selected { border-color: #5865f2 !important; background: rgba(88, 101, 242, 0.15) !important; box-shadow: inset 0 0 8px rgba(88, 101, 242, 0.3); }
@@ -93,6 +117,14 @@
         .ms-lite-timer { font-size: 10px; font-weight: bold; font-family: monospace; color: #666; text-shadow: 1px 1px 1px #000; margin-top: 2px; z-index: 3; pointer-events: none; }
 
         .ms-is-not-resping { opacity: 0.4; filter: grayscale(1); }
+
+        /* --- STANDARDOWY WYGLĄD ROGU RESIZE --- */
+        #msLiteResizeHandle {
+            position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px;
+            cursor: se-resize; z-index: 10002;
+            background: repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(255,255,255,0.2) 3px, rgba(255,255,255,0.2) 4px);
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+        }
 
         #msLiteCtxMenu {
             position: fixed; display: none; z-index: 20002; background: rgba(20, 20, 20, 0.95);
@@ -116,7 +148,13 @@
 
     const container = document.createElement('div');
     container.id = "msLiteContainer";
-    Object.assign(container.style, { top: savedPos.top, left: savedPos.left, right: savedPos.right });
+
+    const initialHeight = isCollapsed ? 'auto' : savedSize.height;
+    Object.assign(container.style, {
+        top: savedPos.top, left: savedPos.left, right: savedPos.right,
+        width: savedSize.width, height: initialHeight
+    });
+
     container.innerHTML = `
         <div id="msLiteHeader">
             <div id="msLiteTitle">Tytan Helper</div>
@@ -126,6 +164,7 @@
             </div>
         </div>
         <div id="msLiteContent" style="display: ${isCollapsed ? 'none' : 'grid'};"></div>
+        <div id="msLiteResizeHandle" style="display: ${isCollapsed ? 'none' : 'block'};"></div>
     `;
     document.body.appendChild(container);
 
@@ -184,7 +223,7 @@
     });
 
     async function init() {
-        render(); setupDragging(); setupToggle(); setupHeaderContext();
+        render(); setupDragging(); setupToggle(); setupHeaderContext(); setupResizing();
         try {
             const response = await fetch('https://margonem.vercel.app/data.json');
             const config = await response.json();
@@ -207,11 +246,17 @@
 
     function setupToggle() {
         const toggle = document.getElementById('msLiteToggle'), content = document.getElementById('msLiteContent');
+        const handle = document.getElementById('msLiteResizeHandle');
         toggle.onclick = (e) => {
             e.stopPropagation(); isCollapsed = !isCollapsed;
             content.style.display = isCollapsed ? 'none' : 'grid';
+            handle.style.display = isCollapsed ? 'none' : 'block';
             toggle.innerText = isCollapsed ? '+' : '−';
             localStorage.setItem('mapSyncLite_collapsed', isCollapsed);
+            if (isCollapsed) { container.style.height = 'auto'; } else {
+                const currentSavedSize = JSON.parse(localStorage.getItem('msLite_size')) || savedSize;
+                container.style.height = currentSavedSize.height;
+            }
         };
         document.getElementById('msLiteRestore').onclick = (e) => { e.stopPropagation(); showAllMonsters(); };
     }
@@ -234,7 +279,7 @@
         const content = document.getElementById('msLiteContent');
         if (document.getElementById('msLiteLogin') || isCollapsed || !content) return;
         const btn = document.createElement('div');
-        btn.id = "msLiteLogin"; btn.style = "grid-column: 1 / span 3; font-size:11px; background: #5865f2; padding: 6px; border-radius: 4px; cursor: pointer; text-align:center; color: white; font-weight: 600; margin-top: 4px;";
+        btn.id = "msLiteLogin"; btn.style = "grid-column: 1 / -1; font-size:11px; background: #5865f2; padding: 6px; border-radius: 4px; cursor: pointer; text-align:center; color: white; font-weight: 600; margin-top: 4px;";
         btn.innerText = "Połącz konto";
         btn.onclick = () => window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}&response_type=token&scope=identify%20guilds.members.read`;
         content.appendChild(btn);
@@ -281,12 +326,12 @@
         const content = document.getElementById('msLiteContent'); if (!content) return;
         const restoreBtn = document.getElementById('msLiteRestore');
         if (restoreBtn) restoreBtn.style.display = hiddenMonsters.length > 0 ? 'block' : 'none';
+        content.onwheel = (e) => e.stopPropagation();
         const visibleMaps = MAP_CONFIG.filter(m => !hiddenMonsters.includes(m.monster));
         content.innerHTML = visibleMaps.map(map => {
             const data = mapMapping[map.name.toLowerCase()] || { id: `wait_${map.monster}` };
             return `<div class="ms-lite-item ${selectedMonster === map.monster ? 'ms-selected' : ''}" data-monster="${map.monster}" id="card_${data.id}" title="${map.name}"><div class="ms-lite-img" style="background-image: url('${map.icon}');"></div><span class="ms-lite-timer" id="lt_${data.id}">--:--</span></div>`;
         }).join('');
-
         content.querySelectorAll('.ms-lite-item').forEach(item => {
             const monster = item.getAttribute('data-monster');
             item.onclick = (e) => { selectedMonster = (selectedMonster === monster) ? null : monster; render(); };
@@ -297,7 +342,7 @@
                     const btn = document.createElement('div');
                     btn.className = "ms-ctx-item";
                     const keyName = a.code.replace('Digit','').replace('Key','').toUpperCase();
-                    btn.innerText = `[Alt+${keyName}] ${a.label}`;
+                    btn.innerText = `[A/C+${keyName}] ${a.label}`;
                     btn.onclick = (ev) => { ev.stopPropagation(); sendAlert(monster, a.msg); };
                     btn.oncontextmenu = (ev) => {
                         ev.preventDefault(); ev.stopPropagation();
@@ -322,35 +367,28 @@
                 setTimeout(() => document.addEventListener('click', close), 10);
             };
         });
+        if (!discordToken) showLoginButton();
     }
 
     function updateUI() {
         const now = Date.now();
         const widget = document.getElementById('ll-timers');
         const bossEntries = widget ? Array.from(widget.querySelectorAll('[data-slot="tooltip-trigger"]')) : [];
-
         MAP_CONFIG.forEach(map => {
             const data = mapMapping[map.name.toLowerCase()]; if (!data) return;
             const d1 = cachedData[`${data.id}_1`] || { val: "", ts: 0 }, d2 = cachedData[`${data.id}_2`] || { val: "" , ts: 0 };
             const lastTs = Math.max(d1.ts, d2.ts), timerEl = document.getElementById(`lt_${data.id}`), cardEl = document.getElementById(`card_${data.id}`);
-
             if (!timerEl) return;
-
             let isRespawning = true;
             if (widget) {
                 const bossBlock = bossEntries.find(el => el.textContent.includes(map.monster));
-
                 if (bossBlock) {
-                    const hasOrange = bossBlock.classList.contains('ll:text-orange-400') ||
-                                     bossBlock.querySelector('.ll\\:text-orange-400');
-
+                    const hasOrange = bossBlock.classList.contains('ll:text-orange-400') || bossBlock.querySelector('.ll\\:text-orange-400');
                     if (!hasOrange) isRespawning = false;
                 }
             }
-
             if (!isRespawning) {
-                timerEl.innerText = "-";
-                timerEl.style.color = "#666";
+                timerEl.innerText = "-"; timerEl.style.color = "#666";
                 if (cardEl) cardEl.classList.add('ms-is-not-resping');
             } else {
                 if (cardEl) cardEl.classList.remove('ms-is-not-resping');
@@ -366,7 +404,8 @@
     function setupDragging() {
         let isDragging = false, offset = { x: 0, y: 0 };
         container.onmousedown = (e) => {
-            if (e.target.id === 'msLiteToggle' || e.target.id === 'msLiteRestore' || e.target.closest('.ms-lite-item')) return;
+            if (!e.target.closest('#msLiteHeader')) return;
+            if (e.target.id === 'msLiteToggle' || e.target.id === 'msLiteRestore') return;
             isDragging = true; offset.x = e.clientX - container.offsetLeft; offset.y = e.clientY - container.offsetTop;
         };
         window.addEventListener('mousemove', (e) => {
@@ -377,6 +416,21 @@
             container.style.right = "auto"; container.style.bottom = "auto";
         });
         window.addEventListener('mouseup', () => { if (isDragging) { isDragging = false; localStorage.setItem('mapSyncLite_pos', JSON.stringify({ left: container.style.left, top: container.style.top, right: "auto" })); } });
+    }
+
+    function setupResizing() {
+        const handle = document.getElementById('msLiteResizeHandle');
+        let isResizing = false;
+        handle.onmousedown = (e) => { e.preventDefault(); e.stopPropagation(); isResizing = true; };
+        window.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const newWidth = Math.max(150, e.clientX - container.offsetLeft);
+            const newHeight = Math.max(35, e.clientY - container.offsetTop);
+            container.style.width = newWidth + "px"; container.style.height = newHeight + "px";
+        });
+        window.addEventListener('mouseup', () => {
+            if (isResizing) { isResizing = false; localStorage.setItem('msLite_size', JSON.stringify({ width: container.style.width, height: container.style.height })); }
+        });
     }
 
     setInterval(updateUI, 1000);
