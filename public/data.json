@@ -9,9 +9,9 @@
       "boss_name": "Monsieur Poulet (173h)",
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h3-monsieur.gif",
       "items": [
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1403.gif", "count": "2" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1404.gif", "count": "0" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1402.gif", "count": "6" }
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1403.gif", "count": "3" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1404.gif", "count": "1" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1402.gif", "count": "7" }
       ],
       "maps": [
         ["Ruiny Tass Zhil", "#3498db"], ["Błota Sham Al", "#3498db"], ["Głusza Świstu", "#3498db"], ["Las Porywów Wiatru", "#3498db"], ["Kwieciste Kresy", "#3498db"], ["Grań Gawronich Piór", "#3498db"], ["Nawiedzone Komnaty - przedsionek", "#e67e22"], ["Nawiedzone Kazamaty p.1 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.1 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.2 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.2 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.3 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.3 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.4", "#e67e22"], ["Sala Dowódcy Orków", "#e67e22"], ["Nawiedzone Komnaty - zachód", "#e67e22"], ["Nawiedzone Komnaty - wschód", "#e67e22"], ["Sala Rady Orków", "#e67e22"], ["Sala Królewska", "#e67e22"], ["Komnaty Czarnej Gwardii - wschód", "#e67e22"], ["Komnata Czarnej Perły", "#e67e22"], ["Komnaty Czarnej Gwardii - zachód", "#e67e22"]
@@ -22,8 +22,8 @@
       "boss_name": "Kur Nadworny (231p)",
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h4-kur.gif",
       "items": [
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1471.gif", "count": "2" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1470.gif", "count": "2" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1471.gif", "count": "3" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1470.gif", "count": "3" },
         { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1463.gif", "count": "2" }
       ],
       "maps": [
@@ -35,7 +35,7 @@
       "boss_name": "Kurzy Ślepiec (266b)",
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h5-slepiec.gif",
       "items": [
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1410.gif", "count": "1" },
+        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1410.gif", "count": "2" },
         { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1409.gif", "count": "4" },
         { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1408.gif", "count": "3" }
       ],
