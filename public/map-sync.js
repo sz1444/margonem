@@ -346,7 +346,7 @@
                 <button id="filterBtn" class="nav-btn" style="font-size:12px; padding: 0 4px; opacity:0.5; filter: grayscale(100%); transition: all 0.3s;">⌛</button>
             </div>
             <div id="miniTitle" style="display:none; font-size:10px; font-weight:bold; color:#fff; text-shadow: 0 0 5px #5865f2;">Wielkanoc 2026</div>
-            <div id="min" style="cursor:pointer; font-size:18px; color:rgba(255,255,255,0.4); font-weight: bold; line-height: 1;">−</div>
+            <div id="min" style="cursor:pointer; font-size:18px; color:rgba(255,255,255,0.4); font-weight: 300; line-height: 1;">−</div>
         </div>
         <div id="mapSyncScroll" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 2px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
             <div id="mList"></div>
