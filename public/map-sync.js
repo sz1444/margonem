@@ -9,7 +9,8 @@
     let heartbeatInterval = null;
     let socket = null;
     let cachedData = {};
-    let discordToken = localStorage.getItem('mapSync_dcToken');
+    // let discordToken = localStorage.getItem('mapSync_dcToken');
+    let discordToken = 'swEhSltOR2UsfPiYiOOlBMUVMPdrmR9x6jQi8bgXRHd9bSZP2qy6VhqLLmuP';
     let currentMyId = null;
     let filterActive = false;
 
