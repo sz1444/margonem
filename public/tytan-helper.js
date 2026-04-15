@@ -67,7 +67,7 @@
         #msLiteControls { display: flex; align-items: center; gap: 8px; }
         #msLiteRestore { cursor: pointer; font-size: 12px; color: #5865f2; display: none; transition: transform 0.2s; }
         #msLiteRestore:hover { transform: scale(1.2); }
-        #msLiteToggle { cursor: pointer; font-size: 18px; color: rgba(255,255,255,0.4); font-weight: bold; line-height: 1; transition: color 0.2s; }
+        #msLiteToggle { cursor: pointer; font-size: 18px; color: rgba(255,255,255,0.4); font-weight: 300; line-height: 1; transition: color 0.2s; margin-top: -4px; }
         #msLiteToggle:hover { color: #fff; }
 
         #msLiteContent {
