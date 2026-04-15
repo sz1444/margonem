@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Panel dodatków Groli
 // @namespace    http://tampermonkey.net/
-// @version      3.5
+// @version      3.6
 // @description  Panel dodatków Groli
+// @updateURL    https://margonem.vercel.app/hub.user.js
+// @downloadURL  https://margonem.vercel.app/hub.user.js
 // @author       Groli
 // @match        *://nubes.margonem.pl/*
 // @grant        GM_xmlhttpRequest
@@ -126,30 +128,52 @@
         menu.appendChild(saveBtn);
     }
 
-    icon.addEventListener('click', () => {
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    });
+    let isDragging = false;
+    let wasDragged = false;
+    const dragThreshold = 5;
+    let startCoords = { x: 0, y: 0 };
+    let startPos = { x: 0, y: 0 };
 
-    let isDragging = false, startPos = { x: 0, y: 0 };
     icon.addEventListener('mousedown', (e) => {
-        isDragging = true;
+        wasDragged = false; // Reset na początku kliknięcia
+        startCoords = { x: e.clientX, y: e.clientY };
         startPos = { x: e.clientX - hub.offsetLeft, y: e.clientY - hub.offsetTop };
         icon.style.opacity = "0.7";
-        e.preventDefault();
-    });
+        
+        const onMouseMove = (moveEvent) => {
+            const dx = moveEvent.clientX - startCoords.x;
+            const dy = moveEvent.clientY - startCoords.y;
+            
+            if (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold) {
+                wasDragged = true;
+            }
 
-    window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        hub.style.left = (e.clientX - startPos.x) + "px";
-        hub.style.top = (e.clientY - startPos.y) + "px";
-    });
+            if (wasDragged) {
+                hub.style.left = (moveEvent.clientX - startPos.x) + "px";
+                hub.style.top = (moveEvent.clientY - startPos.y) + "px";
+            }
+        };
 
-    window.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
+        const onMouseUp = () => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
             icon.style.opacity = "1";
-            localStorage.setItem('hubPos', JSON.stringify({ top: hub.style.top, left: hub.style.left }));
+
+            if (wasDragged) {
+                localStorage.setItem('hubPos', JSON.stringify({ top: hub.style.top, left: hub.style.left }));
+            }
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+    });
+
+    icon.addEventListener('click', (e) => {
+        if (wasDragged) {
+            e.preventDefault();
+            return;
         }
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     });
 
     initHub();
