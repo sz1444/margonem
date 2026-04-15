@@ -1,18 +1,3 @@
-// ==UserScript==
-// @name         Panel dodatków Groli
-// @namespace    http://tampermonkey.net/
-// @version      3.6
-// @description  Panel dodatków Groli
-// @updateURL    https://margonem.vercel.app/hub.user.js
-// @downloadURL  https://margonem.vercel.app/hub.user.js
-// @author       Groli
-// @match        *://nubes.margonem.pl/*
-// @grant        GM_xmlhttpRequest
-// @grant        unsafeWindow
-// @connect      margonem.vercel.app
-// @connect      firebasedatabase.app
-// ==/UserScript==
-
 (function() {
     'use strict';
 
