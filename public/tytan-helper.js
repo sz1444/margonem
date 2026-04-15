@@ -50,7 +50,7 @@
         #msLiteContainer {
             position: fixed; z-index: 10001; user-select: none;
             display: flex; flex-direction: column; background: rgba(10, 10, 10, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px;
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0,0,0,0.6); font-family: 'Verdana', sans-serif;
             overflow: hidden;
