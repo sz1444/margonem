@@ -341,6 +341,7 @@
             if (hash.includes("access_token=")) {
                 const params = new URLSearchParams(hash.substring(1));
                 const token = params.get("access_token");
+                console.log(token);
                 if (token) {
                     localStorage.setItem('mapSync_dcToken', token);
                     discordToken = token;
