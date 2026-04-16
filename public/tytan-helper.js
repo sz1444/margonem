@@ -33,6 +33,23 @@
     let mapMapping = {}, isInitialized = false;
     let selectedMonster = null;
 
+    function checkUrlForToken() {
+        const hash = window.location.hash;
+        if (hash.includes("access_token=")) {
+            const params = new URLSearchParams(hash.substring(1));
+            const token = params.get("access_token");
+            if (token) {
+                localStorage.setItem('mapSync_dcToken', token);
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return token;
+            }
+        }
+        return null;
+    }
+
+    const tokenFromUrl = checkUrlForToken();
+    if (tokenFromUrl) discordToken = tokenFromUrl;
+
     const playPing = () => {
         try {
             const audio = new Audio('https://margonem.vercel.app/ping.mp3');
