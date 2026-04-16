@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-
+    return;
     const BACKEND_URL = "https://api-i74s.onrender.com";
     const CLIENT_ID = "1488794373775687782";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + window.location.pathname);
