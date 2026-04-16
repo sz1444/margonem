@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Heros Helper - Groli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --dc-bg-main: #ffffff;
+            --dc-bg-side: #f2f3f5;
+            --dc-bg-header: #ebedef;
+            --dc-text-normal: #313338;
+            --dc-text-muted: #5c6370;
+            --dc-border: rgba(0, 0, 0, 0.08);
+            --dc-blurple: #5865f2;
+            --dc-separator: rgba(0, 0, 0, 0.1);
+            --shadow-main: 1px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        body.light-theme {
+            --dc-bg-main: #0e0e10;
+            --dc-bg-side: #0a0a0b;
+            --dc-bg-header: #050506;
+            --dc-text-normal: #dbdee1;
+            --dc-text-muted: #80848e;
+            --dc-border: rgba(255, 255, 255, 0.05);
+            --dc-separator: rgba(255, 255, 255, 0.06);
+            --shadow-main: 1px 2px 15px rgba(0, 0, 0, 0.4);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dc-bg-header);
+            color: var(--dc-text-normal);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .dc-header {
+            height: 48px;
+            background-color: var(--dc-bg-main);
+            border-bottom: 1px solid var(--dc-border);
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .empty-card {
+            background-color: var(--dc-bg-main);
+            border: 1px solid var(--dc-border);
+            border-radius: 12px;
+            padding: 48px 32px;
+            text-align: center;
+            max-width: 540px;
+            box-shadow: var(--shadow-main);
+        }
+        #theme-toggle {
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            color: var(--dc-text-muted);
+            display: flex;
+            align-items: center;
+        }
+        #theme-toggle:hover {
+            background-color: var(--dc-border);
+            color: var(--dc-text-normal);
+        }
+        .status-pill {
+            background-color: var(--dc-bg-side);
+            color: var(--dc-text-muted);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 24px;
+            display: inline-block;
+        }
+        .pulse {
+            animation: pulse-anim 2s infinite;
+        }
+        @keyframes pulse-anim {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="light-theme"> <header class="dc-header">
+        <div class="flex items-center gap-2 px-2 py-1 bg-black/5 dark:bg-white/5 rounded">
+            <h1 class="text-[10px] font-black uppercase tracking-widest">Event Heros Helper</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex flex-col items-end">
+                <span class="text-[8px] text-[#80848e] font-bold uppercase leading-tight">Status sieci</span>
+                <span class="text-[10px] font-bold text-[#f23f43]">OFFLINE</span>
+            </div>
+            <div id="theme-toggle">
+                <span class="material-icons text-lg" id="theme-icon">light_mode</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="empty-card">
+            <div class="status-pill pulse">coming soon </div>
+            
+            <div class="w-20 h-20 bg-[#5865f2]/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-[#5865f2]/20">
+                <span class="material-icons text-[#5865f2] text-4xl">bedtime</span>
+            </div>
+
+            <h2 class="text-xl font-extrabold mb-3 tracking-tight">Brak aktywnego eventu</h2>
+            <p class="text-[13px] text-[#5c6370] dark:text-[#80848e] mb-8 leading-relaxed">
+                Aktualnie nie ma żadnego aktywnego eventu. <br> Wróć gdy tylko pojawi się nowy event.
+            </p>
+
+            <div class="h-[1px] bg-gradient-to-r from-transparent via-[var(--dc-separator)] to-transparent w-full mb-8"></div>
+
+            <div class="flex flex-col gap-1 justify-center items-center">
+                <span class="text-[10px] font-bold text-[#4e5058] tracking-widest italic text-gray-500">
+                    Gru Cha, byłeś zajebisty. Rywalizacja z Tobą to była czysta przyjemność. <br>Co by o Tobie nie mówili na mieście dla mnie jesteś jak brat.
+                </span>
+                <img src="https://micc.garmory-cdn.cloud/obrazki/itemy/but/buty1433.gif" class="w-8 mt-2 p-1">
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-4 text-center">
+        <span class="text-[9px] font-bold text-[#4e5058] uppercase tracking-widest">2026 &copy; By Groli</span>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const body = document.body;
+
+        if (localStorage.getItem('groli_theme') === 'dark') {
+            body.classList.remove('light-theme');
+            themeIcon.innerText = 'dark_mode';
+        } else {
+            body.classList.add('light-theme');
+            themeIcon.innerText = 'light_mode';
+        }
+
+        themeToggle.onclick = () => {
+            const isLight = body.classList.toggle('light-theme');
+            themeIcon.innerText = isLight ? 'light_mode' : 'dark_mode';
+            localStorage.setItem('groli_theme', isLight ? 'light' : 'dark');
+        };
+    </script>
+</body>
+</html>
