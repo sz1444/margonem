@@ -85,7 +85,6 @@
                     url: script.url + "?t=" + new Date().getTime(),
                     onload: function(res) {
                         try {
-                            console.log(res.responseText);
                             if (script.tm_context === true) {
                                 eval(res.responseText);
                             } else {
