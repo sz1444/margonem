@@ -15,16 +15,26 @@
     ];
 
     const DEFAULT_ALERTS = [
-        { code: "Digit1", label: "WOŁAJ", msg: '<b style="color:#e74c3c">Dawać odbijamy!</b>' },
-        { code: "Digit2", label: "ŁAPAĆ", msg: '<b style="color:#e74c3c">Łapać ich!</b>' },
-        { code: "Digit3", label: "DOBIJAĆ", msg: '<b style="color:#e74c3c">Dobijać!</b>' },
-        { code: "Digit4", label: "WCHODZIMY", msg: '<b style="color:#e74c3c">Wchodzimy!</b>' },
-        { code: "Digit5", label: "STOP", msg: '<b style="color:#e74c3c">STOP!</b>' }
+        { code: "Digit1", label: "WOŁAJ", msg: '<b style="color:#e74c3c">Dawać odbijamy!</b>', useAlt: true },
+        { code: "Digit2", label: "ŁAPAĆ", msg: '<b style="color:#e74c3c">Łapać ich!</b>', useAlt: true },
+        { code: "Digit3", label: "DOBIJAĆ", msg: '<b style="color:#e74c3c">Dobijać!</b>', useAlt: true },
+        { code: "Digit4", label: "WCHODZIMY", msg: '<b style="color:#e74c3c">Wchodzimy!</b>', useAlt: true },
+        { code: "Digit5", label: "STOP", msg: '<b style="color:#e74c3c">STOP!</b>', useAlt: true },
+        { code: "KeyY", label: "POMOC", msg: '<b style="color:#e74c3c">Potrzebuje pomocy na mapie</b> $MAP', useAlt: false }
     ];
 
-    let quickAlerts = JSON.parse(localStorage.getItem('msLite_customAlerts')) || DEFAULT_ALERTS;
-    let hiddenMonsters = JSON.parse(localStorage.getItem('msLite_hidden')) || [];
+    const cachedAlerts = JSON.parse(localStorage.getItem('msLite_customAlerts')) || [];
 
+    let quickAlerts = DEFAULT_ALERTS.map(def => {
+        const cached = cachedAlerts.find(c => c.label === def.label);
+        return {
+            ...def,
+            code: cached ? cached.code : def.code,
+            useAlt: cached && cached.hasOwnProperty('useAlt') ? cached.useAlt : def.useAlt
+        };
+    });
+
+    let hiddenMonsters = JSON.parse(localStorage.getItem('msLite_hidden')) || [];
     const BACKEND_URL = "https://margone-api-m207.onrender.com";
     const CLIENT_ID = "1488794373775687782";
 
@@ -121,7 +131,6 @@
 
         .ms-is-not-resping { opacity: 0.4; filter: grayscale(1); }
 
-        /* --- STANDARDOWY WYGLĄD ROGU RESIZE --- */
         #msLiteResizeHandle {
             position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px;
             cursor: se-resize; z-index: 10002;
@@ -182,9 +191,20 @@
 
     function sendAlert(monster, message) {
         if (socket?.readyState === 1) {
-            const data = { text: `<b style="color:white">[${monster}]</b> ${message}`, sender: getHeroName(), ts: Date.now() };
+            const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+            const currentMapName = win.Engine?.map?.d?.name || win.map?.name || "nieznanej mapie";
+
+            let finalMsg = message.replace('$MAP', currentMapName);
+
+            const prefix = monster ? `<b style="color:white">[${monster}]</b> ` : "";
+
+            const data = {
+                text: `${prefix}${finalMsg}`,
+                sender: getHeroName(),
+                ts: Date.now()
+            };
             socket.send(JSON.stringify({ type: 'send_alert', data }));
-            flashCardByMonster(monster);
+            if (monster) flashCardByMonster(monster);
         }
         ctxMenu.style.display = "none";
     }
@@ -217,12 +237,20 @@
         render();
     }
 
-    window.addEventListener('keydown', (e) => {
+window.addEventListener('keydown', (e) => {
         const isTyping = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;
-        const hasModifier = e.altKey || e.metaKey;
-        if (isTyping || !selectedMonster || !hasModifier) return;
-        const alert = quickAlerts.find(a => a.code === e.code);
-        if (alert) { e.preventDefault(); sendAlert(selectedMonster, alert.msg); }
+        if (isTyping) return;
+
+        const alert = quickAlerts.find(a => {
+            const codeMatch = a.code === e.code;
+            const altMatch = a.useAlt ? e.altKey : !e.altKey;
+            return codeMatch && altMatch;
+        });
+
+        if (alert) {
+            e.preventDefault();
+            sendAlert(selectedMonster, alert.msg);
+        }
     });
 
     async function init() {
@@ -331,43 +359,81 @@
         if (restoreBtn) restoreBtn.style.display = hiddenMonsters.length > 0 ? 'block' : 'none';
         content.onwheel = (e) => e.stopPropagation();
         const visibleMaps = MAP_CONFIG.filter(m => !hiddenMonsters.includes(m.monster));
+
         content.innerHTML = visibleMaps.map(map => {
             const data = mapMapping[map.name.toLowerCase()] || { id: `wait_${map.monster}` };
             return `<div class="ms-lite-item ${selectedMonster === map.monster ? 'ms-selected' : ''}" data-monster="${map.monster}" id="card_${data.id}" title="${map.name}"><div class="ms-lite-img" style="background-image: url('${map.icon}');"></div><span class="ms-lite-timer" id="lt_${data.id}">--:--</span></div>`;
         }).join('');
+
         content.querySelectorAll('.ms-lite-item').forEach(item => {
             const monster = item.getAttribute('data-monster');
             item.onclick = (e) => { selectedMonster = (selectedMonster === monster) ? null : monster; render(); };
+
             item.oncontextmenu = (e) => {
                 e.preventDefault(); e.stopPropagation();
                 ctxMenu.innerHTML = `<div style="font-size:9px; color:#888; text-align:center; padding:3px; border-bottom:1px solid rgba(255,255,255,0.1);">${monster}</div>`;
+
                 quickAlerts.forEach((a, index) => {
                     const btn = document.createElement('div');
                     btn.className = "ms-ctx-item";
                     const keyName = a.code.replace('Digit','').replace('Key','').toUpperCase();
-                    btn.innerText = `[Alt+${keyName}] ${a.label}`;
+                    btn.innerText = `[${a.useAlt ? 'Alt+' : ''}${keyName}] ${a.label}`;
+
                     btn.onclick = (ev) => { ev.stopPropagation(); sendAlert(monster, a.msg); };
+
                     btn.oncontextmenu = (ev) => {
                         ev.preventDefault(); ev.stopPropagation();
-                        const input = prompt(`Klawisz:`, keyName);
-                        if (input) {
-                            quickAlerts[index].code = isNaN(input.trim()) ? "Key" + input.trim().toUpperCase() : "Digit" + input.trim();
+
+                        btn.innerText = "Naciśnij klawisz...";
+                        btn.style.color = "#f1c40f";
+
+                        const listener = (keyEvent) => {
+                            // Pozwalamy systemowi przetworzyć Alt, Control, Shift jako modyfikatory
+                            if (['Alt', 'Control', 'Shift', 'Meta'].includes(keyEvent.key)) {
+                                return;
+                            }
+
+                            keyEvent.preventDefault();
+                            keyEvent.stopPropagation();
+
+                            // Zapisujemy kod klawisza i stan klawisza Alt
+                            quickAlerts[index].code = keyEvent.code;
+                            quickAlerts[index].useAlt = keyEvent.altKey;
+
                             localStorage.setItem('msLite_customAlerts', JSON.stringify(quickAlerts));
-                            ctxMenu.style.display = "none"; render();
-                        }
+
+                            // Czyścimy nasłuchiwanie
+                            window.removeEventListener('keydown', listener, true);
+                            ctxMenu.style.display = "none";
+                            render();
+                        };
+
+                        // Dodajemy listener
+                        window.addEventListener('keydown', listener, true);
+
+                        // Kliknięcie gdziekolwiek indziej anuluje nasłuchiwanie, żeby nie zawiesić UI
+                        const canceler = () => {
+                            window.removeEventListener('keydown', listener, true);
+                            render(); // Przywraca pierwotny tekst przycisku
+                        };
+                        setTimeout(() => document.addEventListener('click', canceler, { once: true }), 10);
                     };
+
                     ctxMenu.appendChild(btn);
                 });
+
                 const hideBtn = document.createElement('div');
                 hideBtn.className = "ms-ctx-item ms-ctx-danger"; hideBtn.innerText = "UKRYJ SLOT";
                 hideBtn.onclick = () => { hiddenMonsters.push(monster); localStorage.setItem('msLite_hidden', JSON.stringify(hiddenMonsters)); ctxMenu.style.display = "none"; render(); };
                 ctxMenu.appendChild(hideBtn);
+
                 let posX = e.clientX; let posY = e.clientY;
                 if (posX + 130 > window.innerWidth) posX = window.innerWidth - 130;
                 if (posY + 200 > window.innerHeight) posY = window.innerHeight - 200;
                 ctxMenu.style.left = posX + "px"; ctxMenu.style.top = posY + "px"; ctxMenu.style.display = "block";
-                const close = () => { ctxMenu.style.display = "none"; document.removeEventListener('click', close); };
-                setTimeout(() => document.addEventListener('click', close), 10);
+
+                const closeMenu = () => { ctxMenu.style.display = "none"; document.removeEventListener('click', closeMenu); };
+                setTimeout(() => document.addEventListener('click', closeMenu), 10);
             };
         });
         if (!discordToken) showLoginButton();
