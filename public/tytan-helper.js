@@ -282,7 +282,7 @@
         const content = document.getElementById('msLiteContent');
         if (document.getElementById('msLiteLogin') || isCollapsed || !content) return;
         const btn = document.createElement('div');
-        btn.id = "msLiteLogin"; btn.style = "grid-column: 1 / -1; font-size:11px; background: #5865f2; padding: 6px; border-radius: 4px; cursor: pointer; text-align:center; color: white; font-weight: 600; margin-top: 4px;";
+        btn.id = "msLiteLogin"; btn.style = "grid-column: 1 / -1;font-size: 11px;background: rgb(88, 101, 242);padding: 6px;border-radius: 4px;cursor: pointer;text-align: center;color: white;font-weight: 600;margin-top: 4px;position: absolute;top: 0;bottom: 0;margin: auto;height: 18px;left: 0;right: 0;margin: auto 10px;z-index: 10;";
         btn.innerText = "Połącz konto";
         btn.onclick = () => window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}&response_type=token&scope=identify%20guilds.members.read`;
         content.appendChild(btn);
