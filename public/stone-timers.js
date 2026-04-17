@@ -132,7 +132,6 @@
             const cache = {};
             const timerContainer = document.getElementById('ll-timers');
 
-            console.log('Item:', timerContainer = document.querySelector('.bottom-wrapper'));
             if (!timerContainer) timerContainer = document.querySelector('.bottom-wrapper');
 
             if (!timerContainer) return;
