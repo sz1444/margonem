@@ -130,7 +130,7 @@
     function refreshBossTimerCache() {
         try {
             const cache = {};
-            const timerContainer = document.getElementById('ll-timers');
+            let timerContainer = document.getElementById('ll-timers');
 
             if (!timerContainer) timerContainer = document.querySelector('.bottom-wrapper');
 
