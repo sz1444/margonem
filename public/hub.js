@@ -82,7 +82,7 @@
             if (isActive) {
                 GM_xmlhttpRequest({
                     method: "GET",
-                    url: script.url + "?t=" + new Date().getTime(),,
+                    url: script.url + "?t=" + new Date().getTime(),
                     onload: function(res) {
                         try {
                             if (script.tm_context === true) {
