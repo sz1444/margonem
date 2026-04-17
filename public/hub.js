@@ -51,7 +51,7 @@
     function initHub() {
         GM_xmlhttpRequest({
             method: "GET",
-            url: CONFIG_URL,
+            url: CONFIG_URL + "?t=" + new Date().getTime(),
             onload: function(response) {
                 try {
                     const data = JSON.parse(response.responseText);
@@ -82,7 +82,7 @@
             if (isActive) {
                 GM_xmlhttpRequest({
                     method: "GET",
-                    url: script.url,
+                    url: script.url + "?t=" + new Date().getTime(),,
                     onload: function(res) {
                         try {
                             if (script.tm_context === true) {
