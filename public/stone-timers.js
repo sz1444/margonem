@@ -131,6 +131,9 @@
         try {
             const cache = {};
             const timerContainer = document.getElementById('ll-timers');
+
+            if (!timerContainer) timerContainer = document.querySelector('.bottom-wrapper');
+
             if (!timerContainer) return;
 
             const timerNodes = timerContainer.querySelectorAll('[data-slot="tooltip-trigger"] span');
