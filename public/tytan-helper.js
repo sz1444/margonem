@@ -388,7 +388,6 @@ window.addEventListener('keydown', (e) => {
                         btn.style.color = "#f1c40f";
 
                         const listener = (keyEvent) => {
-                            // Pozwalamy systemowi przetworzyć Alt, Control, Shift jako modyfikatory
                             if (['Alt', 'Control', 'Shift', 'Meta'].includes(keyEvent.key)) {
                                 return;
                             }
@@ -396,22 +395,18 @@ window.addEventListener('keydown', (e) => {
                             keyEvent.preventDefault();
                             keyEvent.stopPropagation();
 
-                            // Zapisujemy kod klawisza i stan klawisza Alt
                             quickAlerts[index].code = keyEvent.code;
                             quickAlerts[index].useAlt = keyEvent.altKey;
 
                             localStorage.setItem('msLite_customAlerts', JSON.stringify(quickAlerts));
 
-                            // Czyścimy nasłuchiwanie
                             window.removeEventListener('keydown', listener, true);
                             ctxMenu.style.display = "none";
                             render();
                         };
 
-                        // Dodajemy listener
                         window.addEventListener('keydown', listener, true);
 
-                        // Kliknięcie gdziekolwiek indziej anuluje nasłuchiwanie, żeby nie zawiesić UI
                         const canceler = () => {
                             window.removeEventListener('keydown', listener, true);
                             render(); // Przywraca pierwotny tekst przycisku
@@ -441,7 +436,8 @@ window.addEventListener('keydown', (e) => {
 
     function updateUI() {
         const now = Date.now();
-        const widget = document.getElementById('ll-timers');
+       let widget = document.getElementById('ll-timers');
+        if (!widget) widget = document.querySelector('.bottom-wrapper');
         const bossEntries = widget ? Array.from(widget.querySelectorAll('[data-slot="tooltip-trigger"]')) : [];
         MAP_CONFIG.forEach(map => {
             const data = mapMapping[map.name.toLowerCase()]; if (!data) return;
