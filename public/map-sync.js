@@ -1,7 +1,7 @@
 (function() {
     'use strict';
     return;
-    const BACKEND_URL = "https://margone-api-m207.onrender.com";
+    const BACKEND_URL = "https://margoneapi-production.up.railway.app";
     const CLIENT_ID = "1488794373775687782";
     const REDIRECT_URI = encodeURIComponent(window.location.origin + window.location.pathname);
     const DISCORD_AUTH_URL = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=identify%20guilds.members.read`;
