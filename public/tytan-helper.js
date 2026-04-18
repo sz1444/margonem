@@ -35,7 +35,7 @@
     });
 
     let hiddenMonsters = JSON.parse(localStorage.getItem('msLite_hidden')) || [];
-    const BACKEND_URL = "https://margone-api-a0hp.onrender.com";
+    const BACKEND_URL = "https://margone-api-m207.onrender.com";
     const CLIENT_ID = "1488794373775687782";
 
     let socket = null, cachedData = {}, currentMyId = null;
