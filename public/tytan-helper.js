@@ -458,7 +458,7 @@ window.addEventListener('keydown', (e) => {
             } else {
                 if (cardEl) cardEl.classList.remove('ms-is-not-resping');
                 if (lastTs > 0) {
-                    const diff = (now - lastTs) / 1000, min = Math.floor(diff / 60), sec = Math.floor(diff % 60).toString().padStart(2, '0');
+                    const diff = Math.max(0, (now - lastTs) / 1000), min = Math.floor(diff / 60), sec = Math.floor(diff % 60).toString().padStart(2, '0');
                     timerEl.innerText = `${min}:${sec}`;
                     if (diff < 300) timerEl.style.color = "#2ecc71"; else if (diff < 600) timerEl.style.color = "#f1c40f"; else timerEl.style.color = "#e74c3c";
                 } else { timerEl.innerText = "--:--"; timerEl.style.color = "#666"; }
