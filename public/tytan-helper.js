@@ -35,6 +35,7 @@
     });
 
     let hiddenMonsters = JSON.parse(localStorage.getItem('msLite_hidden')) || [];
+    let isMuted = localStorage.getItem('msLite_muted') === 'true';
     const BACKEND_URL = "https://margoneapi-production.up.railway.app";
     const CLIENT_ID = "1488794373775687782";
 
@@ -60,7 +61,20 @@
     const tokenFromUrl = checkUrlForToken();
     if (tokenFromUrl) discordToken = tokenFromUrl;
 
+    function setupMute() {
+        const btn = document.getElementById('msLiteMute');
+        btn.innerText = isMuted ? '🔕' : '🔔';
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            isMuted = !isMuted;
+            btn.innerText = isMuted ? '🔕' : '🔔';
+            localStorage.setItem('msLite_muted', isMuted);
+        };
+    }
+
     const playPing = () => {
+        if (isMuted) return;
+        
         try {
             const audio = new Audio('https://margonem.vercel.app/ping.mp3');
             audio.volume = 0.5;
@@ -172,6 +186,7 @@
             <div id="msLiteTitle">Tytan Helper</div>
             <div id="msLiteControls">
                 <div id="msLiteRestore" title="Pokaż wszystkie ukryte sloty">👁</div>
+                <div id="msLiteMute" title="Wycisz pingi" style="cursor:pointer; font-size:12px; transition: transform 0.2s;">🔔</div>
                 <div id="msLiteToggle">${isCollapsed ? '+' : '−'}</div>
             </div>
         </div>
@@ -270,7 +285,7 @@ window.addEventListener('keydown', (e) => {
     });
 
     async function init() {
-        render(); setupDragging(); setupToggle(); setupHeaderContext(); setupResizing();
+        render(); setupDragging(); setupToggle(); setupHeaderContext(); setupResizing();setupMute();
         try {
             const response = await fetch('https://margonem.vercel.app/data.json');
             const config = await response.json();
@@ -486,7 +501,7 @@ window.addEventListener('keydown', (e) => {
         let isDragging = false, offset = { x: 0, y: 0 };
         container.onmousedown = (e) => {
             if (!e.target.closest('#msLiteHeader')) return;
-            if (e.target.id === 'msLiteToggle' || e.target.id === 'msLiteRestore') return;
+            if (e.target.id === 'msLiteToggle' || e.target.id === 'msLiteRestore' || e.target.id === 'msLiteMute') return;
             isDragging = true; offset.x = e.clientX - container.offsetLeft; offset.y = e.clientY - container.offsetTop;
         };
         window.addEventListener('mousemove', (e) => {
