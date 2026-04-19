@@ -449,7 +449,7 @@ window.addEventListener('keydown', (e) => {
                 });
 
                 const hideBtn = document.createElement('div');
-                hideBtn.className = "ms-ctx-item ms-ctx-danger"; hideBtn.innerText = "UKRYJ SLOT";
+                hideBtn.className = "ms-ctx-item ms-ctx-danger"; hideBtn.innerText = "UKRYJ TYTANA I POWIADOMIENIA";
                 hideBtn.onclick = () => { hiddenMonsters.push(monster); localStorage.setItem('msLite_hidden', JSON.stringify(hiddenMonsters)); ctxMenu.style.display = "none"; render(); };
                 ctxMenu.appendChild(hideBtn);
 
