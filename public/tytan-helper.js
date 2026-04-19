@@ -201,6 +201,7 @@
             const data = {
                 text: `${prefix}${finalMsg}`,
                 sender: getHeroName(),
+                monster: monster || null,
                 ts: Date.now()
             };
             socket.send(JSON.stringify({ type: 'send_alert', data }));
@@ -220,7 +221,8 @@
 
     function showGlobalAlert(data) {
         if (!data?.text) return;
-        MAP_CONFIG.forEach(map => { if (data.text.includes(`[${map.monster}]`)) flashCardByMonster(map.monster); });
+        if (data.monster && hiddenMonsters.includes(data.monster)) return;
+        if (data.monster) flashCardByMonster(data.monster);
         playPing();
         if (document.getElementById('globalAlertModal') || document.getElementById('mapSyncContainer')) return;
         
