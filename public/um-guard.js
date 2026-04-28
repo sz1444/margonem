@@ -21,8 +21,6 @@
         {
             const mapName= getMapName();
 
-            console.log(mapName);
-
             if (mapActiveModal.includes(mapName)) return showModal();
         }
 
@@ -43,7 +41,8 @@
 
         function showModal() {
             const modal = document.createElement('div');
-            const activeSkill = window.Engine.buildsManager.getBuildsCommons().getCurrentId();
+            const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+            const activeSkill = win.Engine.buildsManager.getBuildsCommons().getCurrentId();
             const modalExist = document.querySelector('#alertUmChange');
 
          if (modalExist) return;
@@ -120,11 +119,12 @@
 
     // Czeka aż Engine i buildsManager będą gotowe
     const interval = setInterval(() => {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         try {
             if (
-                window.Engine &&
-                window.Engine.buildsManager &&
-                isNotEmpty(window.Engine.buildsManager.getBuildsCommons().getBuildsName())
+                win.Engine &&
+                win.Engine.buildsManager &&
+                isNotEmpty(win.Engine.buildsManager.getBuildsCommons().getBuildsName())
             ) {
                 clearInterval(interval);
                 init();
