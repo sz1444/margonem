@@ -30,6 +30,13 @@
       "name": "Tytan Helper",
       "url": "https://margonem.vercel.app/tytan-helper.js",
       "description": "Obstawiaj tytana, synchronizuj z innymi graczami i sprawdzaj, kto jest na której mapie."
-    }
+    },
+    {
+      "id": "um-guard",
+      "name": "UMguard",
+      "url": "https://margonem.vercel.app/um-guard.js",
+      "description": "Automatycznie wykrywa mapy z Tytanem/Kolosem i przypomina o zmianie układu umiejętności.",
+      "tm_context": true
+    } 
   ]
 }
