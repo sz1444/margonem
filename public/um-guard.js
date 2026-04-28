@@ -2,9 +2,10 @@
     'use strict';
 
     const mapActiveModal = ['Katakumby Antycznego Gniewu - przedsionek', 'Przejście Władców Mrozu', 'Sekretne Przejście Kapłanów', 'Bandyckie Chowisko', 'Wulkan Politraki - przedsionek', 'Lokum Złych Goblinów p.4', 'Jaskinia Ulotnych Wspomnień', 'Więzienie Demonów', 'Nora Jaszczurzych Koszmarów p.1 - sala 2', 'Teotihuacan - przedsionek',];
+    const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
 
     function init() {
-        const skillsList = window.Engine.buildsManager.getBuildsCommons().getBuildsName();
+        const skillsList = win.Engine.buildsManager.getBuildsCommons().getBuildsName();
 
         const mapNameElement = document.querySelector(".location");
 
@@ -25,7 +26,6 @@
         }
 
          function getMapName() {
-             const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
              return win.Engine?.map?.d?.name || win.map?.name || "???";
          }
 
@@ -41,7 +41,6 @@
 
         function showModal() {
             const modal = document.createElement('div');
-            const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
             const activeSkill = win.Engine.buildsManager.getBuildsCommons().getCurrentId();
             const modalExist = document.querySelector('#alertUmChange');
 
@@ -119,7 +118,6 @@
 
     // Czeka aż Engine i buildsManager będą gotowe
     const interval = setInterval(() => {
-        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         try {
             if (
                 win.Engine &&
