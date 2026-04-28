@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    const CONFIG_URL = "https://margonem.vercel.app/scripts-dex.json";
+    const CONFIG_URL = "https://margonem.vercel.app/scripts-dev.json";
 
     const savedPos = JSON.parse(localStorage.getItem('hubPos')) || { top: "80%", left: "20px" };
 
