@@ -3,6 +3,62 @@
 
     const mapActiveModal = ['Katakumby Antycznego Gniewu - przedsionek', 'Przejście Władców Mrozu', 'Sekretne Przejście Kapłanów', 'Bandyckie Chowisko', 'Wulkan Politraki - przedsionek', 'Lokum Złych Goblinów p.4', 'Jaskinia Ulotnych Wspomnień', 'Więzienie Demonów', 'Nora Jaszczurzych Koszmarów p.1 - sala 2', 'Teotihuacan - przedsionek',];
     const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+    const STORAGE_KEY = 'umguard_modal_pos';
+
+    function loadPosition() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : null;
+        } catch { return null; }
+    }
+
+    function savePosition(x, y) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ x, y }));
+        } catch {}
+    }
+
+    function applyPosition(modal, x, y) {
+        const maxX = window.innerWidth - modal.offsetWidth;
+        const maxY = window.innerHeight - modal.offsetHeight;
+        const clampedX = Math.max(0, Math.min(x, maxX));
+        const clampedY = Math.max(0, Math.min(y, maxY));
+        modal.style.left = clampedX + 'px';
+        modal.style.top = clampedY + 'px';
+        modal.style.transform = 'none';
+    }
+
+    function makeDraggable(modal) {
+        let isDragging = false;
+        let startX, startY, startLeft, startTop;
+
+        modal.style.cursor = 'grab';
+
+        modal.addEventListener('mousedown', (e) => {
+            if (e.target.id === 'closeGlobalAlert' || e.target.dataset.id) return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startLeft = modal.offsetLeft;
+            startTop = modal.offsetTop;
+            modal.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const newX = startLeft + (e.clientX - startX);
+            const newY = startTop + (e.clientY - startY);
+            applyPosition(modal, newX, newY);
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            modal.style.cursor = 'grab';
+            savePosition(modal.offsetLeft, modal.offsetTop);
+        });
+    }
 
     function init() {
         const skillsList = win.Engine.buildsManager.getBuildsCommons().getBuildsName();
@@ -15,19 +71,17 @@
         }
 
         const observer = new MutationObserver(() => {
-           checkShowModal();
+            checkShowModal();
         });
 
-        function checkShowModal()
-        {
-            const mapName= getMapName();
-
+        function checkShowModal() {
+            const mapName = getMapName();
             if (mapActiveModal.includes(mapName)) return showModal();
         }
 
-         function getMapName() {
-             return win.Engine?.map?.d?.name || win.map?.name || "???";
-         }
+        function getMapName() {
+            return win.Engine?.map?.d?.name || win.map?.name || "???";
+        }
 
         observer.observe(mapNameElement, {
             characterData: true,
@@ -40,21 +94,21 @@
         }
 
         function showModal() {
+            const modalExist = document.querySelector('#alertUmChange');
+            if (modalExist) return;
+
             const modal = document.createElement('div');
             const activeSkill = win.Engine.buildsManager.getBuildsCommons().getCurrentId();
-            const modalExist = document.querySelector('#alertUmChange');
-
-         if (modalExist) return;
 
             modal.id = "alertUmChange";
             modal.style.cssText = `
-        position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
-        background: rgba(20, 20, 20, 0.9); color: white; padding: 16px 25px;
-        z-index: 30000; border-radius: 4px; font-family: 'Verdana', sans-serif;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-        border: 1px solid rgba(255,255,255,0.1); min-width: 320px;
-    `;
+                position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+                background: rgba(20, 20, 20, 0.9); color: white; padding: 16px 25px;
+                z-index: 30000; border-radius: 4px; font-family: 'Verdana', sans-serif;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+                border: 1px solid rgba(255,255,255,0.1); min-width: 320px;
+            `;
 
             const entries = Object.entries(skillsList);
             const rows = [];
@@ -63,35 +117,42 @@
             }
 
             const buttonsHTML = rows.map(row => `
-        <div style="display: flex; gap: 6px; margin: 6px 0;">
-            ${row.map(([id, skill]) => `
-                <div data-id="${id}" style="
-                    cursor: pointer; padding: 2px 10px; flex: 1;
-                     border-radius: 3px; background: rgba(255,255,255,0.08);
-                    font-size: 9px; letter-spacing: 0.5px; white-space: nowrap;
-                    overflow: hidden; text-overflow: ellipsis; border: 2px solid;
-                    ${id == activeSkill ? "border-color: rgba(231,76,60,0.4);" : "border-color: rgba(255,255,255,0.08)"}
-                " onmouseover="this.style.background='rgba(231,76,60,0.4)'"
-                   onmouseout="this.style.background='rgba(255,255,255,0.08)'">
-                    ${skill.name}
+                <div style="display: flex; gap: 6px; margin: 6px 0;">
+                    ${row.map(([id, skill]) => `
+                        <div data-id="${id}" style="
+                            cursor: pointer; padding: 2px 10px; flex: 1;
+                            border-radius: 3px; background: rgba(255,255,255,0.08);
+                            font-size: 9px; letter-spacing: 0.5px; white-space: nowrap;
+                            overflow: hidden; text-overflow: ellipsis; border: 2px solid;
+                            ${id == activeSkill ? "border-color: rgba(231,76,60,0.4);" : "border-color: rgba(255,255,255,0.08)"}
+                        " onmouseover="this.style.background='rgba(231,76,60,0.4)'"
+                           onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+                            ${skill.name}
+                        </div>
+                    `).join('')}
                 </div>
-            `).join('')}
-        </div>
-    `).join('');
+            `).join('');
 
             modal.innerHTML = `
-        <div style="position: absolute; top: 2px; right: 6px; cursor: pointer;
-                    font-size: 14px; opacity: 0.5;" id="closeGlobalAlert">×</div>
-        <div style="font-size: 12px;  font-weight: bold; margin-bottom: 4px; letter-spacing: 0.5px;">
-            <span style="color: #e74c3c; ">Jesteś na mapie z Tytanem/Kolosem!</span> Wybierz UM!
-        </div>
-        ${buttonsHTML}
-    `;
-
+                <div style="position: absolute; top: 2px; right: 6px; cursor: pointer;
+                            font-size: 14px; opacity: 0.5;" id="closeGlobalAlert">×</div>
+                <div style="font-size: 12px; font-weight: bold; margin-bottom: 4px; letter-spacing: 0.5px;">
+                    <span style="color: #e74c3c;">Jesteś na mapie z Tytanem/Kolosem!</span> Wybierz UM!
+                </div>
+                ${buttonsHTML}
+            `;
 
             document.body.appendChild(modal);
 
-            const autoCloseTimer = setTimeout(function() { modal.remove(); }, 60000);
+            // Przywróć zapisaną pozycję lub zostaw domyślną (center top)
+            const savedPos = loadPosition();
+            if (savedPos) {
+                applyPosition(modal, savedPos.x, savedPos.y);
+            }
+
+            makeDraggable(modal);
+
+            const autoCloseTimer = setTimeout(() => modal.remove(), 60000);
 
             document.getElementById('closeGlobalAlert').onclick = () => {
                 clearTimeout(autoCloseTimer);
@@ -105,7 +166,6 @@
                     modal.remove();
                 };
             });
-
         }
 
         checkShowModal();
@@ -115,8 +175,6 @@
         return obj && typeof obj === 'object' && Object.keys(obj).length > 0;
     }
 
-
-    // Czeka aż Engine i buildsManager będą gotowe
     const interval = setInterval(() => {
         try {
             if (
@@ -127,9 +185,7 @@
                 clearInterval(interval);
                 init();
             }
-        } catch (e) {
-            // jeszcze nie gotowe, czekamy
-        }
+        } catch (e) {}
     }, 200);
 
 })();
