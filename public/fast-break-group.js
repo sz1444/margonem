@@ -126,7 +126,7 @@
 
             const recBtn = document.createElement('button');
             recBtn.style.cssText = 'width:100%;padding:5px;font-size:9px;font-family:Verdana,sans-serif;font-weight:bold;background:#222;color:#eee;border:1px solid #444;border-radius:4px;cursor:pointer;text-align:center;';
-            recBtn.textContent = 'Nagraj klawisz';
+            recBtn.textContent = 'Przypisz klawisz';
 
             const clrBtn = document.createElement('button');
             clrBtn.style.cssText = 'width:100%;margin-top:4px;padding:4px;font-size:9px;font-family:Verdana,sans-serif;background:none;color:#666;border:none;cursor:pointer;text-align:center;';
