@@ -10,10 +10,11 @@
         #hubMain { position: fixed; z-index: 30000; font-family: 'Verdana', sans-serif; user-select: none; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
         #hubIcon { width: 32px; height: 32px; background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: move; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: transform 0.2s; }
         #hubIcon:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.3); }
-        #hubMenu { display: none; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; min-width: 180px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .hub-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 15px; }
+        #hubMenu { display: none; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); max-width: 360px; border-radius: 10px; padding: 12px; min-width: 180px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .hub-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 15px; border-bottom: 1px solid #222222; }
+        .hub-desc { font-size: 8px; font-weight: 300;     text-transform: none; color: #adadad; margin-top: 2px;}
         .hub-label { color: #eee; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; }
-        .hub-toggle { width: 34px; height: 16px; background: #333; border-radius: 10px; position: relative; cursor: pointer; transition: background 0.3s; border: 1px solid rgba(255,255,255,0.05); }
+        .hub-toggle { min-width: 30px; height: 16px; background: #333; border-radius: 10px; position: relative; cursor: pointer; transition: background 0.3s; border: 1px solid rgba(255,255,255,0.05); }
         .hub-toggle.active { background: #2ecc71; box-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
         .hub-circle { width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; top: 1.5px; left: 2px; transition: all 0.2s; }
         .hub-toggle.active .hub-circle { left: 18px; }
@@ -41,7 +42,7 @@
 
     const saveBtn = document.createElement('button');
     saveBtn.id = "hubSaveBtn";
-    saveBtn.innerText = "ZAPISZ I ODŚWIEŻ";
+    saveBtn.innerText = "ODŚWIEŻ";
     saveBtn.onclick = () => location.reload();
 
     hub.appendChild(icon);
@@ -73,7 +74,10 @@
             const isActive = localStorage.getItem("hub_" + script.id) === "true";
             const row = document.createElement('div');
             row.className = "hub-row";
-            row.innerHTML = `<span class="hub-label">${script.name}</span>`;
+            row.innerHTML = `<span class="hub-label">
+            ${script.name}
+            <p class="hub-desc">${script.description}</p>
+            </span>`;
 
             const toggle = document.createElement('div');
             toggle.className = `hub-toggle ${isActive ? 'active' : ''}`;
@@ -124,18 +128,28 @@
         startCoords = { x: e.clientX, y: e.clientY };
         startPos = { x: e.clientX - hub.offsetLeft, y: e.clientY - hub.offsetTop };
         icon.style.opacity = "0.7";
-        
+
         const onMouseMove = (moveEvent) => {
             const dx = moveEvent.clientX - startCoords.x;
             const dy = moveEvent.clientY - startCoords.y;
-            
+
             if (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold) {
                 wasDragged = true;
             }
 
             if (wasDragged) {
-                hub.style.left = (moveEvent.clientX - startPos.x) + "px";
-                hub.style.top = (moveEvent.clientY - startPos.y) + "px";
+                const hubW = hub.offsetWidth;
+                const hubH = hub.offsetHeight;
+
+                let newLeft = moveEvent.clientX - startPos.x;
+                let newTop = moveEvent.clientY - startPos.y;
+
+                // Blokada granic ekranu
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - hubW));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - hubH));
+
+                hub.style.left = newLeft + "px";
+                hub.style.top = newTop + "px";
             }
         };
 
