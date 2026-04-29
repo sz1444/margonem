@@ -12,7 +12,7 @@
         #hubIcon:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.3); }
         #hubMenu { display: none; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); max-width: 360px; border-radius: 10px; padding: 12px; min-width: 180px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         .hub-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 15px; border-bottom: 1px solid #222222; }
-        .hub-desc { width:100%; font-size: 8px; font-weight: 300; line-height:1.2;  text-transform: none; color: #adadad; margin-top: 2px;}
+        .hub-desc { padding-bottom: 5px; width:100%; font-size: 8px; font-weight: 300; line-height:1.2;  text-transform: none; color: #adadad; margin-top: 2px;}
         .hub-label {display: flex; flex-wrap: wrap; gap: 2px; align-items:center; color: #eee; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; }
         .hub-toggle { min-width: 30px; height: 16px; background: #333; border-radius: 10px; position: relative; cursor: pointer; transition: background 0.3s; border: 1px solid rgba(255,255,255,0.05); }
         .hub-toggle.active { background: #2ecc71; box-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
