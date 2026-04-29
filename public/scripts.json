@@ -37,6 +37,13 @@
       "url": "https://margonem.vercel.app/um-guard.js",
       "description": "Automatycznie wykrywa mapy z Tytanem/Kolosem i przypomina o zmianie umiejętności.",
       "tm_context": true
+    },
+    {
+      "id": "fast-break-group",
+      "name": "Fast Break Group",
+      "url": "https://margonem.vercel.app/um-guard.js",
+      "description": "Rozwiązuje grupę jednym klawiszem.",
+      "tm_context": true
     } 
   ]
 }
