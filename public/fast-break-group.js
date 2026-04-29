@@ -3,6 +3,7 @@
 
     const SCRIPT_LABEL = 'Fast Break Group';
     const STORAGE_KEY  = 'hub_keybind_fast_brake_group';
+    const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
 
     function getBinding() {
         try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); }
@@ -32,8 +33,8 @@
     }
 
     function disbandParty() {
-        if (typeof window._g === 'function') {
-            window._g('party&a=disband');
+        if (typeof win._g === 'function') {
+            win._g('party&a=disband');
         }
     }
 
@@ -142,7 +143,7 @@
             const ph = p.offsetHeight;
             let top = gr.bottom + 6;
             let left = gr.left - pw + gr.width;
-            if (top + ph > window.innerHeight - 10) top = gr.top - ph - 6;
+            if (top + ph > win.innerHeight - 10) top = gr.top - ph - 6;
             if (left < 6) left = 6;
             p.style.top  = top  + 'px';
             p.style.left = left + 'px';
