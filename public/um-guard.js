@@ -4,6 +4,7 @@
     const mapActiveModal = ['Katakumby Antycznego Gniewu - przedsionek', 'Przejście Władców Mrozu', 'Sekretne Przejście Kapłanów', 'Bandyckie Chowisko', 'Wulkan Politraki - przedsionek', 'Lokum Złych Goblinów p.4', 'Jaskinia Ulotnych Wspomnień', 'Więzienie Demonów', 'Nora Jaszczurzych Koszmarów p.1 - sala 2', 'Teotihuacan - przedsionek',];
     const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
     const STORAGE_KEY = 'umguard_modal_pos';
+    const AUTOCLOSE_KEY = 'umguard_autoclose';
 
     function loadPosition() {
         try {
@@ -15,6 +16,20 @@
     function savePosition(x, y) {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({ x, y }));
+        } catch {}
+    }
+
+    function loadAutoClose() {
+        try {
+            const saved = localStorage.getItem(AUTOCLOSE_KEY);
+            // domyślnie włączone (true), jeśli nic nie zapisano
+            return saved === null ? true : JSON.parse(saved);
+        } catch { return true; }
+    }
+
+    function saveAutoClose(value) {
+        try {
+            localStorage.setItem(AUTOCLOSE_KEY, JSON.stringify(value));
         } catch {}
     }
 
@@ -35,7 +50,7 @@
         modal.style.cursor = 'grab';
 
         modal.addEventListener('mousedown', (e) => {
-            if (e.target.id === 'closeGlobalAlert' || e.target.dataset.id) return;
+            if (e.target.id === 'closeGlobalAlert' || e.target.dataset.id || e.target.id === 'umguardAutocloseToggle' || e.target.closest('#umguardAutocloseToggle')) return;
             isDragging = true;
             startX = e.clientX;
             startY = e.clientY;
@@ -99,6 +114,7 @@
 
             const modal = document.createElement('div');
             const activeSkill = win.Engine.buildsManager.getBuildsCommons().getCurrentId();
+            let autoCloseEnabled = loadAutoClose();
 
             modal.id = "alertUmChange";
             modal.style.cssText = `
@@ -140,11 +156,27 @@
                     <span style="color: #e74c3c;">Jesteś na mapie z Tytanem/Kolosem!</span> Wybierz UM!
                 </div>
                 ${buttonsHTML}
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 7px; opacity: 0.7;">
+                    <label id="umguardAutocloseToggle" style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 9px; letter-spacing: 0.5px; user-select: none;">
+                        <div id="umguardToggleTrack" style="
+                            position: relative; width: 28px; height: 15px; border-radius: 8px;
+                            background: ${autoCloseEnabled ? 'rgba(231,76,60,0.7)' : 'rgba(255,255,255,0.15)'};
+                            transition: background 0.2s; flex-shrink: 0;
+                        ">
+                            <div id="umguardToggleThumb" style="
+                                position: absolute; top: 2px;
+                                left: ${autoCloseEnabled ? '15px' : '2px'};
+                                width: 11px; height: 11px; border-radius: 50%;
+                                background: white; transition: left 0.2s;
+                            "></div>
+                        </div>
+                        Auto zamykanie (60s)
+                    </label>
+                </div>
             `;
 
             document.body.appendChild(modal);
 
-            // Przywróć zapisaną pozycję lub zostaw domyślną (center top)
             const savedPos = loadPosition();
             if (savedPos) {
                 applyPosition(modal, savedPos.x, savedPos.y);
@@ -152,7 +184,32 @@
 
             makeDraggable(modal);
 
-            const autoCloseTimer = setTimeout(() => modal.remove(), 60000);
+            let autoCloseTimer = null;
+
+            function startAutoClose() {
+                clearTimeout(autoCloseTimer);
+                if (autoCloseEnabled) {
+                    autoCloseTimer = setTimeout(() => modal.remove(), 60000);
+                }
+            }
+
+            startAutoClose();
+
+            document.getElementById('umguardAutocloseToggle').addEventListener('click', () => {
+                autoCloseEnabled = !autoCloseEnabled;
+                saveAutoClose(autoCloseEnabled);
+
+                const track = document.getElementById('umguardToggleTrack');
+                const thumb = document.getElementById('umguardToggleThumb');
+                track.style.background = autoCloseEnabled ? 'rgba(231,76,60,0.7)' : 'rgba(255,255,255,0.15)';
+                thumb.style.left = autoCloseEnabled ? '15px' : '2px';
+
+                if (autoCloseEnabled) {
+                    startAutoClose();
+                } else {
+                    clearTimeout(autoCloseTimer);
+                }
+            });
 
             document.getElementById('closeGlobalAlert').onclick = () => {
                 clearTimeout(autoCloseTimer);
