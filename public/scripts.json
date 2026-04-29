@@ -35,7 +35,7 @@
       "id": "um-guard",
       "name": "UMguard",
       "url": "https://margonem.vercel.app/um-guard.js",
-      "description": "Automatycznie wykrywa mapy z Tytanem/Kolosem i przypomina o zmianie układu umiejętności.",
+      "description": "Automatycznie wykrywa mapy z Tytanem/Kolosem i przypomina o zmianie umiejętności.",
       "tm_context": true
     } 
   ]
