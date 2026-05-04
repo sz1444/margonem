@@ -164,6 +164,7 @@
 
     function formatTime(raw) {
         if (!raw || typeof raw !== 'string') return "??";
+        if (raw.trim().startsWith('-')) return "brak";
         const parts = raw.split(':');
         return parts.length === 3 ? `${parts[1]}:${parts[2]}` : raw;
     }
@@ -192,6 +193,7 @@
                 if (found) {
                     const { time, color } = bossTimerCache[found];
                     const formatted = formatTime(time);
+                    const isExpired = formatted === "brak";  
                     if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
                     if (stone.dom.style.color !== color) stone.dom.style.color = color;
                 } else {
