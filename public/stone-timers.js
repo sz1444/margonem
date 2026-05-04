@@ -195,6 +195,7 @@
                     const formatted = formatTime(time);
                     const isExpired = formatted === "brak";  
                     if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
+                    const displayColor = isExpired ? "rgba(255, 255, 255, 0.4)" : color;
                     if (stone.dom.style.color !== color) stone.dom.style.color = color;
                 } else {
                     const fallback = 'brak';
