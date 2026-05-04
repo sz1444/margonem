@@ -189,20 +189,19 @@
                          fullTextFromGame.includes(bossName)
                     );
                 });
-
-                if (found) {
-                    const { time, color } = bossTimerCache[found];
-                    const formatted = formatTime(time);
-                    const isExpired = formatted === "brak";  
-                    if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
-                    const displayColor = isExpired ? "rgba(255, 255, 255, 0.4)" : color;
-                    if (stone.dom.style.color !== color) stone.dom.style.color = color;
-                } else {
-                    const fallback = 'brak';
-                    if (stone.dom.innerText !== fallback) stone.dom.innerText = fallback;
-                    const fadedColor = "rgba(255, 255, 255, 0.4)";
-                    if (stone.dom.style.color !== fadedColor) stone.dom.style.color = fadedColor;
-                }
+                    if (found) {
+                        const { time, color } = bossTimerCache[found];
+                        const formatted = formatTime(time);
+                        const isExpired = formatted === "brak";  
+                        if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
+                        const displayColor = isExpired ? "rgba(255, 255, 255, 0.4)" : color;
+                        if (stone.dom.style.color !== displayColor) stone.dom.style.color = displayColor; // ← displayColor zamiast color
+                    } else {
+                        const fallback = 'brak';
+                        if (stone.dom.innerText !== fallback) stone.dom.innerText = fallback;
+                        const fadedColor = "rgba(255, 255, 255, 0.4)";
+                        if (stone.dom.style.color !== fadedColor) stone.dom.style.color = fadedColor;
+                    }
             });
         } catch (tickErr) {
             console.error("Błąd w pętli renderującej smoothTick:", tickErr);
