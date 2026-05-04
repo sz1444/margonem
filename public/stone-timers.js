@@ -46,9 +46,6 @@
     let lastBossTimerUpdate = 0;
     let activeStones = [];
 
-    /**
-     * Bezpieczne parsowanie statystyk przedmiotu
-     */
     function parseStats(item) {
         try {
             if (!item || typeof item !== 'object') return {};
@@ -82,9 +79,7 @@
         return el;
     }
 
-    /**
-     * Synchronizacja ekwipunku z obsługą błędów DOM
-     */
+
     function syncInventory() {
         try {
             const items = IS_NEW_INTERFACE
@@ -124,9 +119,6 @@
         }
     }
 
-    /**
-     * Odświeżanie cache timerów z zabezpieczeniem przed brakiem kontenera
-     */
     function refreshBossTimerCache() {
         try {
             const cache = {};
@@ -153,7 +145,6 @@
                         }
                     }
                 } catch (nodeErr) {
-                    // Ignoruj błędy pojedynczych węzłów timerów
                 }
             });
             bossTimerCache = cache;
@@ -169,9 +160,6 @@
         return parts.length === 3 ? `${parts[1]}:${parts[2]}` : raw;
     }
 
-    /**
-     * Główna pętla renderująca z catch-all
-     */
     function smoothTick(timestamp) {
         try {
             if (timestamp - lastBossTimerUpdate > BOSS_TIMER_TTL) {
@@ -196,7 +184,7 @@
                     const isExpired = formatted === "brak";  
                     if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
                     const displayColor = isExpired ? "rgba(255, 255, 255, 0.4)" : color;
-                    if (stone.dom.style.color !== displayColor) stone.dom.style.color = displayColor; // ← displayColor zamiast color
+                    if (stone.dom.style.color !== displayColor) stone.dom.style.color = displayColor;
                 } else {
                     const fallback = 'brak';
                     if (stone.dom.innerText !== fallback) stone.dom.innerText = fallback;
@@ -211,7 +199,6 @@
         requestAnimationFrame(smoothTick);
     }
 
-    // Bezpieczny start
     try {
         setTimeout(syncInventory, 1000);
         setInterval(syncInventory, 3000);
