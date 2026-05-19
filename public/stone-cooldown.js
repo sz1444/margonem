@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    const OVERLAY_COLOR = "rgba(0, 0, 0, 0.5)"; 
+    const OVERLAY_COLOR = "rgba(0, 0, 0, 0.6)"; 
     const SYNC_INTERVAL = 3000;                     
 
     const IS_NEW_INTERFACE = typeof window.Engine !== "undefined";
