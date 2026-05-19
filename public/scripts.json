@@ -42,8 +42,7 @@
       "id": "stone-cooldown",
       "name": "Stone Cooldown",
       "url": "https://margonem.vercel.app/stone-cooldown.js",
-      "description": "Nakładka cooldownu na kamieniach teleportu.",
-      "tm_context": true
+      "description": "Nakładka cooldownu na kamieniach teleportu."
     },
     {
       "id": "fast-break-group",
