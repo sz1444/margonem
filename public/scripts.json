@@ -38,12 +38,19 @@
       "description": "Automatycznie wykrywa mapy z Tytanem/Kolosem i przypomina o zmianie umiejętności.",
       "tm_context": true
     },
+      {
+      "id": "stone-cooldown",
+      "name": "Stone Cooldown",
+      "url": "https://margonem.vercel.app/stone-cooldown.js",
+      "description": "Nakładka cooldownu na kamieniach teleportu.",
+      "tm_context": true
+    },
     {
       "id": "fast-break-group",
       "name": "Fast Break Group",
       "url": "https://margonem.vercel.app/fast-break-group.js",
       "description": "Rozwiązuje grupę jednym klawiszem.",
       "tm_context": true
-    } 
+    },
   ]
 }
