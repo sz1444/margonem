@@ -57,6 +57,12 @@
       "url": "https://margonem.vercel.app/auto-break-group.js",
       "description": "Automatycznie rozwiązuje lub opuszcza grupę natychmiast po zakończeniu walki (jeśli opcja była włączona w trakcie walki).",
       "tm_context": true
+    },
+    {
+      "id": "routing",
+      "name": "Routing",
+      "url": "https://margonem.vercel.app/routing.js",
+      "description": "Rysuje optymalną trasę na mini mapie do latania ulepy/emek."
     }
   ]
 }
