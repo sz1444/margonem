@@ -27,9 +27,11 @@
 8191: [{"x":169,"y":216},{"x":169,"y":213},{"x":169,"y":210},{"x":169,"y":207},{"x":169,"y":204},{"x":168,"y":202},{"x":166,"y":201},{"x":163,"y":201},{"x":161,"y":200},{"x":158,"y":200},{"x":155,"y":200},{"x":152,"y":200},{"x":149,"y":200},{"x":146,"y":200},{"x":144,"y":201},{"x":141,"y":201},{"x":139,"y":202},{"x":136,"y":202},{"x":134,"y":203},{"x":131,"y":204},{"x":128,"y":204},{"x":125,"y":205},{"x":122,"y":205},{"x":119,"y":205},{"x":116,"y":205},{"x":113,"y":206},{"x":110,"y":206},{"x":107,"y":206},{"x":104,"y":206},{"x":102,"y":205},{"x":100,"y":204},{"x":98,"y":203},{"x":95,"y":202},{"x":93,"y":201},{"x":91,"y":200},{"x":89,"y":199},{"x":88,"y":197},{"x":86,"y":196},{"x":85,"y":194},{"x":84,"y":192},{"x":82,"y":191},{"x":81,"y":189},{"x":80,"y":187},{"x":78,"y":185},{"x":76,"y":184},{"x":75,"y":182},{"x":73,"y":181},{"x":72,"y":179},{"x":70,"y":178},{"x":68,"y":177},{"x":69,"y":179},{"x":71,"y":181},{"x":73,"y":183},{"x":74,"y":185},{"x":76,"y":186},{"x":77,"y":188},{"x":78,"y":190},{"x":79,"y":192},{"x":81,"y":193},{"x":82,"y":195},{"x":84,"y":196},{"x":86,"y":197},{"x":88,"y":198},{"x":90,"y":199},{"x":92,"y":200},{"x":95,"y":201},{"x":98,"y":201},{"x":101,"y":201},{"x":104,"y":201},{"x":107,"y":201},{"x":109,"y":202},{"x":112,"y":202},{"x":115,"y":202},{"x":117,"y":203},{"x":120,"y":203},{"x":123,"y":203},{"x":125,"y":202},{"x":128,"y":202},{"x":131,"y":202},{"x":134,"y":202},{"x":136,"y":201},{"x":139,"y":201},{"x":142,"y":201},{"x":145,"y":201},{"x":147,"y":200},{"x":150,"y":200},{"x":152,"y":199},{"x":155,"y":199},{"x":157,"y":198},{"x":160,"y":198},{"x":162,"y":197},{"x":165,"y":197},{"x":168,"y":196},{"x":171,"y":196},{"x":172,"y":194},{"x":174,"y":193},{"x":175,"y":191},{"x":177,"y":190},{"x":178,"y":188},{"x":180,"y":187},{"x":181,"y":185},{"x":183,"y":184},{"x":184,"y":182},{"x":185,"y":180},{"x":186,"y":178},{"x":187,"y":176},{"x":188,"y":174},{"x":189,"y":172},{"x":189,"y":169},{"x":189,"y":166},{"x":189,"y":163},{"x":189,"y":160},{"x":189,"y":157},{"x":189,"y":154},{"x":189,"y":151},{"x":189,"y":148},{"x":189,"y":145},{"x":189,"y":142},{"x":189,"y":139},{"x":189,"y":136},{"x":188,"y":134},{"x":188,"y":131},{"x":188,"y":128},{"x":188,"y":125},{"x":188,"y":122},{"x":188,"y":118},{"x":188,"y":115},{"x":188,"y":112},{"x":188,"y":109},{"x":188,"y":106},{"x":189,"y":104},{"x":189,"y":101},{"x":190,"y":98},{"x":190,"y":95},{"x":191,"y":92},{"x":191,"y":89},{"x":191,"y":86},{"x":191,"y":83},{"x":191,"y":80},{"x":191,"y":77},{"x":191,"y":74},{"x":191,"y":71},{"x":191,"y":68},{"x":191,"y":65},{"x":190,"y":63},{"x":190,"y":60},{"x":189,"y":58},{"x":188,"y":56},{"x":187,"y":54},{"x":186,"y":52},{"x":185,"y":50},{"x":184,"y":48},{"x":183,"y":46},{"x":182,"y":44},{"x":180,"y":43},{"x":178,"y":42},{"x":176,"y":41},{"x":174,"y":40},{"x":171,"y":39},{"x":168,"y":39},{"x":166,"y":38},{"x":163,"y":38},{"x":161,"y":37},{"x":158,"y":37},{"x":155,"y":37},{"x":153,"y":38},{"x":151,"y":39},{"x":149,"y":40},{"x":147,"y":41},{"x":145,"y":43},{"x":144,"y":45},{"x":143,"y":47},{"x":142,"y":49},{"x":142,"y":52},{"x":141,"y":54},{"x":141,"y":57},{"x":140,"y":60},{"x":140,"y":63},{"x":140,"y":66},{"x":140,"y":69},{"x":140,"y":72},{"x":139,"y":74},{"x":138,"y":76},{"x":137,"y":73},{"x":136,"y":70},{"x":136,"y":67},{"x":135,"y":65},{"x":135,"y":62},{"x":135,"y":59},{"x":135,"y":56},{"x":135,"y":53},{"x":135,"y":50},{"x":133,"y":49},{"x":130,"y":49},{"x":127,"y":49},{"x":125,"y":48},{"x":122,"y":48},{"x":119,"y":48},{"x":116,"y":48},{"x":113,"y":48},{"x":111,"y":49},{"x":108,"y":49},{"x":105,"y":50},{"x":103,"y":51},{"x":102,"y":53},{"x":101,"y":55},{"x":99,"y":57},{"x":98,"y":59},{"x":98,"y":62},{"x":97,"y":64},{"x":97,"y":67},{"x":97,"y":70},{"x":97,"y":73},{"x":96,"y":75},{"x":96,"y":78},{"x":96,"y":81},{"x":96,"y":84},{"x":95,"y":81},{"x":94,"y":79},{"x":94,"y":76},{"x":94,"y":73},{"x":94,"y":70},{"x":95,"y":68},{"x":95,"y":65},{"x":95,"y":62},{"x":95,"y":59},{"x":95,"y":56},{"x":95,"y":53},{"x":95,"y":50},{"x":93,"y":49},{"x":91,"y":48},{"x":89,"y":47},{"x":87,"y":46},{"x":84,"y":46},{"x":82,"y":45},{"x":79,"y":44},{"x":76,"y":44},{"x":73,"y":44},{"x":70,"y":44},{"x":67,"y":44},{"x":64,"y":44},{"x":61,"y":44},{"x":59,"y":45},{"x":56,"y":45},{"x":54,"y":46},{"x":52,"y":47},{"x":49,"y":48},{"x":47,"y":49},{"x":45,"y":51},{"x":44,"y":53},{"x":42,"y":55},{"x":41,"y":57},{"x":41,"y":60},{"x":41,"y":63},{"x":41,"y":66},{"x":41,"y":69},{"x":41,"y":72},{"x":41,"y":75},{"x":40,"y":77},{"x":39,"y":80},{"x":38,"y":82},{"x":37,"y":84},{"x":35,"y":85},{"x":34,"y":87},{"x":33,"y":85},{"x":34,"y":83},{"x":36,"y":82},{"x":37,"y":79},{"x":38,"y":77},{"x":38,"y":74},{"x":39,"y":72},{"x":40,"y":70},{"x":40,"y":67},{"x":40,"y":64},{"x":40,"y":61},{"x":40,"y":58},{"x":40,"y":55},{"x":40,"y":52},{"x":42,"y":50},{"x":44,"y":49},{"x":46,"y":48},{"x":49,"y":48},{"x":51,"y":47},{"x":54,"y":47},{"x":57,"y":46},{"x":60,"y":46},{"x":63,"y":46},{"x":66,"y":46},{"x":69,"y":46},{"x":72,"y":46},{"x":75,"y":46},{"x":78,"y":46},{"x":81,"y":46},{"x":84,"y":46},{"x":87,"y":46},{"x":90,"y":46},{"x":93,"y":46},{"x":95,"y":47},{"x":98,"y":47},{"x":101,"y":47},{"x":104,"y":47},{"x":107,"y":47},{"x":110,"y":47},{"x":113,"y":47},{"x":116,"y":47},{"x":118,"y":46},{"x":121,"y":46},{"x":123,"y":45},{"x":126,"y":45},{"x":128,"y":44},{"x":131,"y":44},{"x":133,"y":43},{"x":135,"y":42},{"x":137,"y":41},{"x":138,"y":39},{"x":140,"y":38},{"x":141,"y":36},{"x":142,"y":34},{"x":143,"y":32},{"x":144,"y":30},{"x":145,"y":28},{"x":146,"y":26},{"x":146,"y":23},{"x":146,"y":20},{"x":145,"y":18}],
     };
 
-    let activeCanvas = null;
+     let activeCanvas = null;
     let activeCtx = null;
     let lastMapId = null;
+    let lastMapWidth = 0;
+    let lastMapHeight = 0;
     let isRouteVisible = true;
 
     const eyeOpenSvg = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#c5c4c3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
@@ -42,8 +44,14 @@
 
         const routeCanvas = document.createElement('canvas');
         routeCanvas.className = 'route-canvas';
-        routeCanvas.width = 230;
-        routeCanvas.height = 230;
+
+        // Dynamiczne pobranie rozmiaru startowego z oryginalnego canvasu
+        const origCanvas = wrapper.querySelector('.handheld-mini-map-canvas');
+        const startWidth = origCanvas ? origCanvas.width : 230;
+        const startHeight = origCanvas ? origCanvas.height : 230;
+
+        routeCanvas.width = startWidth;
+        routeCanvas.height = startHeight;
         routeCanvas.style.position = 'absolute';
         routeCanvas.style.top = '0';
         routeCanvas.style.left = '0';
@@ -68,7 +76,7 @@
             e.stopPropagation();
             isRouteVisible = !isRouteVisible;
             eyeBtn.innerHTML = isRouteVisible ? eyeOpenSvg : eyeClosedSvg;
-            lastMapId = null;
+            lastMapId = null; // Wymuszenie przerysowania
             drawCurrentRoute();
         });
 
@@ -80,72 +88,93 @@
         lastMapId = null;
     }
 
-function drawCurrentRoute() {
-    if (!activeCtx || !activeCanvas || !win.Engine || !win.Engine.map) return;
-
-    const currentMapId = win.Engine.map.getId();
-
-    if (currentMapId === lastMapId) return;
-    lastMapId = currentMapId;
-
-    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-
-    if (!isRouteVisible) return;
-
-    let data = routesDatabase[currentMapId];
-    if (!data || data.length === 0) return;
-
-    let routes = Array.isArray(data[0]) ? data : [data];
-
-    routes.forEach((currentPoints, idx) => {
-        if (!currentPoints || currentPoints.length === 0) return;
-
-        const baseColor = currentPoints[0].color || '#ff0000';
-        const offset = idx === 0 ? 0 : (idx % 2 === 0 ? idx * 1.5 : -idx * 1.5);
-
-        const tracePath = () => {
+    function drawCurrentRoute() {
+        if (!activeCtx || !activeCanvas || !win.Engine || !win.Engine.map) return;
+    
+        const origCanvas = document.querySelector('.handheld-mini-map-canvas');
+        if (!origCanvas) return;
+    
+        const currentMapId = win.Engine.map.getId();
+        const currentWidth = origCanvas.width;
+        const currentHeight = origCanvas.height;
+    
+        if (currentMapId === lastMapId && currentWidth === lastMapWidth && currentHeight === lastMapHeight) return;
+    
+        lastMapId = currentMapId;
+        lastMapWidth = currentWidth;
+        lastMapHeight = currentHeight;
+    
+        activeCanvas.width = currentWidth;
+        activeCanvas.height = currentHeight;
+    
+        activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+    
+        if (!isRouteVisible) return;
+    
+        let data = routesDatabase[currentMapId];
+        if (!data || data.length === 0) return;
+    
+        let routes = Array.isArray(data[0]) ? data : [data];
+    
+        const scaleX = currentWidth / 230;
+        const scaleY = currentHeight / 230;
+    
+        routes.forEach((currentPoints, idx) => {
+            if (!currentPoints || currentPoints.length === 0) return;
+    
+            const baseColor = currentPoints[0].color || '#ff0000';
+            const offset = idx === 0 ? 0 : (idx % 2 === 0 ? idx * 1.5 : -idx * 1.5);
+    
+            const getScaledCoords = (point) => {
+                return {
+                    x: (point.x * scaleX) + offset,
+                    y: (point.y * scaleY) + offset
+                };
+            };
+    
+            const firstPoint = getScaledCoords(currentPoints[0]);
+    
+            const tracePath = () => {
+                activeCtx.beginPath();
+                activeCtx.moveTo(firstPoint.x, firstPoint.y);
+                for (let i = 1; i < currentPoints.length; i++) {
+                    const pt = getScaledCoords(currentPoints[i]);
+                    activeCtx.lineTo(pt.x, pt.y);
+                }
+                activeCtx.stroke();
+            };
+    
+            activeCtx.lineCap = 'round';
+            activeCtx.lineJoin = 'round';
+            activeCtx.shadowBlur = 0;
+            activeCtx.globalAlpha = 1.0;
+    
+            activeCtx.lineWidth = 4 * scaleX; // Skalowanie grubości linii
+            activeCtx.strokeStyle = '#000000';
+            tracePath();
+    
+            activeCtx.lineWidth = 2 * scaleX; // Skalowanie grubości linii
+            activeCtx.strokeStyle = baseColor;
+            tracePath();
+    
+            const last = currentPoints[currentPoints.length - 1];
+            const lastScaled = getScaledCoords(last);
+    
+            const outerRadius = 4.5 * scaleX;
+            const innerRadius = 2.5 * scaleX;
+    
+            activeCtx.fillStyle = '#000000';
             activeCtx.beginPath();
-            activeCtx.moveTo(currentPoints[0].x + offset, currentPoints[0].y + offset);
-            for (let i = 1; i < currentPoints.length; i++) {
-                activeCtx.lineTo(currentPoints[i].x + offset, currentPoints[i].y + offset);
-            }
-            activeCtx.stroke();
-        };
+            activeCtx.arc(lastScaled.x, lastScaled.y, outerRadius, 0, Math.PI * 2);
+            activeCtx.fill();
+    
+            activeCtx.fillStyle = baseColor;
+            activeCtx.beginPath();
+            activeCtx.arc(lastScaled.x, lastScaled.y, innerRadius, 0, Math.PI * 2);
+            activeCtx.fill();
+        });
+    }
 
-        // --- RESET GLOBALNYCH USTAWIEŃ ---
-        activeCtx.lineCap = 'round';
-        activeCtx.lineJoin = 'round';
-        activeCtx.shadowBlur = 0;
-        activeCtx.globalAlpha = 1.0;
-
-        // 1. CZARNA OBRAMÓWKA (Rysowana jako pierwsza pod spodem)
-        activeCtx.lineWidth = 4;           // Grubsza linia bazowa
-        activeCtx.strokeStyle = '#000000'; // Czarny kontur
-        tracePath();
-
-        // 2. ŚRODEK LINII (Właściwy kolor)
-        activeCtx.lineWidth = 2;           // Cieńsza linia w środku
-        activeCtx.strokeStyle = baseColor;
-        tracePath();
-
-        // 3. KROPKA NA KOŃCU Z OBRAMÓWKĄ
-        const last = currentPoints[currentPoints.length - 1];
-        const lastX = last.x + offset;
-        const lastY = last.y + offset;
-
-        // Czarny kontur kropki
-        activeCtx.fillStyle = '#000000';
-        activeCtx.beginPath();
-        activeCtx.arc(lastX, lastY, 4.5, 0, Math.PI * 2);
-        activeCtx.fill();
-
-        // Kolorowy środek kropki
-        activeCtx.fillStyle = baseColor;
-        activeCtx.beginPath();
-        activeCtx.arc(lastX, lastY, 2.5, 0, Math.PI * 2);
-        activeCtx.fill();
-    });
-}
     const observer = new MutationObserver(() => {
         const wrapper = document.querySelector('.handheld-mini-map');
         const originalCanvas = document.querySelector('.handheld-mini-map-canvas');
