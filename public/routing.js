@@ -96,110 +96,177 @@
         lastMapId = null;
     }
 
-function drawCurrentRoute() {
-    if (!activeCtx || !activeCanvas || !win.Engine || !win.Engine.map) return;
+    function drawCurrentRoute() {
 
-    const origCanvas = document.querySelector('.handheld-mini-map-canvas');
-    if (!origCanvas) return;
+        if (!activeCtx || !activeCanvas || !win.Engine || !win.Engine.map) return;
 
-    const currentMapId = win.Engine.map.getId();
-    const currentWidth = origCanvas.width;
-    const currentHeight = origCanvas.height;
+    
 
-    if (currentMapId === lastMapId && currentWidth === lastMapWidth && currentHeight === lastMapHeight) return;
+        const origCanvas = document.querySelector('.handheld-mini-map-canvas');
 
-    lastMapId = currentMapId;
-    lastMapWidth = currentWidth;
-    lastMapHeight = currentHeight;
+        if (!origCanvas) return;
 
-    activeCanvas.width = currentWidth;
-    activeCanvas.height = currentHeight;
+    
 
-    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+        const currentMapId = win.Engine.map.getId();
 
-    if (!isRouteVisible) return;
+        const currentWidth = origCanvas.width;
 
-    let data = routesDatabase[currentMapId];
-    if (!data || data.length === 0) return;
+        const currentHeight = origCanvas.height;
 
-    // --- POPRAWKA DLA PIERWSZYCH 7 MAP ---
-    // 1. Jeśli to obiekt starego typu z kluczem 'routingpath' wewnątrz tablicy
-    if (data[0] && data[0].routingpath) {
-        data = data[0].routingpath;
-    } 
-    // 2. Jeśli to stara tablica owinięta w jeszcze jedną tablicę bez właściwości points
-    else if (Array.isArray(data) && data.length === 1 && !data[0].points && Array.isArray(data[0])) {
-        data = data[0];
-    }
-    // -------------------------------------
+    
 
-    let routes = Array.isArray(data[0]) ? data : [data];
+        if (currentMapId === lastMapId && currentWidth === lastMapWidth && currentHeight === lastMapHeight) return;
 
-    const scaleX = currentWidth / 230;
-    const scaleY = currentHeight / 230;
+    
 
-    routes.forEach((currentPoints, idx) => {
-        if (!currentPoints || currentPoints.length === 0) return;
+        lastMapId = currentMapId;
 
-        // Dla starych map kolor i punkty są bezpośrednio w obiekcie, dla nowych w tablicy punktów.
-        // Wyciągamy kolor bezpiecznie z obiektu trasy (currentPoints) lub z pierwszego punktu.
-        const baseColor = currentPoints.color || (currentPoints[0] && currentPoints[0].color) || '#ff0000';
-        
-        // Jeśli struktura to obiekt z właściwością .points (stary format), przepisujemy ją do pętli
-        const pointsArray = currentPoints.points || currentPoints;
-        if (!Array.isArray(pointsArray) || pointsArray.length === 0) return;
+        lastMapWidth = currentWidth;
 
-        const offset = idx === 0 ? 0 : (idx % 2 === 0 ? idx * 1.5 : -idx * 1.5);
+        lastMapHeight = currentHeight;
 
-        const getScaledCoords = (point) => {
-            return {
-                x: (point.x * scaleX) + offset,
-                y: (point.y * scaleY) + offset
+    
+
+        activeCanvas.width = currentWidth;
+
+        activeCanvas.height = currentHeight;
+
+    
+
+        activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+
+    
+
+        if (!isRouteVisible) return;
+
+    
+
+        let data = routesDatabase[currentMapId];
+
+        if (!data || data.length === 0) return;
+
+    
+
+        let routes = Array.isArray(data[0]) ? data : [data];
+
+    
+
+        const scaleX = currentWidth / 230;
+
+        const scaleY = currentHeight / 230;
+
+    
+
+        routes.forEach((currentPoints, idx) => {
+
+            if (!currentPoints || currentPoints.length === 0) return;
+
+    
+
+            const baseColor = currentPoints[0].color || '#ff0000';
+
+            const offset = idx === 0 ? 0 : (idx % 2 === 0 ? idx * 1.5 : -idx * 1.5);
+
+    
+
+            const getScaledCoords = (point) => {
+
+                return {
+
+                    x: (point.x * scaleX) + offset,
+
+                    y: (point.y * scaleY) + offset
+
+                };
+
             };
-        };
 
-        const firstPoint = getScaledCoords(pointsArray[0]);
+    
 
-        const tracePath = () => {
+            const firstPoint = getScaledCoords(currentPoints[0]);
+
+    
+
+            const tracePath = () => {
+
+                activeCtx.beginPath();
+
+                activeCtx.moveTo(firstPoint.x, firstPoint.y);
+
+                for (let i = 1; i < currentPoints.length; i++) {
+
+                    const pt = getScaledCoords(currentPoints[i]);
+
+                    activeCtx.lineTo(pt.x, pt.y);
+
+                }
+
+                activeCtx.stroke();
+
+            };
+
+    
+
+            activeCtx.lineCap = 'round';
+
+            activeCtx.lineJoin = 'round';
+
+            activeCtx.shadowBlur = 0;
+
+            activeCtx.globalAlpha = 1.0;
+
+    
+
+            activeCtx.lineWidth = 4 * scaleX; // Skalowanie grubości linii
+
+            activeCtx.strokeStyle = '#000000';
+
+            tracePath();
+
+    
+
+            activeCtx.lineWidth = 2 * scaleX; // Skalowanie grubości linii
+
+            activeCtx.strokeStyle = baseColor;
+
+            tracePath();
+
+    
+
+            const last = currentPoints[currentPoints.length - 1];
+
+            const lastScaled = getScaledCoords(last);
+
+    
+
+            const outerRadius = 4.5 * scaleX;
+
+            const innerRadius = 2.5 * scaleX;
+
+    
+
+            activeCtx.fillStyle = '#000000';
+
             activeCtx.beginPath();
-            activeCtx.moveTo(firstPoint.x, firstPoint.y);
-            for (let i = 1; i < pointsArray.length; i++) {
-                const pt = getScaledCoords(pointsArray[i]);
-                activeCtx.lineTo(pt.x, pt.y);
-            }
-            activeCtx.stroke();
-        };
 
-        activeCtx.lineCap = 'round';
-        activeCtx.lineJoin = 'round';
-        activeCtx.shadowBlur = 0;
-        activeCtx.globalAlpha = 1.0;
+            activeCtx.arc(lastScaled.x, lastScaled.y, outerRadius, 0, Math.PI * 2);
 
-        activeCtx.lineWidth = 4 * scaleX; // Skalowanie grubości linii
-        activeCtx.strokeStyle = '#000000';
-        tracePath();
+            activeCtx.fill();
 
-        activeCtx.lineWidth = 2 * scaleX; // Skalowanie grubości linii
-        activeCtx.strokeStyle = baseColor;
-        tracePath();
+    
 
-        const last = pointsArray[pointsArray.length - 1];
-        const lastScaled = getScaledCoords(last);
+            activeCtx.fillStyle = baseColor;
 
-        const outerRadius = 4.5 * scaleX;
-        const innerRadius = 2.5 * scaleX;
+            activeCtx.beginPath();
 
-        activeCtx.fillStyle = '#000000';
-        activeCtx.beginPath();
-        activeCtx.arc(lastScaled.x, lastScaled.y, outerRadius, 0, Math.PI * 2);
-        activeCtx.fill();
+            activeCtx.arc(lastScaled.x, lastScaled.y, innerRadius, 0, Math.PI * 2);
 
-        activeCtx.fillStyle = baseColor;
-        activeCtx.beginPath();
-        activeCtx.arc(lastScaled.x, lastScaled.y, innerRadius, 0, Math.PI * 2);
-        activeCtx.fill();
-    });
-}
+            activeCtx.fill();
+
+        });
+
+    }
 
     const observer = new MutationObserver(() => {
         const wrapper = document.querySelector('.handheld-mini-map');
