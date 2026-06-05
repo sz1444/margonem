@@ -97,108 +97,110 @@
     }
 
     function drawCurrentRoute() {
-    if (!activeCtx || !activeCanvas || !win.Engine || !win.Engine.map) return;
-
-    const origCanvas = document.querySelector('.handheld-mini-map-canvas');
-    if (!origCanvas) return;
-
-    const currentMapId = win.Engine.map.getId();
-    const currentWidth = origCanvas.width;
-    const currentHeight = origCanvas.height;
-
-    if (currentMapId === lastMapId && currentWidth === lastMapWidth && currentHeight === lastMapHeight) return;
-
-    lastMapId = currentMapId;
-    lastMapWidth = currentWidth;
-    lastMapHeight = currentHeight;
-
-    activeCanvas.width = currentWidth;
-    activeCanvas.height = currentHeight;
-
-    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-
-    if (!isRouteVisible) return;
-
-    let data = routesDatabase[currentMapId];
-    if (!data || data.length === 0) return;
-
-    // --- DOPASOWANIE STRUKTURY DLA PIERWSZYCH MAP ---
-    let routes;
-    if (data[0] && data[0].routingpath) {
-        // Format z kluczem routingpath
-        routes = data[0].routingpath;
-    } else if (data[0] && data[0].points) {
-        // Nowy format: tablica obiektów z właściwością points
-        routes = data;
-    } else {
-        // Stary format (pierwsze mapy): bezpośrednia tablica punktów, wrapujemy w tablicę tras
-        routes = [data];
-    }
-    // ------------------------------------------------
-
-    const scaleX = currentWidth / 230;
-    const scaleY = currentHeight / 230;
-
-    routes.forEach((routeData, idx) => {
-        if (!routeData) return;
-
-        // Wyciągamy punkty: jeśli routeData to obiekt z .points, bierzemy .points. W przeciwnym wypadku to bezpośrednia tablica.
-        const currentPoints = routeData.points || routeData;
-        if (!Array.isArray(currentPoints) || currentPoints.length === 0) return;
-
-        // Wyciągamy kolor: z obiektu trasy, z pierwszego punktu lub domyślny
-        const baseColor = routeData.color || currentPoints[0].color || '#ff0000';
-        const offset = idx === 0 ? 0 : (idx % 2 === 0 ? idx * 1.5 : -idx * 1.5);
-
-        const getScaledCoords = (point) => {
-            return {
-                x: (point.x * scaleX) + offset,
-                y: (point.y * scaleY) + offset
+        if (!activeCtx || !activeCanvas || !win.Engine || !win.Engine.map) return;
+    
+        const origCanvas = document.querySelector('.handheld-mini-map-canvas');
+        if (!origCanvas) return;
+    
+        const currentMapId = win.Engine.map.getId();
+        const currentWidth = origCanvas.width;
+        const currentHeight = origCanvas.height;
+    
+        if (currentMapId === lastMapId && currentWidth === lastMapWidth && currentHeight === lastMapHeight) return;
+    
+        lastMapId = currentMapId;
+        lastMapWidth = currentWidth;
+        lastMapHeight = currentHeight;
+    
+        activeCanvas.width = currentWidth;
+        activeCanvas.height = currentHeight;
+    
+        activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+    
+        if (!isRouteVisible) return;
+    
+        let data = routesDatabase[currentMapId];
+        if (!data || data.length === 0) return;
+    
+        // --- STANDARYZACJA FORMATU DANYCH (Obsługuje stare i nowe mapy) ---
+        let normalizedRoutes = [];
+    
+        if (data[0] && data[0].routingpath) {
+            // Format z kluczem routingpath (niektóre z pierwszych 7)
+            normalizedRoutes = data[0].routingpath;
+        } else if (data[0] && Array.isArray(data[0].points)) {
+            // Nowy format: tablica obiektów posiadających właściwość .points
+            normalizedRoutes = data;
+        } else if (data[0] && data[0].x !== undefined) {
+            // Stary format: bezpośrednia tablica punktów, konwertujemy na nowy format
+            normalizedRoutes = [{ color: '#ff0000', points: data }];
+        } else if (Array.isArray(data[0]) && data[0][0] && data[0][0].x !== undefined) {
+            // Format: tablica tablic punktów
+            normalizedRoutes = data.map(subRoute => ({ color: '#ff0000', points: subRoute }));
+        } else {
+            return;
+        }
+        // ------------------------------------------------------------------
+    
+        const scaleX = currentWidth / 230;
+        const scaleY = currentHeight / 230;
+    
+        normalizedRoutes.forEach((route, idx) => {
+            if (!route || !route.points || route.points.length === 0) return;
+    
+            const currentPoints = route.points;
+            const baseColor = route.color || '#ff0000';
+            const offset = idx === 0 ? 0 : (idx % 2 === 0 ? idx * 1.5 : -idx * 1.5);
+    
+            const getScaledCoords = (point) => {
+                return {
+                    x: (point.x * scaleX) + offset,
+                    y: (point.y * scaleY) + offset
+                };
             };
-        };
-
-        const firstPoint = getScaledCoords(currentPoints[0]);
-
-        const tracePath = () => {
+    
+            const firstPoint = getScaledCoords(currentPoints[0]);
+    
+            const tracePath = () => {
+                activeCtx.beginPath();
+                activeCtx.moveTo(firstPoint.x, firstPoint.y);
+                for (let i = 1; i < currentPoints.length; i++) {
+                    const pt = getScaledCoords(currentPoints[i]);
+                    activeCtx.lineTo(pt.x, pt.y);
+                }
+                activeCtx.stroke();
+            };
+    
+            activeCtx.lineCap = 'round';
+            activeCtx.lineJoin = 'round';
+            activeCtx.shadowBlur = 0;
+            activeCtx.globalAlpha = 1.0;
+    
+            activeCtx.lineWidth = 4 * scaleX; 
+            activeCtx.strokeStyle = '#000000';
+            tracePath();
+    
+            activeCtx.lineWidth = 2 * scaleX; 
+            activeCtx.strokeStyle = baseColor;
+            tracePath();
+    
+            const last = currentPoints[currentPoints.length - 1];
+            const lastScaled = getScaledCoords(last);
+    
+            const outerRadius = 4.5 * scaleX;
+            const innerRadius = 2.5 * scaleX;
+    
+            activeCtx.fillStyle = '#000000';
             activeCtx.beginPath();
-            activeCtx.moveTo(firstPoint.x, firstPoint.y);
-            for (let i = 1; i < currentPoints.length; i++) {
-                const pt = getScaledCoords(currentPoints[i]);
-                activeCtx.lineTo(pt.x, pt.y);
-            }
-            activeCtx.stroke();
-        };
-
-        activeCtx.lineCap = 'round';
-        activeCtx.lineJoin = 'round';
-        activeCtx.shadowBlur = 0;
-        activeCtx.globalAlpha = 1.0;
-
-        activeCtx.lineWidth = 4 * scaleX; // Skalowanie grubości linii
-        activeCtx.strokeStyle = '#000000';
-        tracePath();
-
-        activeCtx.lineWidth = 2 * scaleX; // Skalowanie grubości linii
-        activeCtx.strokeStyle = baseColor;
-        tracePath();
-
-        const last = currentPoints[currentPoints.length - 1];
-        const lastScaled = getScaledCoords(last);
-
-        const outerRadius = 4.5 * scaleX;
-        const innerRadius = 2.5 * scaleX;
-
-        activeCtx.fillStyle = '#000000';
-        activeCtx.beginPath();
-        activeCtx.arc(lastScaled.x, lastScaled.y, outerRadius, 0, Math.PI * 2);
-        activeCtx.fill();
-
-        activeCtx.fillStyle = baseColor;
-        activeCtx.beginPath();
-        activeCtx.arc(lastScaled.x, lastScaled.y, innerRadius, 0, Math.PI * 2);
-        activeCtx.fill();
-    });
-}
+            activeCtx.arc(lastScaled.x, lastScaled.y, outerRadius, 0, Math.PI * 2);
+            activeCtx.fill();
+    
+            activeCtx.fillStyle = baseColor;
+            activeCtx.beginPath();
+            activeCtx.arc(lastScaled.x, lastScaled.y, innerRadius, 0, Math.PI * 2);
+            activeCtx.fill();
+        });
+    }
     
     const observer = new MutationObserver(() => {
         const wrapper = document.querySelector('.handheld-mini-map');
