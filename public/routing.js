@@ -96,7 +96,7 @@
         lastMapId = null;
     }
 
-function drawCurrentRoute() {
+    function drawCurrentRoute() {
     if (!activeCtx || !activeCanvas || !win.Engine || !win.Engine.map) return;
 
     const origCanvas = document.querySelector('.handheld-mini-map-canvas');
@@ -122,29 +122,32 @@ function drawCurrentRoute() {
     let data = routesDatabase[currentMapId];
     if (!data || data.length === 0) return;
 
+    // --- DOPASOWANIE STRUKTURY DLA PIERWSZYCH MAP ---
+    let routes;
     if (data[0] && data[0].routingpath) {
-        data = data[0].routingpath;
-    } 
-    else if (Array.isArray(data) && data.length === 1 && !data[0].points && Array.isArray(data[0])) {
-        data = data[0];
+        // Format z kluczem routingpath
+        routes = data[0].routingpath;
+    } else if (data[0] && data[0].points) {
+        // Nowy format: tablica obiektów z właściwością points
+        routes = data;
+    } else {
+        // Stary format (pierwsze mapy): bezpośrednia tablica punktów, wrapujemy w tablicę tras
+        routes = [data];
     }
-
-    let routes = Array.isArray(data[0]) ? data : [data];
+    // ------------------------------------------------
 
     const scaleX = currentWidth / 230;
     const scaleY = currentHeight / 230;
 
-    routes.forEach((currentPoints, idx) => {
-        if (!currentPoints || currentPoints.length === 0) return;
+    routes.forEach((routeData, idx) => {
+        if (!routeData) return;
 
-        // Dla starych map kolor i punkty są bezpośrednio w obiekcie, dla nowych w tablicy punktów.
-        // Wyciągamy kolor bezpiecznie z obiektu trasy (currentPoints) lub z pierwszego punktu.
-        const baseColor = currentPoints.color || (currentPoints[0] && currentPoints[0].color) || '#ff0000';
-        
-        // Jeśli struktura to obiekt z właściwością .points (stary format), przepisujemy ją do pętli
-        const pointsArray = currentPoints.points || currentPoints;
-        if (!Array.isArray(pointsArray) || pointsArray.length === 0) return;
+        // Wyciągamy punkty: jeśli routeData to obiekt z .points, bierzemy .points. W przeciwnym wypadku to bezpośrednia tablica.
+        const currentPoints = routeData.points || routeData;
+        if (!Array.isArray(currentPoints) || currentPoints.length === 0) return;
 
+        // Wyciągamy kolor: z obiektu trasy, z pierwszego punktu lub domyślny
+        const baseColor = routeData.color || currentPoints[0].color || '#ff0000';
         const offset = idx === 0 ? 0 : (idx % 2 === 0 ? idx * 1.5 : -idx * 1.5);
 
         const getScaledCoords = (point) => {
@@ -154,13 +157,13 @@ function drawCurrentRoute() {
             };
         };
 
-        const firstPoint = getScaledCoords(pointsArray[0]);
+        const firstPoint = getScaledCoords(currentPoints[0]);
 
         const tracePath = () => {
             activeCtx.beginPath();
             activeCtx.moveTo(firstPoint.x, firstPoint.y);
-            for (let i = 1; i < pointsArray.length; i++) {
-                const pt = getScaledCoords(pointsArray[i]);
+            for (let i = 1; i < currentPoints.length; i++) {
+                const pt = getScaledCoords(currentPoints[i]);
                 activeCtx.lineTo(pt.x, pt.y);
             }
             activeCtx.stroke();
@@ -179,7 +182,7 @@ function drawCurrentRoute() {
         activeCtx.strokeStyle = baseColor;
         tracePath();
 
-        const last = pointsArray[pointsArray.length - 1];
+        const last = currentPoints[currentPoints.length - 1];
         const lastScaled = getScaledCoords(last);
 
         const outerRadius = 4.5 * scaleX;
@@ -196,6 +199,7 @@ function drawCurrentRoute() {
         activeCtx.fill();
     });
 }
+    
     const observer = new MutationObserver(() => {
         const wrapper = document.querySelector('.handheld-mini-map');
         const originalCanvas = document.querySelector('.handheld-mini-map-canvas');
