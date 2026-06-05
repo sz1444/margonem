@@ -96,7 +96,7 @@
         lastMapId = null;
     }
 
-    function drawCurrentRoute() {
+   function drawCurrentRoute() {
         if (!activeCtx || !activeCanvas || !win.Engine || !win.Engine.map) return;
     
         const origCanvas = document.querySelector('.handheld-mini-map-canvas');
@@ -122,21 +122,20 @@
         let data = routesDatabase[currentMapId];
         if (!data || data.length === 0) return;
     
-        // --- STANDARYZACJA FORMATU DANYCH (Obsługuje stare i nowe mapy) ---
         let normalizedRoutes = [];
     
         if (data[0] && data[0].routingpath) {
-            // Format z kluczem routingpath (niektóre z pierwszych 7)
             normalizedRoutes = data[0].routingpath;
         } else if (data[0] && Array.isArray(data[0].points)) {
-            // Nowy format: tablica obiektów posiadających właściwość .points
             normalizedRoutes = data;
         } else if (data[0] && data[0].x !== undefined) {
-            // Stary format: bezpośrednia tablica punktów, konwertujemy na nowy format
-            normalizedRoutes = [{ color: '#ff0000', points: data }];
+            const extractedColor = data[0].color || '#ff0000';
+            normalizedRoutes = [{ color: extractedColor, points: data }];
         } else if (Array.isArray(data[0]) && data[0][0] && data[0][0].x !== undefined) {
-            // Format: tablica tablic punktów
-            normalizedRoutes = data.map(subRoute => ({ color: '#ff0000', points: subRoute }));
+            normalizedRoutes = data.map(subRoute => ({ 
+                color: subRoute[0].color || '#ff0000', 
+                points: subRoute 
+            }));
         } else {
             return;
         }
@@ -149,7 +148,8 @@
             if (!route || !route.points || route.points.length === 0) return;
     
             const currentPoints = route.points;
-            const baseColor = route.color || '#ff0000';
+            // Pobierz kolor z obiektu trasy lub z pierwszego punktu w tablicy
+            const baseColor = route.color || currentPoints[0].color || '#ff0000';
             const offset = idx === 0 ? 0 : (idx % 2 === 0 ? idx * 1.5 : -idx * 1.5);
     
             const getScaledCoords = (point) => {
@@ -176,19 +176,19 @@
             activeCtx.shadowBlur = 0;
             activeCtx.globalAlpha = 1.0;
     
-            activeCtx.lineWidth = 4 * scaleX; 
+            activeCtx.lineWidth = 4; 
             activeCtx.strokeStyle = '#000000';
             tracePath();
     
-            activeCtx.lineWidth = 2 * scaleX; 
+            activeCtx.lineWidth = 2; 
             activeCtx.strokeStyle = baseColor;
             tracePath();
     
             const last = currentPoints[currentPoints.length - 1];
             const lastScaled = getScaledCoords(last);
     
-            const outerRadius = 4.5 * scaleX;
-            const innerRadius = 2.5 * scaleX;
+            const outerRadius = 4;
+            const innerRadius = 2;
     
             activeCtx.fillStyle = '#000000';
             activeCtx.beginPath();
@@ -201,7 +201,7 @@
             activeCtx.fill();
         });
     }
-    
+
     const observer = new MutationObserver(() => {
         const wrapper = document.querySelector('.handheld-mini-map');
         const originalCanvas = document.querySelector('.handheld-mini-map-canvas');
