@@ -209,30 +209,12 @@
                     });
 
 
-
-                   const activeLootWnd = document.querySelector('.loot-wnd');
-
-
-
-                    if (activeLootWnd) {
-
-                        activeLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
-
-                    }
-
-
-
                     if (!highestRarity) return;
-
-
 
                     const gameLayer = document.getElementById('game-layer') || document.querySelector('.game-layer');
 
                     if (gameLayer && highestRarity !== "legendary") {
-
                         const targetClass = highestRarity === 'heroic' ? 'layer-blue-glow' : 'layer-yellow-glow';
-
-
 
                         gameLayer.classList.remove('layer-blue-glow', 'layer-yellow-glow');
 
@@ -279,8 +261,13 @@
                         let wndGlowApplied = false;
 
 
-
                         processedItems.forEach(({ item, rarity }) => {
+
+                            const activeLootWnd = document.querySelector('.loot-wnd');
+
+                            if (activeLootWnd) {
+                                activeLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
+                            }
 
                             const lootContainer = document.querySelector(`.loot-window [loot-id="${item.id}"]`);
 
@@ -305,7 +292,6 @@
                             }
 
 
-
                             if (!wndGlowApplied && rarity === highestRarity && highestRarity !== "legendary") {
 
                                 const lootWnd = lootContainer.closest('.loot-wnd');
@@ -315,7 +301,6 @@
                                     lootWnd.classList.add(highestRarity === 'heroic' ? 'epic-blue-glow-after' : 'epic-yellow-glow-after');
 
                                     wndGlowApplied = true;
-
                                 }
 
                             }
