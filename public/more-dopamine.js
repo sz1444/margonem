@@ -58,14 +58,20 @@
                 box-shadow: 0 0 var(--ln-size) calc(var(--ln-size) / 2) #ffb703;
                 opacity: calc(var(--ln-opacity) / 100);
             }
-
-
-.game-layer.layer-blue-glow::after {
-    box-shadow: inset 0 0 calc(var(--ln-size) * 2) var(--ln-size) #00a2eb !important;
-}
-.game-layer.layer-yellow-glow::after {
-    box-shadow: inset 0 0 calc(var(--ln-size) * 2) var(--ln-size) #ffb703 !important;
-}
+            /* GAME LAYER GLOW */
+            .game-layer { position: relative; }
+            .game-layer.layer-blue-glow::after,
+            .game-layer.layer-yellow-glow::after {
+                content: ""; position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+                pointer-events: none; z-index: 999999 !important; transition: all 0.5s ease;
+                opacity: 1 !important;
+            }
+            .game-layer.layer-blue-glow::after {
+                box-shadow: inset 0 0 calc(var(--ln-size) * 2) var(--ln-size) #00a2eb !important;
+            }
+            .game-layer.layer-yellow-glow::after {
+                box-shadow: inset 0 0 calc(var(--ln-size) * 2) var(--ln-size) #ffb703 !important;
+            }
         `;
         document.head.appendChild(style);
     }
@@ -82,6 +88,17 @@
 
             intercept(window.Engine.communication, 'parseJSON', (data) => {
                 if (data && data.loot && data.loot.source && data.item) {
+                    
+                    // CZYSZCZENIE OKNA I EKRANU (Zawsze przy nowym pakiecie lootu)
+                    const activeLootWnd = document.querySelector('.loot-wnd');
+                    if (activeLootWnd) {
+                        activeLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
+                    }
+                    const gameLayer = document.getElementById('game-layer') || document.querySelector('.game-layer');
+                    if (gameLayer) {
+                        gameLayer.classList.remove('layer-blue-glow', 'layer-yellow-glow');
+                    }
+
                     let highestRarity = null;
                     const processedItems = [];
 
@@ -106,16 +123,14 @@
 
                     if (!highestRarity) return;
 
-                    const gameLayer = document.getElementById('game-layer') || document.querySelector('.game-layer');
+                    // Aktywacja nowej poświaty ekranu na 17 sekund
                     if (gameLayer && highestRarity !== "legendary") {
                         const targetClass = highestRarity === 'heroic' ? 'layer-blue-glow' : 'layer-yellow-glow';
-
-                        gameLayer.classList.remove('layer-blue-glow', 'layer-yellow-glow');
                         gameLayer.classList.add(targetClass);
 
                         setTimeout(() => {
                             gameLayer.classList.remove(targetClass);
-                        }, 10000);
+                        }, 17000);
                     }
 
                     if (window.confetti) {
