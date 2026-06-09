@@ -209,7 +209,16 @@
                     });
 
 
-                    if (!highestRarity) return;
+                  if (!highestRarity) {
+                        setTimeout(function() {
+                            const activeLootWnd = document.querySelector('.loot-wnd');
+                            if (activeLootWnd) {
+                                activeLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
+                            }
+                        }, 50);
+                        
+                        return;
+                    }
 
                     const gameLayer = document.getElementById('game-layer') || document.querySelector('.game-layer');
 
@@ -262,12 +271,6 @@
 
 
                         processedItems.forEach(({ item, rarity }) => {
-
-                            const activeLootWnd = document.querySelector('.loot-wnd');
-
-                            if (activeLootWnd) {
-                                activeLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
-                            }
 
                             const lootContainer = document.querySelector(`.loot-window [loot-id="${item.id}"]`);
 
