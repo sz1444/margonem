@@ -234,7 +234,7 @@
 
                             gameLayer.classList.remove(targetClass);
 
-                        }, 7000);
+                        }, 5000);
 
                     }
 
