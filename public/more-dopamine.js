@@ -216,7 +216,7 @@
                                 activeLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
                             }
                         }, 50);
-                        
+
                         return;
                     }
 
@@ -298,6 +298,8 @@
                             if (!wndGlowApplied && rarity === highestRarity && highestRarity !== "legendary") {
 
                                 const lootWnd = lootContainer.closest('.loot-wnd');
+
+                                lootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
 
                                 if (lootWnd) {
 
