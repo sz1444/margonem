@@ -170,11 +170,10 @@
 
                     const processedItems = [];
 
-    console.log(data);
 
                     Object.values(data.item).forEach(i => {
 
-                        if (i && i.stat) {
+                        if (i && i.stat && i.loc === "l") {
 
                             const stats = Object.fromEntries(
 
