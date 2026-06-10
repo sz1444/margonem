@@ -170,7 +170,7 @@
 
                     const processedItems = [];
 
-
+    console.log(data);
 
                     Object.values(data.item).forEach(i => {
 
