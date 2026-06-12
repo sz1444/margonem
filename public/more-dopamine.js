@@ -206,13 +206,16 @@
                         }
 
                     });
-
+                const activeLootWnd = document.querySelector('.loot-wnd');
+                if (activeLootWnd) {
+                    activeLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
+                }
 
                   if (!highestRarity) {
                         setTimeout(function() {
-                            const activeLootWnd = document.querySelector('.loot-wnd');
-                            if (activeLootWnd) {
-                                activeLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
+                          const delayedLootWnd = document.querySelector('.loot-wnd');
+                            if (delayedLootWnd) {
+                                delayedLootWnd.classList.remove('epic-blue-glow-after', 'epic-yellow-glow-after');
                             }
                         }, 50);
 
