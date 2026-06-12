@@ -68,8 +68,7 @@
       "id": "more-dopamine",
       "name": "More Dopamine",
       "url": "https://margonem.vercel.app/more-dopamine.js",
-      "description": "Podświetlenie okna łupów dla Uni i Hero. Więcej dopaminki!",
-      "tm_context": true
+      "description": "Podświetlenie okna łupów dla Uni i Hero. Więcej dopaminki!"
     }
   ]
 }
