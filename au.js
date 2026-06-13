@@ -25,7 +25,7 @@
     hub.style.top = savedPos.top;
     hub.style.left = savedPos.left;
     hub.innerHTML = `
-        <span class="flee-label">Autoucieczka</span>
+        <span class="flee-label">AU</span>
         <div id="fleeToggleBtn" class="flee-toggle ${isScriptEnabled ? 'active' : ''}">
             <div class="flee-circle"></div>
         </div>
@@ -39,11 +39,9 @@
         toggleBtn.classList.toggle('active');
         localStorage.setItem('flee_script_enabled', isScriptEnabled);
 
-        // POPRAWKA 1: Bezpieczne czyszczenie zamiast wywołania nieistniejącej funkcji
         if (!isScriptEnabled) currentAttack.length = 0;
     };
 
-    // Drag & Drop Logic (Bez zmian)
     let wasDragged = false;
     const dragThreshold = 5;
     let startCoords = { x: 0, y: 0 };
