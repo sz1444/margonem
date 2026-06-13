@@ -1,111 +1,49 @@
-require('dotenv').config();
-const express = require('express');
 const http = require('http');
-const WebSocket = require('ws');
-const axios = require('axios');
-const admin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
+const url = require('url');
 
-const app = express();
-const server = http.createServer(app);
+const VALID_TOKEN = process.env.SECRET_TOKEN;
+const PORT = 3000;
+const SCRIPT_PATH = path.join(__dirname, 'au.js');
 
-const wss = new WebSocket.Server({ server });
-
-const firebaseConfig = {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-};
-
-admin.initializeApp({
-    credential: admin.credential.cert(firebaseConfig),
-    databaseURL: process.env.FIREBASE_DATABASE_URL
-});
-const db = admin.database();
-
-const GUILD_ID = process.env.GUILD_ID;
-const ROLE_ID = process.env.ROLE_ID;
-const BOT_TOKEN = process.env.BOT_TOKEN;
-
-async function hasDiscordRole(accessToken) {
-    try {
-        const userRes = await axios.get('https://discord.com/api/users/@me', {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        const userId = userRes.data.id;
-
-        const res = await axios.get(`https://discord.com/api/guilds/${GUILD_ID}/members/${userId}`, {
-            headers: { Authorization: `Bot ${BOT_TOKEN}` }
-        });
-        
-        const hasRole = res.data.roles.includes(ROLE_ID);
-        console.log(`[Auth] Użytkownik ${userRes.data.username}: ${hasRole ? 'DOSTĘP' : 'BRAK RANGI'}`);
-        return hasRole;
-    } catch (e) { 
-        console.error("Błąd autoryzacji Discord:", e.response?.data || e.message);
-        return false; 
-    }
+if (!VALID_TOKEN) {
+    console.error("BŁĄD: Zmienna środowiskowa SECRET_TOKEN nie została ustawiona!");
+    process.exit(1);
 }
 
-wss.on('connection', async (ws, req) => {
-    const urlParams = new URLSearchParams(req.url.split('?')[1]);
-    const token = urlParams.get('token');
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
 
-    if (!token || !await hasDiscordRole(token)) {
-        console.log("[WS] Odrzucono nieautoryzowane połączenie.");
-        ws.close(4001, "Unauthorized");
+    if (parsedUrl.pathname === '/au') {
+        const userToken = parsedUrl.query.token;
+
+        if (!userToken || userToken !== VALID_TOKEN) {
+            res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
+            return res.end(JSON.stringify({ error: 'Brak dostępu.' }));
+        }
+
+        fs.readFile(SCRIPT_PATH, 'utf8', (err, data) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+                return res.end(JSON.stringify({ error: 'Błąd serwera przy odczycie pliku.' }));
+            }
+
+            res.writeHead(200, { 
+                'Content-Type': 'application/javascript; charset=utf-8',
+                'Access-Control-Allow-Origin': '*' // Zezwala na zapytania z innych domen (CORS)
+            });
+            res.end(data);
+        });
         return;
     }
 
-    console.log("[WS] Nowe połączenie zweryfikowane.");
-
-    try {
-        const snapshot = await db.ref('/').once('value');
-        ws.send(JSON.stringify({ type: 'init_data', data: snapshot.val() }));
-    } catch (err) {
-        console.error("Błąd Firebase Init:", err);
-    }
-
-    ws.on('message', async (message) => {
-        try {
-            const payload = JSON.parse(message);
-
-            if (payload.type === 'update_cell') {
-                if (!payload.id) return;
-                await db.ref(payload.id).set(payload.val);
-                
-                const broadcastData = JSON.stringify({ 
-                    type: 'cell_updated', 
-                    id: payload.id, 
-                    val: payload.val 
-                });
-
-                wss.clients.forEach(client => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(broadcastData);
-                    }
-                });
-            }
-
-            if (payload.type === 'send_alert') {
-                const alertData = JSON.stringify({ 
-                    type: 'global_alert', 
-                    data: payload.data 
-                });
-
-                wss.clients.forEach(client => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(alertData);
-                    }
-                });
-            }
-
-        } catch (e) {
-            console.error("[WS] Błąd przetwarzania wiadomości:", e.message);
-        }
-    });
-
-    ws.on('close', () => console.log("[WS] Klient rozłączony."));
+    // Domyślny błąd dla innych ścieżek
+    res.writeHead(404);
+    res.end();
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Serwer natywny działa na porcie ${PORT}`));
+server.listen(PORT, () => {
+    console.log(`Serwer wystartował na porcie ${PORT}`);
+    console.log(`Oczekiwany URL: http://localhost:${PORT}/pobierz-skrypt?token=${VALID_TOKEN}`);
+});
