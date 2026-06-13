@@ -4,7 +4,7 @@
 
     const BOSS_MAP = {
         "125": ["Razuglag Oklash"], "177": ["Agar"], "580": ["Mushita"], "632": ["Kotołak Tropiciel"],
-        "727": ["Władca rzek"], "7701": ["Mysiur Myśliwirowy Król"], "1142": ["Arachniregina Colosseus"],
+        "727": ["Władca rzek"], "7701": ["Mysiur Myświórowy Król"], "1142": ["Arachniregina Colosseus"],
         "1150": ["Goplana"], "1322": ["Adariel"], "1324": ["Leśne Widmo"], "1463": ["Pancerny Maddok"],
         "7843": ["Mocny Maddoks"], "1526": ["Henry Kaprawe Oko"], "1527": ["Helga Opiekunka Rumu"],
         "7369": ["Krab pustelnik"],"1741": ["Krab pustelnik (wyspa)"], "1912": ["Czempion Furboli"], "2063": ["Breheret Żelazny Łeb"],
@@ -36,7 +36,7 @@
         "7466": ["Mistrz Worundriel"], "7474": ["Goons Asterus"], "4185": ["Pięknotka Mięsożerna"],
         "6055": ["Wrzosera", "Chryzoprenia", "Cantedewia"], "7693": ["Ogr Stalowy Pazur"],
         "7859": ["Al'diphrin Ilythirahel"], "1159": ["Arachniregina Colosseus"],
-        "7827": ["Arytodam olbrzymi"], "8181": ["Fangaj"], "8187": ["Wabicielka"]
+        "7827": ["Arytodam olbrzymi"], "8181": ["Fangaj"], "8187": ["Wabicielka"], 
     };
 
     const IS_NEW_INTERFACE = typeof window.Engine !== "undefined";
