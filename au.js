@@ -115,7 +115,6 @@
     }
 
     function useFlee() {
-        console.log('useflee');
         if (!isScriptEnabled || currentAttack.length === 0) return false;
 
         const items = win.Engine?.items?.fetchLocationItems("g");
@@ -124,12 +123,10 @@
         const noBattle = !!win.Engine?.battle?.warriorsList;
 
         if (!items || !isPvP || !noBattle) return false;
-        console.log('useflee suckes');
 
         let targetItemId = null;
         for (const item of items) {
             const itemParse = parseStats(item);
-            console.log(itemParse);
             if (itemParse?.action === 'flee' && !getCooldownProgress(item)) {
                 targetItemId = item.id;
                 break;
