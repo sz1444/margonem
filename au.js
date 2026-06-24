@@ -171,6 +171,7 @@
 
     intercept(win.Engine.communication, 'parseJSON', (data) => {
         if (data && data.emo && Array.isArray(data.emo)) {
+            console.log(data);
             const partyMembers = win.Engine.party?.getMembers();
 
             if (partyMembers) {
