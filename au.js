@@ -147,7 +147,8 @@
         const targetTime = startTime + 1.80;
 
         function checkTimeFrame() {
-            // if (!isScriptEnabled || currentAttack.length === 0) return;
+            console.log(currentAttack)
+            if (!isScriptEnabled || currentAttack.length === 0) return;
             if (!win.Engine || typeof win.Engine.getEv !== 'function') return;
 
             const currentServerTime = parseFloat(win.Engine.getEv());
@@ -172,6 +173,7 @@
         if (data && data.emo && Array.isArray(data.emo)) {
             const partyMembers = win.Engine.party?.getMembers();
 
+            console.log(partyMembers);
             if (partyMembers) {
                 const validIds = currentAttack.filter(id => partyMembers.has(id));
                 currentAttack.length = 0;
