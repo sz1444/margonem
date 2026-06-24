@@ -147,7 +147,7 @@
         if (!isScriptEnabled || !isTitanMap()) return;
 
         const startTime = parseFloat(win.Engine.getEv());
-        const targetTime = startTime + 1.80;
+        const targetTime = startTime + 1.78;
 
         function checkTimeFrame() {
 
