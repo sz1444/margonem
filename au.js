@@ -173,11 +173,11 @@
             // const partyMembers = win.Engine.party?.getMembers();
             const partyMembers = true;
 
-            if (partyMembers) {
-                const validIds = currentAttack.filter(id => partyMembers.has(id));
-                currentAttack.length = 0;
-                currentAttack.push(...validIds);
-            }
+            // if (partyMembers) {
+            //     const validIds = currentAttack.filter(id => partyMembers.has(id));
+            //     currentAttack.length = 0;
+            //     currentAttack.push(...validIds);
+            // }
 
             data.emo.forEach(efekt => {
                 const id = efekt.source_id;
