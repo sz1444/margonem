@@ -1,6 +1,5 @@
 (function() {
     'use strict';
-    console.log('działa AUUU..');
 
     const win = (typeof unsafewin !== 'undefined') ? unsafewin : window;
     const titanMapsIds = [1800, 1745, 6950, 7061, 7478, 6058, 5947, 7849, 5710, 3313, 2758, 4238];
@@ -171,8 +170,8 @@
 
     intercept(win.Engine.communication, 'parseJSON', (data) => {
         if (data && data.emo && Array.isArray(data.emo)) {
-            console.log(data);
-            const partyMembers = win.Engine.party?.getMembers();
+            // const partyMembers = win.Engine.party?.getMembers();
+            const partyMembers = true;
 
             if (partyMembers) {
                 const validIds = currentAttack.filter(id => partyMembers.has(id));
