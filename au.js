@@ -184,6 +184,8 @@
 
                 // if (partyMembers && partyMembers.has(id)) {
                     if (efekt.name === 'frnd') {
+                                                    initFlee();
+
                         if (!currentAttack.includes(id)) {
                             currentAttack.push(id);
                             initFlee();
