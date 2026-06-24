@@ -147,7 +147,7 @@
         const targetTime = startTime + 1.80;
 
         function checkTimeFrame() {
-            if (!isScriptEnabled || currentAttack.length === 0) return;
+            // if (!isScriptEnabled || currentAttack.length === 0) return;
             if (!win.Engine || typeof win.Engine.getEv !== 'function') return;
 
             const currentServerTime = parseFloat(win.Engine.getEv());
@@ -170,19 +170,18 @@
 
     intercept(win.Engine.communication, 'parseJSON', (data) => {
         if (data && data.emo && Array.isArray(data.emo)) {
-            // const partyMembers = win.Engine.party?.getMembers();
-            const partyMembers = true;
+            const partyMembers = win.Engine.party?.getMembers();
 
-            // if (partyMembers) {
-            //     const validIds = currentAttack.filter(id => partyMembers.has(id));
-            //     currentAttack.length = 0;
-            //     currentAttack.push(...validIds);
-            // }
+            if (partyMembers) {
+                const validIds = currentAttack.filter(id => partyMembers.has(id));
+                currentAttack.length = 0;
+                currentAttack.push(...validIds);
+            }
 
             data.emo.forEach(efekt => {
                 const id = efekt.source_id;
 
-                // if (partyMembers && partyMembers.has(id)) {
+                if (partyMembers && partyMembers.has(id)) {
                     if (efekt.name === 'frnd') {
                                                     initFlee();
 
@@ -198,7 +197,7 @@
                             currentAttack.splice(index, 1);
                         }
                     }
-                // }
+                }
             });
         }
     });
