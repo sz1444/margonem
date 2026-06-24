@@ -182,7 +182,7 @@
             data.emo.forEach(efekt => {
                 const id = efekt.source_id;
 
-                if (partyMembers && partyMembers.has(id)) {
+                // if (partyMembers && partyMembers.has(id)) {
                     if (efekt.name === 'frnd') {
                         if (!currentAttack.includes(id)) {
                             currentAttack.push(id);
@@ -196,7 +196,7 @@
                             currentAttack.splice(index, 1);
                         }
                     }
-                }
+                // }
             });
         }
     });
