@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    const win = (typeof unsafewin !== 'undefined') ? unsafewin : window;
+    const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
     const titanMapsIds = [1800, 1745, 6950, 7061, 7478, 6058, 5947, 7849, 5710, 3313, 2758, 4238];
     const currentAttack = [];
 
