@@ -129,6 +129,7 @@
         let targetItemId = null;
         for (const item of items) {
             const itemParse = parseStats(item);
+            console.log(itemParse);
             if (itemParse?.action === 'flee' && !getCooldownProgress(item)) {
                 targetItemId = item.id;
                 break;
