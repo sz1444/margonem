@@ -123,7 +123,7 @@
 
         const noBattle = !!win.Engine?.battle?.warriorsList;
 
-        if (!items || !isPvP || noBattle) return false;
+        if (!items || !isPvP || !noBattle) return false;
         console.log('useflee suckes');
 
         let targetItemId = null;
@@ -150,7 +150,6 @@
         const targetTime = startTime + 1.80;
 
         function checkTimeFrame() {
-                    console.log('initflee');
 
             if (!isScriptEnabled || currentAttack.length === 0) return;
             if (!win.Engine || typeof win.Engine.getEv !== 'function') return;
@@ -158,7 +157,6 @@
             const currentServerTime = parseFloat(win.Engine.getEv());
 
             if (currentServerTime >= targetTime) {
-                        console.log('initflee suckes');
 
                 if (!useFlee()) {
                     requestAnimationFrame(checkTimeFrame);
