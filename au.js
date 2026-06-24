@@ -1,5 +1,6 @@
 (function() {
     'use strict';
+    console.log('działa AUUU..');
 
     const win = (typeof unsafewin !== 'undefined') ? unsafewin : window;
     const titanMapsIds = [1800, 1745, 6950, 7061, 7478, 6058, 5947, 7849, 5710, 3313, 2758, 4238];
