@@ -115,6 +115,7 @@
     }
 
     function useFlee() {
+        console.log('useflee');
         if (!isScriptEnabled || currentAttack.length === 0) return false;
 
         const items = win.Engine?.items?.fetchLocationItems("g");
@@ -123,6 +124,7 @@
         const noBattle = !!win.Engine?.battle?.warriorsList;
 
         if (!items || !isPvP || noBattle) return false;
+        console.log('useflee suckes');
 
         let targetItemId = null;
         for (const item of items) {
@@ -147,13 +149,16 @@
         const targetTime = startTime + 1.80;
 
         function checkTimeFrame() {
-            console.log(currentAttack)
+                    console.log('initflee');
+
             if (!isScriptEnabled || currentAttack.length === 0) return;
             if (!win.Engine || typeof win.Engine.getEv !== 'function') return;
 
             const currentServerTime = parseFloat(win.Engine.getEv());
 
             if (currentServerTime >= targetTime) {
+                        console.log('initflee suckes');
+
                 if (!useFlee()) {
                     requestAnimationFrame(checkTimeFrame);
                 }
@@ -173,7 +178,6 @@
         if (data && data.emo && Array.isArray(data.emo)) {
             const partyMembers = win.Engine.party?.getMembers();
 
-            console.log(partyMembers);
             if (partyMembers) {
                 const validIds = currentAttack.filter(id => partyMembers.has(id));
                 currentAttack.length = 0;
@@ -185,8 +189,6 @@
 
                 if (partyMembers && partyMembers.has(id)) {
                     if (efekt.name === 'frnd') {
-                                                    initFlee();
-
                         if (!currentAttack.includes(id)) {
                             currentAttack.push(id);
                             initFlee();
