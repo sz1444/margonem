@@ -36,7 +36,7 @@
         "7466": ["Mistrz Worundriel"], "7474": ["Goons Asterus"], "4185": ["Pięknotka Mięsożerna"],
         "6055": ["Wrzosera", "Chryzoprenia", "Cantedewia"], "7693": ["Ogr Stalowy Pazur"],
         "7859": ["Al'diphrin Ilythirahel"], "1159": ["Arachniregina Colosseus"],
-        "7827": ["Arytodam olbrzymi"], "8181": ["Fangaj"], "8187": ["Wabicielka"], 
+        "7827": ["Arytodam olbrzymi"], "8181": ["Fangaj"], "8187": ["Wabicielka"], "8532": ["Mazurnik Przybrzeżny"]
     };
 
     const IS_NEW_INTERFACE = typeof window.Engine !== "undefined";
