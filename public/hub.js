@@ -117,45 +117,52 @@
         menu.appendChild(saveBtn);
     }
 
-    let isDragging = false;
-    let wasDragged = false;
+let wasDragged = false;
     const dragThreshold = 5;
     let startCoords = { x: 0, y: 0 };
     let startPos = { x: 0, y: 0 };
 
-    icon.addEventListener('mousedown', (e) => {
-        wasDragged = false; // Reset na początku kliknięcia
-        startCoords = { x: e.clientX, y: e.clientY };
-        startPos = { x: e.clientX - hub.offsetLeft, y: e.clientY - hub.offsetTop };
+    function startDrag(e) {
+        wasDragged = false;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        startCoords = { x: clientX, y: clientY };
+        startPos = { x: clientX - hub.offsetLeft, y: clientY - hub.offsetTop };
         icon.style.opacity = "0.7";
 
-        const onMouseMove = (moveEvent) => {
-            const dx = moveEvent.clientX - startCoords.x;
-            const dy = moveEvent.clientY - startCoords.y;
+        if (e.type === 'touchstart') {
+            e.preventDefault();
+        }
+
+        const onMove = (moveEvent) => {
+            const currentX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
+            const currentY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
+
+            const dx = currentX - startCoords.x;
+            const dy = currentY - startCoords.y;
 
             if (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold) {
                 wasDragged = true;
             }
 
             if (wasDragged) {
-                const hubW = hub.offsetWidth;
-                const hubH = hub.offsetHeight;
+                let newLeft = currentX - startPos.x;
+                let newTop = currentY - startPos.y;
 
-                let newLeft = moveEvent.clientX - startPos.x;
-                let newTop = moveEvent.clientY - startPos.y;
-
-                // Blokada granic ekranu
-                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - hubW));
-                newTop = Math.max(0, Math.min(newTop, window.innerHeight - hubH));
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - hub.offsetWidth));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - hub.offsetHeight));
 
                 hub.style.left = newLeft + "px";
                 hub.style.top = newTop + "px";
             }
         };
 
-        const onMouseUp = () => {
-            window.removeEventListener('mousemove', onMouseMove);
-            window.removeEventListener('mouseup', onMouseUp);
+        const onEnd = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onEnd);
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onEnd);
             icon.style.opacity = "1";
 
             if (wasDragged) {
@@ -163,9 +170,14 @@
             }
         };
 
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
-    });
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onEnd);
+        window.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onEnd);
+    }
+
+    icon.addEventListener('mousedown', startDrag);
+    icon.addEventListener('touchstart', startDrag, { passive: false });
 
     icon.addEventListener('click', (e) => {
         if (wasDragged) {
