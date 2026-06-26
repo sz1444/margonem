@@ -118,22 +118,19 @@
     }
 
 let wasDragged = false;
-    const dragThreshold = 5;
+    const dragThreshold = 7;
     let startCoords = { x: 0, y: 0 };
     let startPos = { x: 0, y: 0 };
 
     function startDrag(e) {
         wasDragged = false;
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const isTouch = e.type === 'touchstart';
+        const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+        const clientY = isTouch ? e.touches[0].clientY : e.clientY;
 
         startCoords = { x: clientX, y: clientY };
         startPos = { x: clientX - hub.offsetLeft, y: clientY - hub.offsetTop };
         icon.style.opacity = "0.7";
-
-        if (e.type === 'touchstart') {
-            e.preventDefault();
-        }
 
         const onMove = (moveEvent) => {
             const currentX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
@@ -147,6 +144,8 @@ let wasDragged = false;
             }
 
             if (wasDragged) {
+                if (moveEvent.cancelable) moveEvent.preventDefault();
+                
                 let newLeft = currentX - startPos.x;
                 let newTop = currentY - startPos.y;
 
@@ -158,7 +157,7 @@ let wasDragged = false;
             }
         };
 
-        const onEnd = () => {
+        const onEnd = (endEvent) => {
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onEnd);
             window.removeEventListener('touchmove', onMove);
@@ -167,6 +166,8 @@ let wasDragged = false;
 
             if (wasDragged) {
                 localStorage.setItem('hubPos', JSON.stringify({ top: hub.style.top, left: hub.style.left }));
+            } else if (isTouch) {
+                toggleMenu();
             }
         };
 
@@ -174,6 +175,10 @@ let wasDragged = false;
         window.addEventListener('mouseup', onEnd);
         window.addEventListener('touchmove', onMove, { passive: false });
         window.addEventListener('touchend', onEnd);
+    }
+
+    function toggleMenu() {
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
 
     icon.addEventListener('mousedown', startDrag);
@@ -184,7 +189,7 @@ let wasDragged = false;
             e.preventDefault();
             return;
         }
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        toggleMenu();
     });
 
     initHub();
