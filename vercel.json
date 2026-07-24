@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/au", "destination": "/index.js" },
-    { "source": "/api/(.*)", "destination": "/index.js" }
+    { "source": "/au", "destination": "/server.js" },
+    { "source": "/api/(.*)", "destination": "/server.js" }
   ]
 }
