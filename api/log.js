@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 module.exports = (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405.end('Method Not Allowed');
