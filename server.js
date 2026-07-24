@@ -1,49 +1,50 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
+const cors = require('cors');
 const path = require('path');
-const url = require('url');
+const fs = require('fs');
 
+const app = express();
 const VALID_TOKEN = process.env.SECRET_TOKEN;
-const PORT = 3000;
 const SCRIPT_PATH = path.join(__dirname, 'au.js');
 
-if (!VALID_TOKEN) {
-    console.error("BŁĄD: Zmienna środowiskowa SECRET_TOKEN nie została ustawiona!");
-    process.exit(1);
-}
+app.use(express.json());
+app.use(cors());
 
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
+const loggedUsers = new Set();
 
-    if (parsedUrl.pathname === '/au') {
-        const userToken = parsedUrl.query.token;
+// Endpoint logujący nick (widoczny w konsoli Vercela)
+app.post('/api/log', (req, res) => {
+    const nick = req.body.nick;
+    if (!nick) return res.status(400).send('Brak nicku');
 
-        if (!userToken || userToken !== VALID_TOKEN) {
-            res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
-            return res.end(JSON.stringify({ error: 'Brak dostępu.' }));
-        }
-
-        fs.readFile(SCRIPT_PATH, 'utf8', (err, data) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
-                return res.end(JSON.stringify({ error: 'Błąd serwera przy odczycie pliku.' }));
-            }
-
-            res.writeHead(200, { 
-                'Content-Type': 'application/javascript; charset=utf-8',
-                'Access-Control-Allow-Origin': '*' // Zezwala na zapytania z innych domen (CORS)
-            });
-            res.end(data);
-        });
-        return;
+    if (!loggedUsers.has(nick)) {
+        loggedUsers.add(nick);
+        console.log(`NOWY_NICK: ${nick}`);
     }
 
-    // Domyślny błąd dla innych ścieżek
-    res.writeHead(404);
-    res.end();
+    res.send('OK');
 });
 
-server.listen(PORT, () => {
-    console.log(`Serwer wystartował na porcie ${PORT}`);
-    console.log(`Oczekiwany URL: http://localhost:${PORT}/pobierz-skrypt?token=${VALID_TOKEN}`);
+app.get('/au', (req, res) => {
+    const userToken = req.query.token;
+
+    if (!VALID_TOKEN || !userToken || userToken !== VALID_TOKEN) {
+        res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({ error: 'Brak dostępu.' }));
+    }
+
+    fs.readFile(SCRIPT_PATH, 'utf8', (err, data) => {
+        if (err) {
+            res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+            return res.end(JSON.stringify({ error: 'Błąd serwera przy odczycie pliku.' }));
+        }
+
+        res.writeHead(200, { 
+            'Content-Type': 'application/javascript; charset=utf-8',
+            'Access-Control-Allow-Origin': '*'
+        });
+        res.end(data);
+    });
 });
+
+module.exports = app;
