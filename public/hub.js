@@ -8,24 +8,18 @@
         return null;
     }
 
-    if (typeof g !== 'undefined' && g.loadQueue) {
-        g.loadQueue.push({
-            fun: () => {
-                const checkNick = setInterval(() => {
-                    const myNick = getHeroName();
-                    if (myNick && myNick !== "???") {
-                        clearInterval(checkNick);
-                        GM_xmlhttpRequest({
-                            method: "POST",
-                            url: "https://margonem.vercel.app/api/log",
-                            headers: { "Content-Type": "application/json" },
-                            data: JSON.stringify({ nick: myNick })
-                        });
-                    }
-                }, 500);
-            }
-        });
-    }
+    const checkNick = setInterval(() => {
+        const myNick = getHeroName();
+        if (myNick && myNick !== "???") {
+            clearInterval(checkNick);
+            GM_xmlhttpRequest({
+                method: "POST",
+                url: "https://margonem.vercel.app/api/log",
+                headers: { "Content-Type": "application/json" },
+                data: JSON.stringify({ nick: myNick })
+            });
+        }
+    }, 1000);
 
     const CONFIG_URL = "https://margonem.vercel.app/scripts.json";
 
