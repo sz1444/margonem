@@ -1,6 +1,32 @@
 (function() {
     'use strict';
 
+    function getHeroName() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        if (win.Engine && win.Engine.hero && win.Engine.hero.d) return win.Engine.hero.d.nick;
+        if (win.hero && win.hero.nick) return win.hero.nick;
+        return null;
+    }
+
+    if (typeof g !== 'undefined' && g.loadQueue) {
+        g.loadQueue.push({
+            fun: () => {
+                const checkNick = setInterval(() => {
+                    const myNick = getHeroName();
+                    if (myNick && myNick !== "???") {
+                        clearInterval(checkNick);
+                        GM_xmlhttpRequest({
+                            method: "POST",
+                            url: "https://margonem.vercel.app/api/log",
+                            headers: { "Content-Type": "application/json" },
+                            data: JSON.stringify({ nick: myNick })
+                        });
+                    }
+                }, 500);
+            }
+        });
+    }
+
     const CONFIG_URL = "https://margonem.vercel.app/scripts.json";
 
     const savedPos = JSON.parse(localStorage.getItem('hubPos')) || { top: "80%", left: "20px" };
