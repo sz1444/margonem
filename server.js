@@ -13,7 +13,7 @@ app.use(cors());
 const loggedUsers = new Set();
 
 // Endpoint logujący nick (widoczny w konsoli Vercela)
-app.post('/api/log', (req, res) => {
+app.post('/log', (req, res) => {
     const nick = req.body.nick;
     if (!nick) return res.status(400).send('Brak nicku');
 
