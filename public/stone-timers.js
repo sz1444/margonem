@@ -123,30 +123,34 @@
         try {
             const cache = {};
             let timerContainer = document.getElementById('ll-timers');
-
+    
             if (!timerContainer) timerContainer = document.querySelector('.right-main-column-wrapper .bottom-wrapper');
-
             if (!timerContainer) return;
-
-            const timerNodes = timerContainer.querySelectorAll('[data-slot="tooltip-trigger"] span');
-            timerNodes.forEach(span => {
+    
+            const triggers = timerContainer.querySelectorAll('[data-slot="tooltip-trigger"]');
+            
+            triggers.forEach(trigger => {
                 try {
-                    const timerDiv = span.nextElementSibling;
-                    if (timerDiv?.tagName === 'DIV') {
-                        const parent = span.closest('.ll\\:text-orange-400') ?? span.parentElement;
-                        const isActive = parent?.className?.includes('text-orange-400') ?? false;
-
-                        const bossName = span.innerText.trim();
+                    const nameSpan = trigger.querySelector('span > span > span:first-child');
+                    const timeSpan = trigger.querySelector('span > span > span:nth-child(2)');
+    
+                    if (nameSpan && timeSpan) {
+                        const bossName = nameSpan.innerText.trim();
+                        const timeText = timeSpan.innerText.trim();
+    
                         if (bossName) {
+                            const isActive = trigger.closest('.ll\\:text-orange-400') !== null || 
+                                             trigger.className.includes('text-orange-400');
+    
                             cache[bossName] = {
-                                time: timerDiv.innerText.trim() || "--:--",
-                                color: isActive ? 'orange' : "#fff"
+                                time: timeText || "--:--",
+                                color: isActive ? 'orange' : '#fff'
                             };
                         }
                     }
-                } catch (nodeErr) {
-                }
+                } catch (nodeErr) {}
             });
+    
             bossTimerCache = cache;
         } catch (e) {
             console.error("Błąd podczas odświeżania timerów:", e);
