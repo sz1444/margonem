@@ -139,7 +139,7 @@
                         const timeText = timeSpan.innerText.trim();
     
                         if (bossName) {
-                            const isActive = trigger.closest('.ll\\:text-orange-400') !== null || 
+                            const isActive = trigger.closest('.ll:text-orange-400') !== null || 
                                              trigger.className.includes('text-orange-400');
     
                             cache[bossName] = {
