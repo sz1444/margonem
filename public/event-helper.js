@@ -561,12 +561,6 @@
         else updateMapColors();
     };
 
-    function updateBtn() {
-        document.getElementById('t1').classList.toggle('active', currentTab === 1);
-        document.getElementById('t2').classList.toggle('active', currentTab === 2);
-        document.getElementById('t3').classList.toggle('active', currentTab === 3);
-    }
-
     function autoMapCheck() {
         let currentMap = getMapName();
         const myNick = getHeroName();
