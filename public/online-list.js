@@ -42,7 +42,7 @@
         left: ${savedPos.left};
         top: ${savedPos.top};
         width: 242px;
-        height: 310px;
+        height: 320px;
         display: flex;
         flex-direction: column;
     `;
@@ -154,7 +154,7 @@
         isCollapsed = !isCollapsed;
 
         if (isCollapsed) {
-            panel.dataset.prevHeight = '310px';
+            panel.dataset.prevHeight = '320px';
             panel.style.height = '28px';
             contentEl.style.display = 'none';
             bottomBarEl.style.display = 'none';
@@ -162,7 +162,7 @@
             buttonsMenuEl.style.display = 'none';
             toggleBtn.querySelector('.ie-icon').className = 'ie-icon ie-icon-plus';
         } else {
-            panel.style.height = panel.dataset.prevHeight || '310px';
+            panel.style.height = panel.dataset.prevHeight || '320px';
             contentEl.style.display = 'flex';
             bottomBarEl.style.display = 'block';
             borderImageEl.style.display = 'block';
