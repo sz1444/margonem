@@ -596,7 +596,7 @@ function autoMapCheck() {
     let assignedKey = localStorage.getItem("mapsync-userKey") || "y";
 
     window.addEventListener("keydown", (event) => {
-        const isTyping = event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA';
+        const isTyping = event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable;;
         if (isTyping) return;
         if (event.key.toLowerCase() === assignedKey) {
             sendGlobalAlert(`Potrzebna pomoc na: <b style="color:#ef4444">${getMapNameWithXY()}</b>`);
