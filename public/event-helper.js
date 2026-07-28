@@ -194,6 +194,7 @@
             tabsHeader.appendChild(btn);
         });
         tabsHeader.appendChild(filterBtn);
+        updateBtn();
     }
     
     function updateBtn() {
@@ -544,10 +545,6 @@
         container.setAttribute('data-opacity-lvl', opacityLvl);
         localStorage.setItem('mapSyncOpacityLvl', opacityLvl);
     };
-
-    document.getElementById('t1').onclick = () => { currentTab = 1; saveTab(); render(); updateBtn(); };
-    document.getElementById('t2').onclick = () => { currentTab = 2; saveTab(); render(); updateBtn(); };
-    document.getElementById('t3').onclick = () => { currentTab = 3; saveTab(); render(); updateBtn(); };
 
     function saveTab() {
         localStorage.setItem('mapSync_currentTab', currentTab);
