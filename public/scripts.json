@@ -72,7 +72,7 @@
     },
         {
       "id": "online-list",
-      "name": "Online List,
+      "name": "Online List",
       "url": "https://margonem.vercel.app/online-list.js",
       "description": "Dodatek pokazuje graczy online, pogrupowanych według przedziału levelowego."
     }
