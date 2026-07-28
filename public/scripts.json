@@ -69,6 +69,12 @@
       "name": "More Dopamine",
       "url": "https://margonem.vercel.app/more-dopamine.js",
       "description": "Podświetlenie okna łupów dla Uni i Hero. Więcej dopaminki!"
-    }
+    },
+        {
+      "id": "online-list",
+      "name": "Online List,
+      "url": "https://margonem.vercel.app/online-list.js",
+      "description": "Dodatek pokazuje graczy online, pogrupowanych według przedziału levelowego."
+    },
   ]
 }
