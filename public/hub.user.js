@@ -11,6 +11,8 @@
 // @grant        unsafeWindow
 // @connect      margonem.vercel.app
 // @connect      firebasedatabase.app
+// @connect      www.margonem.pl
+// @connect      staticinfo.margonem.pl
 // ==/UserScript==
 
 (function() {
