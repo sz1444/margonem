@@ -21,7 +21,7 @@
     {
       "id": "map_sync",
       "name": "Event HEROS Helper",
-      "url": "https://margonem.vercel.app/map-sync.js",
+      "url": "https://margonem.vercel.app/event-helper.js",
       "description": "Obstawiaj herosa na mapie eventowej, synchronizuj z innymi graczami i sprawdzaj, kto jest na której mapie.",
       "tm_context": true
   },
