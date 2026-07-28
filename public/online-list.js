@@ -24,6 +24,10 @@
         { id: 119, name: "144", color: "#4cfa4f", type: "friend" },
         { id: 88, name: "114 ", color: "#4cfa4f", type: "friend" },
         { id: 80, name: "114", color: "#fc3e40", type: "enemy" },
+        { id: 85, name: "83 ", color: "#4cfa4f", type: "friend" },
+        { id: 75, name: "83", color: "#fc3e40", type: "enemy" },
+        { id: 100, name: "64 ", color: "#4cfa4f", type: "friend" },
+        { id: 108, name: "64", color: "#fc3e40", type: "enemy" },
     ];
 
     let klanMembers = {};
@@ -42,7 +46,7 @@
         left: ${savedPos.left};
         top: ${savedPos.top};
         width: 242px;
-        height: 320px;
+        height: 360px;
         display: flex;
         flex-direction: column;
     `;
@@ -66,9 +70,9 @@
                             </div>
                         </div>
                     </div>
-            
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 2px; flex-shrink: 0;">
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0px 4px; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: -3px; flex-shrink: 0;">
                         <div id="mrg-footer-info" style="font-size: 9px; color: #eaeaea; letter-spacing: 0.3px;">Dane z: --:--:--</div>
                         <div id="mrgRefreshBtn" class="button green small" style="margin: 0; pointer-events: auto; transform: scale(0.85); transform-origin: right center;">
                             <div class="background"></div>
@@ -154,7 +158,7 @@
         isCollapsed = !isCollapsed;
 
         if (isCollapsed) {
-            panel.dataset.prevHeight = '320px';
+            panel.dataset.prevHeight = '360px';
             panel.style.height = '28px';
             contentEl.style.display = 'none';
             bottomBarEl.style.display = 'none';
@@ -162,7 +166,7 @@
             buttonsMenuEl.style.display = 'none';
             toggleBtn.querySelector('.ie-icon').className = 'ie-icon ie-icon-plus';
         } else {
-            panel.style.height = panel.dataset.prevHeight || '320px';
+            panel.style.height = panel.dataset.prevHeight || '360px';
             contentEl.style.display = 'flex';
             bottomBarEl.style.display = 'block';
             borderImageEl.style.display = 'block';
@@ -334,7 +338,7 @@
                         if (targetVal === "244" && playerLvl === 244) match = true;
                         if (targetVal === "190" && playerLvl === 190) match = true;
                         if (targetVal === "167" && playerLvl === 167) match = true;
-                        if (["300", "217", "144", "114"].includes(targetVal)) match = true;
+                        if (["300", "217", "144", "114", "83", "64"].includes(targetVal)) match = true;
 
                         if (match) {
                             if (!grupowane[item.name]) grupowane[item.name] = [];
