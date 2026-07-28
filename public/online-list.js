@@ -191,42 +191,85 @@
                 return;
             }
 
-            let klanId = unikalneIdKlans[index++];
+            let klanId = unikalneIdKlans[index];
 
-            fetch(`https://www.margonem.pl/guilds/view,${SWIAT},${klanId}`)
-                .then(res => res.text())
-                .then(html => {
-                    const kDoc = new DOMParser().parseFromString(html, "text/html");
-                    kDoc.querySelectorAll('a[href*="/profile/view,"]').forEach(a => {
-                        const nick = a.textContent.trim();
-                        if (nick) klanMembers[nick.toLowerCase()] = klanId;
-                    });
-                })
-                .catch(() => {})
-                .finally(() => setTimeout(pobierzKolejny, 700));
-        }
+            index++;
+
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: `https://www.margonem.pl/guilds/view,${SWIAT},${klanId}`,
+                headers: {
+                    "User-Agent": navigator.userAgent,
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                },
+                onload: function(kRes) {
+                    try {
+                        const parser = new DOMParser();
+                        const kDoc = parser.parseFromString(kRes.responseText, "text/html");
+
+                        kDoc.querySelectorAll('a').forEach(a => {
+                            let href = a.getAttribute('href');
+                            let nick = a.textContent.trim();
+
+                            if (href && (href.includes('profile') || href.includes('player') || href.includes('avatar') || a.closest('table'))) {
+                                try {
+                                    let decodedHref = decodeURIComponent(href);
+                                    let parts = decodedHref.split(',');
+                                    let possibleNick = parts[parts.length - 1].trim();
+                                    if (possibleNick && possibleNick.length > 1 && !possibleNick.includes('/')) {
+                                        klanMembers[possibleNick.toLowerCase()] = klanId;
+                                    }
+                                } catch(err) {}
+
+                                if (nick && nick.length > 1 && !nick.includes('\n')) {
+                                    klanMembers[nick.toLowerCase()] = klanId;
+                                }
+                            }
+                        });
+                    } catch(e) {}
+
+                    setTimeout(pobierzKolejny, 700);
+                },
+                onerror: function() {
+                    setTimeout(pobierzKolejny, 700);
+                }
+            });
 
         pobierzKolejny();
     }
 
     function pobierzOnline() {
-        fetch(ONLINE_URL)
-            .then(res => res.json())
-            .then(data => {
-                suroweDane = data;
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: ONLINE_URL,
+            onload: function(res) {
+                try {
+                    suroweDane = JSON.parse(res.responseText);
 
-                const headerText = document.getElementById('mrgHeaderText');
-                if (headerText) headerText.innerText = `Online (${suroweDane.length})`;
+                    const headerText = document.getElementById('mrgHeaderText');
+                    if (headerText) {
+                        headerText.innerText = `Online (${suroweDane.length})`;
+                    }
 
-                const footerInfo = document.getElementById('mrg-footer-info');
-                if (footerInfo) footerInfo.innerText = `Dane z: ${new Date().toTimeString().split(' ')[0]}`;
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
 
-                wyswietl(suroweDane);
-            })
-            .catch(err => {
-                const el = document.getElementById('mrg-players');
-                if (el) el.innerText = err instanceof SyntaxError ? "Błąd JSON." : "Błąd sieci.";
-            });
+                    const footerInfo = document.getElementById('mrg-footer-info');
+                    if (footerInfo) {
+                        footerInfo.innerText = `Dane z: ${hours}:${minutes}:${seconds}`;
+                    }
+
+                    wyswietl(suroweDane);
+                } catch(e) {
+                    document.getElementById('mrg-players').innerText = "Błąd JSON.";
+                }
+            },
+            onerror: () => {
+                document.getElementById('mrg-players').innerText = "Błąd sieci.";
+            }
+        });
     }
 
     let isIntervalStarted = false;
