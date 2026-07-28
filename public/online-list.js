@@ -234,6 +234,7 @@
                     setTimeout(pobierzKolejny, 700);
                 }
             });
+        }
 
         pobierzKolejny();
     }
