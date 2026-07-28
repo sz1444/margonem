@@ -176,15 +176,15 @@
         const tabsHeader = document.getElementById('tabsHeader');
         const filterBtn = document.getElementById('filterBtn');
         tabsHeader.innerHTML = '';
-    
+
         columnsData.forEach((col, index) => {
             const btn = document.createElement('button');
             btn.className = 'nav-btn';
             btn.style.cssText = 'flex: 1; cursor: pointer; padding: 3px; font-size: 10px;';
-            
+
             const match = col.boss_name.match(/\((.*?)\)/);
             btn.innerText = match ? match[1] : col.id;
-    
+
             btn.onclick = () => {
                 currentTab = index;
                 saveTab();
@@ -196,7 +196,7 @@
         tabsHeader.appendChild(filterBtn);
         updateBtn();
     }
-    
+
     function updateBtn() {
         const btns = document.querySelectorAll('#tabsHeader .nav-btn:not(#filterBtn)');
         btns.forEach((btn, idx) => {
@@ -230,14 +230,15 @@
 
     const savedPos = JSON.parse(localStorage.getItem('mapSyncPos')) || { top: "282px", left: "355px" };
     const savedSize = JSON.parse(localStorage.getItem('mapSyncSize')) || { width: "280px", height: "380px" };
-    const isSavedMinimized = localStorage.getItem('mapSyncMinimized') === 'true';
+    const isSavedMinimized = localStorage.getItem('mapSyncIsMin') === 'true';
     let opacityLvl = parseInt(localStorage.getItem('mapSyncOpacityLvl')) || 4;
 
     const container = document.createElement('div');
     container.id = "mapSyncContainer";
     container.className = `c-window border-window ui-draggable transparent whoishere-window`;
+    container.dataset.prevHeight = (savedSize.height && savedSize.height !== '28px') ? savedSize.height : '380px';
     container.setAttribute('data-opacity-lvl', opacityLvl);
-    container.style = `position: absolute; z-index: 19; display: block; left: ${savedPos.left}; top: ${savedPos.top}; width: ${savedSize.width}; height: ${isSavedMinimized ? '28px' : savedSize.height};`;
+    container.style = `position: absolute; z-index: 19; display: block; left: ${savedPos.left}; top: ${savedPos.top}; width: ${savedSize.width}; height: ${isSavedMinimized ? '28px' : container.dataset.prevHeight};`;
 
     container.innerHTML = `
         <div class="header-label-positioner" id="dragHandle" style="cursor: move;">
@@ -246,7 +247,7 @@
                 <div class="left-decor"></div>
                 <div class="right-decor"></div>
                 <div class="text" id="windowTitleText" style="display: flex; align-items: center; gap: 4px; justify-content: center;">
-                    <span id="tabTitleSpan">Gracze na mapie (173h)</span>
+                    <span id="tabTitleSpan">Event Heros Helper (173h)</span>
                 </div>
             </div>
         </div>
@@ -271,7 +272,7 @@
             </div>
         </div>
         <div class="close-button-corner-decor">
-            <button type="button" class="close-button" id="minBtn"><div class="ie-icon ie-icon-close"></div></button>
+            <button type="button" class="close-button" id="minBtn" style="transition: transform 0.3s ease; transform: ${isSavedMinimized ? 'rotate(45deg)' : 'rotate(0deg)'};"><div class="ie-icon ie-icon-close"></div></button>
         </div>
         <div class="border-image"></div>
         <div class="transparent-window-buttons-menu">
@@ -354,6 +355,9 @@
             padding: 4px 8px; border-radius: 4px; font-size: 10px; pointer-events: none; display: none;
             border: 1px solid rgba(255, 255, 255, 0.1); font-family: Verdana, sans-serif;
         }
+        #minBtn {
+           transition: transform 0.3s ease;
+        }
     `;
     document.head.appendChild(styleSheet);
 
@@ -368,21 +372,21 @@
         mList.innerHTML = "";
         const activeCol = columnsData[currentTab];
         if (!activeCol) return;
-    
+
         const data = activeCol.maps || [];
         const prefix = activeCol.id;
         const match = activeCol.boss_name.match(/\((.*?)\)/);
         const tabName = match ? match[1] : activeCol.id;
-    
-        document.getElementById('tabTitleSpan').innerText = `Gracze na mapie (${tabName})`;
-    
+
+        document.getElementById('tabTitleSpan').innerText = `Event Heros Helper (${tabName})`;
+
         data.forEach((mapData, i) => {
             const rowId = `${prefix}${i}`;
             const row = document.createElement('div');
             row.className = "map-row one-other tw-list-item";
             row.id = `row_${rowId}`;
             row.setAttribute('data-ids', JSON.stringify([`${rowId}_1`, `${rowId}_2`]));
-    
+
             row.innerHTML = `
                 <div class="m-name-container">
                     <span class="m-occ" id="occ_${rowId}"></span>
@@ -390,13 +394,13 @@
                 </div>
                 <span class="m-timer" id="timer_${rowId}">--:--</span>
             `;
-    
+
             row.oncontextmenu = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 sendGlobalAlert(`Nikogo nie ma na <b style="color:#ef4444">${mapData[0]}</b>`);
             };
-    
+
             row.onmouseenter = () => {
                 const occupants = getRowOccupants(row);
                 tooltip.innerHTML = occupants.length > 0 ? "Gracze: <span style='color:#22c55e; font-weight:bold;'>" + occupants.join(", ") + "</span>" : "Brak graczy na mapie";
@@ -526,19 +530,32 @@
         }
     });
 
-    document.getElementById('minBtn').onclick = () => {
+    const minBtn = document.getElementById('minBtn');
+
+    if (isSavedMinimized) minBtn.style.transform = 'rotate(45deg)';
+
+    minBtn.onclick = function() {
         const container = document.getElementById('mapSyncContainer');
-        const isMin = container.style.height == '28px';
+        const isMin = container.offsetHeight <= 30 || container.style.height === '28px';
 
         if (!isMin) {
             container.dataset.prevHeight = container.style.height;
             container.style.height = '28px';
+            this.style.transform = 'rotate(45deg)';
+            localStorage.setItem('mapSyncIsMin', 'true');
         } else {
-            container.style.height = container.dataset.prevHeight || '380px';
-        }
+            const restoredHeight = (container.dataset.prevHeight && container.dataset.prevHeight !== '28px')
+            ? container.dataset.prevHeight
+            : '380px';
 
-        localStorage.setItem('mapSyncMinimized', !isMin);
+            container.style.height = restoredHeight;
+            this.style.transform = 'rotate(0deg)';
+            localStorage.setItem('mapSyncIsMin', 'false');
+            localStorage.setItem('mapSyncSize', JSON.stringify({ width: container.style.width, height: restoredHeight }));
+        }
     };
+
+
 
     document.getElementById('opacityBtn').onclick = () => {
         opacityLvl = opacityLvl >= 5 ? 1 : opacityLvl + 1;
@@ -562,7 +579,7 @@
         let currentMap = getMapName();
         const myNick = getHeroName();
         let foundMatch = false;
-    
+
         columnsData.forEach((col) => {
             const prefix = col.id;
             col.maps.forEach((mapData, i) => {
@@ -571,7 +588,7 @@
                     const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
                     const d1 = cachedData[id1] || { val: "", ts: 0 };
                     const d2 = cachedData[id2] || { val: "", ts: 0 };
-    
+
                     if (d1.val === myNick) {
                         currentMyId = id1;
                         cachedData[id1].ts = Date.now();
