@@ -76,7 +76,7 @@
                         <div id="mrg-footer-info" style="font-size: 9px; color: #eaeaea; letter-spacing: 0.3px;">Dane z: --:--:--</div>
                         <div id="mrgRefreshBtn" class="button green small" style="margin: 0; pointer-events: auto; transform: scale(0.85); transform-origin: right center;">
                             <div class="background"></div>
-                            <div class="label">Dopasuj</div>
+                            <div class="label">Napraw listę</div>
                         </div>
                     </div>
                 </div>
