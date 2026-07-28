@@ -194,7 +194,6 @@
             tabsHeader.appendChild(btn);
         });
         tabsHeader.appendChild(filterBtn);
-        updateBtn();
     }
     
     function updateBtn() {
