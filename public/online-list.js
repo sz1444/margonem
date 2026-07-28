@@ -66,6 +66,12 @@
                             </div>
                         </div>
                     </div>
+                     <div style="text-align: center; padding: 4px 0; flex-shrink: 0;">
+                        <div id="mrgRefreshBtn" class="button green small" style="margin: 0 auto; pointer-events: auto;">
+                            <div class="background"></div>
+                            <div class="label">Odśwież</div>
+                        </div>
+                    </div>
                     <div id="mrg-footer-info" style="font-size: 9px; color: #eaeaea; text-align: center; padding-top: 2px; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 2px; flex-shrink: 0; letter-spacing: 0.3px;">Dane z: --:--:--</div>
                 </div>
             </div>
@@ -75,7 +81,6 @@
         </div>
         <div class="border-image" id="mrgBorderImage"></div>
         <div class="transparent-window-buttons-menu" id="mrgButtonsMenu" >
-            <div class="manage-hamburger-button" id="mrgRefreshBtn" title="Odśwież"><div class="ie-icon ie-icon-menu"></div></div>
             <div class="increase-opacity" id="mrgOpacityBtn" title="Zmień przezroczystość"></div>
         </div>
     `;
