@@ -3,44 +3,97 @@
     "title": "Event Heros Helper",
     "footer": "2026 © By Groli"
   },
+ {
   "columns": [
     {
-      "id": "p",
-      "boss_name": "Monsieur Poulet (173h)",
-      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h3-monsieur.gif",
-      "items": [
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1403.gif", "count": "4" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1404.gif", "count": "1" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1402.gif", "count": "7" }
-      ],
+      "id": "h",
+      "boss_name": "Harald Ślinozęby (114p)",
+      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/w26-h1-harald.gif",
+      "items": [],
       "maps": [
-        ["Ruiny Tass Zhil", "#3498db"], ["Błota Sham Al", "#3498db"], ["Głusza Świstu", "#3498db"], ["Las Porywów Wiatru", "#3498db"], ["Kwieciste Kresy", "#3498db"], ["Grań Gawronich Piór", "#3498db"], ["Nawiedzone Komnaty - przedsionek", "#e67e22"], ["Nawiedzone Kazamaty p.1 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.1 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.2 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.2 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.3 s.1", "#e67e22"], ["Nawiedzone Kazamaty p.3 s.2", "#e67e22"], ["Nawiedzone Kazamaty p.4", "#e67e22"], ["Sala Dowódcy Orków", "#e67e22"], ["Nawiedzone Komnaty - zachód", "#e67e22"], ["Nawiedzone Komnaty - wschód", "#e67e22"], ["Sala Rady Orków", "#e67e22"], ["Sala Królewska", "#e67e22"], ["Komnaty Czarnej Gwardii - wschód", "#e67e22"], ["Komnata Czarnej Perły", "#e67e22"], ["Komnaty Czarnej Gwardii - zachód", "#e67e22"]
+        ["Oaza Siedmiu Wichrów", "#3498db"],
+        ["Płaskowyż Arpan", "#3498db"],
+        ["Skalne Cmentarzysko p.1", "#3498db"],
+        ["Skalne Cmentarzysko p.2", "#3498db"],
+        ["Skalne Cmentarzysko p.3", "#3498db"],
+        ["Sucha Dolina", "#3498db"],
+        ["Złote Piaski", "#3498db"],
+        ["Piramida Pustynnego Władcy p.1", "#3498db"],
+        ["Piramida Pustynnego Władcy p.2", "#3498db"],
+        ["Ruiny Pustynnych Burz", "#3498db"],
+        ["Ciche Rumowiska", "#3498db"],
+        ["Dolina Suchych Łez", "#3498db"],
+        ["Pustkowia Pogrzebanych", "#3498db"],
+        ["Zabłocona Jama p.1 - sala 1", "#e67e22"],
+        ["Zabłocona Jama p.1 - sala 2", "#e67e22"],
+        ["Zabłocona Jama p.2 - sala 1", "#e67e22"],
+        ["Zabłocona Jama p.2 - sala 2", "#e67e22"],
+        ["Zabłocona Jama p.2 - sala 3", "#e67e22"],
+        ["Zabłocona Jama p.2 - Sala Błotnistych Odmętów", "#e67e22"],
+        ["Zabłocona Jama p.2 - Sala Duszącej Stęchlizny", "#e67e22"],
+        ["Zabłocona Jama p.2 - Sala Magicznego Błota", "#e67e22"]
       ]
     },
     {
-      "id": "n",
-      "boss_name": "Kur Nadworny (231p)",
-      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h4-kur.gif",
-      "items": [
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1471.gif", "count": "3" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1470.gif", "count": "4" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/rek/rekawice1463.gif", "count": "2" }
-      ],
+      "id": "b",
+      "boss_name": "Zagubiony Birkebeiner (165h)",
+      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/w26-h2-birkebeiner.gif",
+      "items": [],
       "maps": [
-        ["Gęste Sploty", "#2ecc71"], ["Zmurszały Łęg", "#2ecc71"], ["Garb Połamanych Konarów", "#2ecc71"], ["Zalesiony Step", "#2ecc71"], ["Głusza Srebrnego Rogu", "#2ecc71"], ["Knieja Lunarnych Głazów", "#2ecc71"], ["Szepty Menhirów", "#2ecc71"], ["Gaj Księżycowego Blasku", "#2ecc71"], ["Zakątek Nocnych Szelestów", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 1", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 2", "#2ecc71"], ["Zarosłe Szczeliny p.1 - sala 3", "#2ecc71"], ["Gardziel Podgnitych Mchów p.1", "#2ecc71"], ["Gardziel Podgnitych Mchów p.2", "#2ecc71"], ["Zacienione Wnęki p.1 - sala 1", "#2ecc71"], ["Zacienione Wnęki p.1 - sala 2", "#2ecc71"], ["Zacienione Wnęki p.2 - sala 1", "#2ecc71"], ["Zacienione Wnęki p.2 - sala 2", "#2ecc71"], ["Skryty Azyl", "#3498db"], ["Dolina Potoku Śmierci", "#3498db"], ["Złota Dąbrowa", "#3498db"], ["Strumienie Szemrzących Wód", "#3498db"], ["Zawodzące Kaskady", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 1", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 2", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 3", "#3498db"], ["Jaszczurze Korytarze p.1 - sala 4", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 1", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 2", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 3", "#3498db"], ["Jaszczurze Korytarze p.2 - sala 4", "#3498db"]
+        ["Ukryty Kanion", "#2ecc71"],
+        ["Dziki Zagajnik", "#2ecc71"],
+        ["Skały Pamięci Nikantosa", "#2ecc71"],
+        ["Przełęcz Krwistego Posłańca", "#2ecc71"],
+        ["Przepaść Aguti", "#2ecc71"],
+        ["Kurhany Zwyciężonych", "#2ecc71"],
+        ["Nawiedzone Kazamaty p.1 s.1", "#2ecc71"],
+        ["Nawiedzone Kazamaty p.1 s.2", "#2ecc71"],
+        ["Nawiedzone Kazamaty p.2 s.1", "#2ecc71"],
+        ["Nawiedzone Kazamaty p.2 s.2", "#2ecc71"],
+        ["Nawiedzone Kazamaty p.3 s.1", "#2ecc71"],
+        ["Nawiedzone Kazamaty p.3 s.2", "#2ecc71"],
+        ["Nawiedzone Kazamaty p.4", "#2ecc71"],
+        ["Orcza Wyżyna", "#2ecc71"],
+        ["Grota Orczych Szamanów p.1 s.1", "#2ecc71"],
+        ["Grota Orczych Szamanów p.1 s.2", "#2ecc71"],
+        ["Grota Orczych Szamanów p.2 s.1", "#2ecc71"],
+        ["Grota Orczych Szamanów p.2 s.2", "#2ecc71"],
+        ["Osada Czerwonych Orków", "#2ecc71"],
+        ["Grota Orczej Hordy p.2 s.1", "#2ecc71"],
+        ["Grota Orczej Hordy p.1 s.1", "#2ecc71"],
+        ["Grota Orczej Hordy p.1 s.2", "#2ecc71"],
+        ["Grota Orczej Hordy p.2 s.2", "#2ecc71"]
       ]
     },
     {
-      "id": "s",
-      "boss_name": "Kurzy Ślepiec (266b)",
-      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/wiel26-h5-slepiec.gif",
-      "items": [
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1410.gif", "count": "2" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1409.gif", "count": "4" },
-        { "img": "https://micc.garmory-cdn.cloud/obrazki/itemy/pie/pierscien1408.gif", "count": "3" }
-      ],
+      "id": "w",
+      "boss_name": "Potulny Berserker (284w)",
+      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/w26-h3-berserker.gif",
+      "items": [],
       "maps": [
-        ["Potępione Zamczysko", "#1abc9c"], ["Potępione Zamczysko - lochy zachodnie p.1", "#1abc9c"], ["Potępione Zamczysko - lochy zachodnie p.2", "#1abc9c"], ["Potępione Zamczysko - głębokie lochy", "#1abc9c"], ["Potępione Zamczysko - lochy wschodnie p.2", "#1abc9c"], ["Potępione Zamczysko - lochy wschodnie p.1", "#1abc9c"], ["Potępione Zamczysko - korytarz zachodni", "#1abc9c"], ["Potępione Zamczysko - korytarz wschodni", "#1abc9c"], ["Potępione Zamczysko - zachodnia komnata", "#1abc9c"], ["Potępione Zamczysko - wschodnia komnata", "#1abc9c"], ["Potępione Zamczysko - sala ofiarna", "#1abc9c"], ["Potępione Zamczysko - łącznik zachodni", "#1abc9c"], ["Potępione Zamczysko - łącznik wschodni", "#1abc9c"], ["Potępione Zamczysko - północna komnata", "#1abc9c"], ["Zachodnie Zbocze", "#1abc9c"], ["Plugawe Pustkowie", "#1abc9c"], ["Jęczywąwóz", "#1abc9c"], ["Pogranicze Wisielców", "#1abc9c"], ["Skalisty Styk", "#1abc9c"], ["Zacisze Zimnych Wiatrów", "#1abc9c"], ["Pustynne Katakumby", "#9b59b6"], ["Pustynne Katakumby - sala 1", "#9b59b6"], ["Pustynne Katakumby - sala 2", "#9b59b6"], ["Komnaty Bezdusznych - sala 1", "#9b59b6"], ["Komnaty Bezdusznych - sala 2", "#9b59b6"], ["Katakumby Odnalezionych Skrytobójców", "#9b59b6"], ["Katakumby Opętanych Dusz", "#9b59b6"], ["Korytarz Porzuconych Marzeń", "#9b59b6"], ["Katakumby Gwałtownej Śmierci", "#9b59b6"]
+        ["Moczary Rybiego Oka", "#1abc9c"],
+        ["Podtopione Młaki", "#1abc9c"],
+        ["Źródło Narumi", "#1abc9c"],
+        ["Uroczysko Wodnika", "#1abc9c"],
+        ["Dolny Bieg", "#1abc9c"],
+        ["Starorzecze Narumi", "#1abc9c"],
+        ["Rozlewisko Kai", "#9b59b6"],
+        ["Gvar Hamryd", "#9b59b6"],
+        ["Jaskinia Suchych Pędów s.4", "#9b59b6"],
+        ["Jaskinia Suchych Pędów s.3", "#9b59b6"],
+        ["Jaskinia Suchych Pędów s.2", "#9b59b6"],
+        ["Jaskinia Suchych Pędów s.1", "#9b59b6"],
+        ["Matecznik Szelestu", "#9b59b6"],
+        ["Drzewo Życia p.1", "#9b59b6"],
+        ["Drzewo Życia p.2", "#9b59b6"],
+        ["Pustynne Katakumby - Komnata Opętanych Dusz", "#e74c3c"],
+        ["Pustynne Katakumby - Komnata Krwawych Wypraw", "#e74c3c"],
+        ["Pustynne Katakumby - Komnata Poległych Legionistów", "#e74c3c"],
+        ["Pustynne Katakumby - Grobowiec Seta", "#e74c3c"],
+        ["Pustynne Katakumby - Korytarz Porzuconych Nadziei", "#e74c3c"],
+        ["Pustynne Katakumby - Korytarz Porzuconych Marzeń", "#e74c3c"],
+        ["Pustynne Katakumby - Wschodni Tunel Jaźni", "#e74c3c"],
+        ["Pustynne Katakumby - Zachodni Tunel Jaźni", "#e74c3c"]
       ]
     }
   ]
