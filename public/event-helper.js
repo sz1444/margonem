@@ -361,7 +361,7 @@
     document.body.appendChild(tooltip);
 
     const mList = document.getElementById('mList');
-    let currentTab = parseInt(localStorage.getItem('mapSync_currentTab')) || 1;
+    let currentTab = parseInt(localStorage.getItem('mapSync_currentTab')) || 0;
 
      function render() {
         mList.innerHTML = "";
