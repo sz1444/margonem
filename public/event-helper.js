@@ -12,6 +12,7 @@
     let discordToken = localStorage.getItem('mapSync_dcToken');
     let currentMyId = null;
     let filterActive = false;
+    let columnsData = [];
 
     function checkUrlForToken() {
         const hash = window.location.hash;
@@ -164,13 +165,43 @@
         try {
             const response = await fetch('https://margonem.vercel.app/data.json');
             const config = await response.json();
-            arkusz1 = config.columns.find(c => c.id === 'p')?.maps || [];
-            arkusz2 = config.columns.find(c => c.id === 'n')?.maps || [];
-            arkusz3 = config.columns.find(c => c.id === 's')?.maps || [];
+            columnsData = config.columns || [];
+            renderTabs();
             render();
-            updateBtn();
             initSocket();
         } catch (e) { console.error("JSON error", e); }
+    }
+
+    function renderTabs() {
+        const tabsHeader = document.getElementById('tabsHeader');
+        const filterBtn = document.getElementById('filterBtn');
+        tabsHeader.innerHTML = '';
+    
+        columnsData.forEach((col, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-btn';
+            btn.style.cssText = 'flex: 1; cursor: pointer; padding: 3px; font-size: 10px;';
+            
+            const match = col.boss_name.match(/\((.*?)\)/);
+            btn.innerText = match ? match[1] : col.id;
+    
+            btn.onclick = () => {
+                currentTab = index;
+                saveTab();
+                updateBtn();
+                render();
+            };
+            tabsHeader.appendChild(btn);
+        });
+        tabsHeader.appendChild(filterBtn);
+        updateBtn();
+    }
+    
+    function updateBtn() {
+        const btns = document.querySelectorAll('#tabsHeader .nav-btn:not(#filterBtn)');
+        btns.forEach((btn, idx) => {
+            btn.classList.toggle('active', idx === currentTab);
+        });
     }
 
     function showGlobalModal(data) {
@@ -224,9 +255,9 @@
                 <div class="tab-content">
 
                     <div style="display: flex; gap: 4px; margin-bottom: 6px; padding: 0;" id="tabsHeader">
-                        <button id="t1" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">173h</button>
-                        <button id="t2" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">231p</button>
-                        <button id="t3" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">266b</button>
+                        <button id="t1" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">114p</button>
+                        <button id="t2" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">165h</button>
+                        <button id="t3" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">284w</button>
                         <button id="filterBtn" class="nav-btn" style="cursor: pointer; padding: 3px 8px; font-size: 10px;">⌛</button>
                     </div>
 
@@ -333,22 +364,25 @@
     const mList = document.getElementById('mList');
     let currentTab = parseInt(localStorage.getItem('mapSync_currentTab')) || 1;
 
-    function render() {
+     function render() {
         mList.innerHTML = "";
-        let data, prefix, tabName;
-        if (currentTab === 1) { data = arkusz1; prefix = "p"; tabName = "173h"; }
-        else if (currentTab === 2) { data = arkusz2; prefix = "n"; tabName = "231p"; }
-        else { data = arkusz3; prefix = "s"; tabName = "266b"; }
-
+        const activeCol = columnsData[currentTab];
+        if (!activeCol) return;
+    
+        const data = activeCol.maps || [];
+        const prefix = activeCol.id;
+        const match = activeCol.boss_name.match(/\((.*?)\)/);
+        const tabName = match ? match[1] : activeCol.id;
+    
         document.getElementById('tabTitleSpan').innerText = `Gracze na mapie (${tabName})`;
-
+    
         data.forEach((mapData, i) => {
             const rowId = `${prefix}${i}`;
             const row = document.createElement('div');
             row.className = "map-row one-other tw-list-item";
             row.id = `row_${rowId}`;
             row.setAttribute('data-ids', JSON.stringify([`${rowId}_1`, `${rowId}_2`]));
-
+    
             row.innerHTML = `
                 <div class="m-name-container">
                     <span class="m-occ" id="occ_${rowId}"></span>
@@ -356,14 +390,14 @@
                 </div>
                 <span class="m-timer" id="timer_${rowId}">--:--</span>
             `;
-
+    
             row.oncontextmenu = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 sendGlobalAlert(`Nikogo nie ma na <b style="color:#ef4444">${mapData[0]}</b>`);
             };
-
-            row.onmouseenter = (e) => {
+    
+            row.onmouseenter = () => {
                 const occupants = getRowOccupants(row);
                 tooltip.innerHTML = occupants.length > 0 ? "Gracze: <span style='color:#22c55e; font-weight:bold;'>" + occupants.join(", ") + "</span>" : "Brak graczy na mapie";
                 tooltip.style.display = "block";
@@ -534,25 +568,26 @@
         document.getElementById('t3').classList.toggle('active', currentTab === 3);
     }
 
-function autoMapCheck() {
+    function autoMapCheck() {
         let currentMap = getMapName();
         const myNick = getHeroName();
         let foundMatch = false;
-        [arkusz1, arkusz2, arkusz3].forEach((arkusz, idx) => {
-            const prefix = ["p", "n", "s"][idx];
-            arkusz.forEach((mapData, i) => {
+    
+        columnsData.forEach((col) => {
+            const prefix = col.id;
+            col.maps.forEach((mapData, i) => {
                 if (mapData[0] === currentMap) {
                     foundMatch = true;
                     const id1 = `${prefix}${i}_1`, id2 = `${prefix}${i}_2`;
                     const d1 = cachedData[id1] || { val: "", ts: 0 };
                     const d2 = cachedData[id2] || { val: "", ts: 0 };
-
+    
                     if (d1.val === myNick) {
                         currentMyId = id1;
-                        cachedData[id1].ts = Date.now(); // Nadpisanie czasu
+                        cachedData[id1].ts = Date.now();
                     } else if (d2.val === myNick) {
                         currentMyId = id2;
-                        cachedData[id2].ts = Date.now(); // Nadpisanie czasu
+                        cachedData[id2].ts = Date.now();
                     } else if (!d1.val || d1.val === "") {
                         currentMyId = id1;
                         sync(id1, myNick);
