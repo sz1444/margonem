@@ -1,3 +1,4 @@
+
 (function() {
     'use strict';
 
@@ -146,32 +147,36 @@
         }
     });
 
-    let isCollapsed = false;
+    let isCollapsed = localStorage.getItem('mrg_online_collapsed') === 'true';
     const toggleBtn = document.getElementById('mrgOnlineToggle');
     const contentEl = document.getElementById('mrgContentArea');
-    const bottomBarEl = document.getElementById('mrgBottomBar');
     const borderImageEl = document.getElementById('mrgBorderImage');
     const buttonsMenuEl = document.getElementById('mrgButtonsMenu');
+    const iconEl = toggleBtn.querySelector('.ie-icon');
+
+    iconEl.style.display = 'inline-block';
+    iconEl.style.transition = 'transform 0.3s ease';
+
+    if (isCollapsed) {
+        panel.dataset.prevHeight = '360px';
+        panel.style.height = '28px';
+        panel.style.overflow = 'hidden';
+        iconEl.style.transform = 'rotate(45deg)';
+    }
 
     toggleBtn.onclick = (e) => {
         e.stopPropagation();
         isCollapsed = !isCollapsed;
+        localStorage.setItem('mrg_online_collapsed', isCollapsed);
 
         if (isCollapsed) {
             panel.dataset.prevHeight = '360px';
             panel.style.height = '28px';
-            contentEl.style.display = 'none';
-            bottomBarEl.style.display = 'none';
-            borderImageEl.style.display = 'none';
-            buttonsMenuEl.style.display = 'none';
-            toggleBtn.querySelector('.ie-icon').className = 'ie-icon ie-icon-plus';
+            panel.style.overflow = 'hidden';
+            iconEl.style.transform = 'rotate(45deg)';
         } else {
             panel.style.height = panel.dataset.prevHeight || '360px';
-            contentEl.style.display = 'flex';
-            bottomBarEl.style.display = 'block';
-            borderImageEl.style.display = 'block';
-            buttonsMenuEl.style.display = 'flex';
-            toggleBtn.querySelector('.ie-icon').className = 'ie-icon ie-icon-close';
+            iconEl.style.transform = 'rotate(0deg)';
         }
     };
 
