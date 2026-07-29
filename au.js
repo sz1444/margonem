@@ -2,7 +2,7 @@
     'use strict';
 
     const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-    const titanMapsIds = [1800, 1745, 6950, 7061, 7478, 6058, 5947, 7849, 5710, 3313, 2758, 4238];
+    const titanMapsIds = [1800, 1745, 6950, 7061, 7478, 6058, 5947, 7849, 5710, 3313, 2758, 4238, 8631];
     const currentAttack = [];
 
     const savedPos = JSON.parse(localStorage.getItem('fleeHubPos')) || { top: "80%", left: "20px" };
