@@ -12,6 +12,17 @@
 (function() {
     'use strict';
 
+    const uaDescriptor = Reflect.getOwnPropertyDescriptor(Navigator.prototype, "userAgent");
+    const uaGetter = uaDescriptor.get;
+    
+    function uaProxifier() {
+        const originalUa = uaGetter.apply(this, []);
+        return `${originalUa} MargonemMobile`;
+    }
+    
+    Reflect.set(uaDescriptor, "get", uaProxifier);
+    Reflect.defineProperty(Navigator.prototype, "userAgent", uaDescriptor);
+
     const isMobile = (
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
         (navigator.maxTouchPoints > 0) ||
