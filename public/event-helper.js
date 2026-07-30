@@ -558,7 +558,7 @@
 
 
     document.getElementById('opacityBtn').onclick = () => {
-        opacityLvl = opacityLvl >= 5 ? 1 : opacityLvl + 1;
+        opacityLvl = opacityLvl >= 5 ? 0 : opacityLvl + 1;
         container.setAttribute('data-opacity-lvl', opacityLvl);
         localStorage.setItem('mapSyncOpacityLvl', opacityLvl);
     };
