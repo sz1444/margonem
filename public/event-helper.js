@@ -350,20 +350,13 @@
         .nav-btn { background: transparent; border: 0; color: #8b8b8b; }
         .nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .nav-btn.active { color: gold; }
-        #msCustomTooltip {
-            position: fixed; z-index: 100000; background: rgba(15, 15, 15, 0.95); color: #f8fafc;
-            padding: 4px 8px; border-radius: 4px; font-size: 10px; pointer-events: none; display: none;
-            border: 1px solid rgba(255, 255, 255, 0.1); font-family: Verdana, sans-serif;
-        }
+
         #minBtn {
            transition: transform 0.3s ease;
         }
     `;
     document.head.appendChild(styleSheet);
 
-    const tooltip = document.createElement('div');
-    tooltip.id = "msCustomTooltip";
-    document.body.appendChild(tooltip);
 
     const mList = document.getElementById('mList');
     let currentTab = parseInt(localStorage.getItem('mapSync_currentTab')) || 0;
@@ -403,14 +396,61 @@
 
             row.onmouseenter = () => {
                 const occupants = getRowOccupants(row);
-                tooltip.innerHTML = occupants.length > 0 ? "Gracze: <span style='color:#22c55e; font-weight:bold;'>" + occupants.join(", ") + "</span>" : "Brak graczy na mapie";
-                tooltip.style.display = "block";
+
+                let listHtml = occupants.length > 0
+                ? occupants.map(p => `
+            <div class="one-other tw-list-item" style="margin-bottom: 2px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="color: #eaeaea; font-weight: 600; font-size: 11px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${p}</div>
+                </div>
+            </div>
+        `).join('')
+                : '<div style="color: #eaeaea; font-style: italic; font-size: 11px; padding: 2px;">Brak graczy na mapie</div>';
+
+                if (!window.mrgCustomTip) {
+                    window.mrgCustomTip = document.createElement('div');
+                    window.mrgCustomTip.className = 'c-window border-window transparent';
+                    window.mrgCustomTip.style.cssText = `
+            position: fixed;
+            display: none;
+            z-index: 100000;
+            pointer-events: none;
+            min-width: 180px;
+            max-width: 240px;
+        `;
+
+                    const borderImg = document.createElement('div');
+                    borderImg.className = 'border-image';
+                    window.mrgCustomTip.appendChild(borderImg);
+
+                    const tipContent = document.createElement('div');
+                    tipContent.className = 'content';
+                    tipContent.style.cssText = 'position: relative; z-index: 2; padding: 4px;';
+                    window.mrgCustomTip.appendChild(tipContent);
+
+                    document.body.appendChild(window.mrgCustomTip);
+                }
+
+                const tipContentEl = window.mrgCustomTip.querySelector('.content');
+                tipContentEl.innerHTML = `<div>${listHtml}</div>`;
+                window.mrgCustomTip.style.display = 'block';
+
+                let rect = row.getBoundingClientRect();
+                let tipX = rect.left;
+                let tipY = rect.bottom + 4;
+
+                if (tipX + 240 > window.innerWidth) tipX = window.innerWidth - 245;
+                if (tipY + window.mrgCustomTip.offsetHeight > window.innerHeight) tipY = rect.top - window.mrgCustomTip.offsetHeight - 4;
+
+                window.mrgCustomTip.style.left = tipX + 'px';
+                window.mrgCustomTip.style.top = tipY + 'px';
             };
-            row.onmousemove = (e) => {
-                tooltip.style.left = (e.clientX + 10) + "px";
-                tooltip.style.top = (e.clientY + 10) + "px";
+
+            row.onmouseleave = () => {
+                if (window.mrgCustomTip) {
+                    window.mrgCustomTip.style.display = 'none';
+                }
             };
-            row.onmouseleave = () => { tooltip.style.display = "none"; };
             mList.appendChild(row);
         });
         updateMapColors();
