@@ -235,7 +235,7 @@
 
     const container = document.createElement('div');
     container.id = "mapSyncContainer";
-    container.className = `c-window border-window ui-draggable transparent whoishere-window`;
+    container.className = `c-window border-window ui-draggable transparent`;
     container.dataset.prevHeight = (savedSize.height && savedSize.height !== '28px') ? savedSize.height : '380px';
     container.setAttribute('data-opacity-lvl', opacityLvl);
     container.style = `position: absolute; z-index: 19; display: block; left: ${savedPos.left}; top: ${savedPos.top}; width: ${savedSize.width}; height: ${isSavedMinimized ? '28px' : container.dataset.prevHeight};`;
