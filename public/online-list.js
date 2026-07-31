@@ -39,7 +39,7 @@
 
     const panel = document.createElement('div');
     panel.id = "mrgOnlinePanel";
-    panel.className = "c-window border-window ui-draggable transparent whoishere-window window-on-peak";
+    panel.className = "c-window border-window ui-draggable transparent window-on-peak";
     panel.setAttribute('data-opacity-lvl', savedOpacityLvl);
     panel.style.cssText = `
         position: absolute;
