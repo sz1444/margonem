@@ -71,6 +71,12 @@
       "description": "Podświetlenie okna łupów dla Uni i Hero. Więcej dopaminki!"
     },
     {
+      "id": "pinned-timer",
+      "name": "Pinned timer",
+      "url": "https://margonem.vercel.app/pinned-timer.js",
+      "description": "BETA!"
+    },
+    {
       "id": "online-list",
       "name": "Online List",
       "url": "https://margonem.vercel.app/online-list.js",
