@@ -74,7 +74,7 @@
       "id": "pinned-timer",
       "name": "Pinned timer",
       "url": "https://margonem.vercel.app/pinned-timer.js",
-      "description": "Oddzoelne okno z przypiętymi timerami z lootloga!"
+      "description": "Dodatek wyświetla w oddzielnym oknie przypięte timery z LootLoga."
     },
     {
       "id": "online-list",
