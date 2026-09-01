@@ -82,6 +82,13 @@
       "url": "https://margonem.vercel.app/online-list.js",
       "description": "Dodatek pokazuje graczy online, pogrupowanych według przedziału levelowego.",
       "tm_context": true
-    }
+    },
+      {
+      "id": "flee-guard",
+      "name": "Flee Guard",
+      "url": "https://margonem.vercel.app/flee-guard.js",
+      "description": "Blokuje użycie ucieczki w walce PVE",
+      "tm_context": true
+    },
   ]
 }
