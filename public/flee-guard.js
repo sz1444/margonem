@@ -137,7 +137,7 @@
 
     const originalG = win._g;
     if (typeof originalG === 'function') {
-        win._g = function(query, callback, ...args) {sas
+        win._g = function(query, callback, ...args) {
             if (pvpOnly && typeof query === 'string' && query.includes('moveitem') && query.includes('st=1')) {
                 const match = query.match(/id=(\d+)/);
                 if (match && match[1]) {
