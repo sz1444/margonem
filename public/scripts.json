@@ -89,6 +89,6 @@
       "url": "https://margonem.vercel.app/flee-guard.js",
       "description": "Blokuje użycie ucieczki w walce PVE",
       "tm_context": true
-    },
+    }
   ]
 }
