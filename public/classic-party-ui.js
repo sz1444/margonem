@@ -31,6 +31,10 @@ width: 32px;
 text-align: right;
     margin-left: 2px;
 }
+
+.party__list .party-member .table-wrapper .bottom-row .hp-points{
+display: none !important;
+}
     `;
 
     const style = document.createElement('style');
