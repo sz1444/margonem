@@ -20,7 +20,7 @@
         }
 
         .party-window .party__list .party-member .member-hp-bar {
-            width: 60px;
+            width: 80px;
             left: auto;
             right: 8px;
             height: 12px;
@@ -49,7 +49,7 @@
         }
 
         .party__list .party-member .table-wrapper .bottom-row .hp-percent {
-            width: 60px;
+            width: 80px;
             text-align: center;
             margin-left: 2px;
         }
