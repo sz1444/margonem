@@ -25,7 +25,7 @@
             right: 8px;
             height: 12px;
             top: 5px;
-            background-color: #c5c5c5 !important;
+            background-color: #2e2f31 !important;
             box-shadow: inset 0 0 10px #00000087;
             border-radius: 3px;
             position: absolute;
@@ -40,6 +40,7 @@
             width: calc(attr(bar-percent type(<number>), 0) * 1%);
             background: #c32922;
             border-radius: 2px;
+            box-shadow: inset 0 0 8px #0000005e;
         }
 
         .party__list .party-member .table-wrapper .bottom-row {
