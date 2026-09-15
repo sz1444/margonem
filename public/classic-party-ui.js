@@ -57,6 +57,9 @@
 .party__list .party-member .table-wrapper .bottom-row .hp-points{
 display: none !important;
 }
+.party__list .party-member .table-wrapper .top-row .character-info {
+display: none !important;
+}
     `;
 
     const style = document.createElement('style');
