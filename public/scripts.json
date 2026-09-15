@@ -89,6 +89,13 @@
       "url": "https://margonem.vercel.app/flee-guard.js",
       "description": "Blokuje użycie ucieczki w walce PVE",
       "tm_context": true
+    },
+          {
+      "id": "classic-party-ui",
+      "name": "Classic Party UI",
+      "url": "https://margonem.vercel.app/classic-party-ui.js",
+      "description": "Stary UI grupy",
+      "tm_context": true
     }
   ]
 }
