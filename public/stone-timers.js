@@ -1,4 +1,3 @@
-
 (function () {
     'use strict';
 
@@ -37,14 +36,29 @@
         "6055": ["Wrzosera", "Chryzoprenia", "Cantedewia"], "7693": ["Ogr Stalowy Pazur"],
         "7859": ["Al'diphrin Ilythirahel"], "1159": ["Arachniregina Colosseus"],
         "7827": ["Arytodam olbrzymi"], "8181": ["Fangaj"], "8187": ["Wabicielka"], "8532": ["Mazurnik Przybrzeżny"], "8554": ["Fovos"], "8556": ["Luna", "Noumenia"], "8541": ["Wysłannik Tellarów"]
-    }
+    };
 
     const IS_NEW_INTERFACE = typeof window.Engine !== "undefined";
-    const BOSS_TIMER_TTL = 250;
+    const BOSS_TIMER_TTL = 1000;
 
     let bossTimerCache = {};
     let lastBossTimerUpdate = 0;
     let activeStones = [];
+
+    function getWorldName() {
+        if (window.Engine?.worldConfig?.getWorldName) return window.Engine.worldConfig.getWorldName();
+        if (window.g?.worldname) return window.g.worldname;
+        const host = window.location.hostname.split('.');
+        return host.length > 2 ? host[0] : '';
+    }
+
+    function getRawTimers() {
+        const world = getWorldName();
+        if (window.lootlogGameClientApi && typeof window.lootlogGameClientApi.getTimers === 'function') {
+            return window.lootlogGameClientApi.getTimers({ world }) || [];
+        }
+        return [];
+    }
 
     function parseStats(item) {
         try {
@@ -78,7 +92,6 @@
         });
         return el;
     }
-
 
     function syncInventory() {
         try {
@@ -122,44 +135,45 @@
     function refreshBossTimerCache() {
         try {
             const cache = {};
-            let timerContainer = document.getElementById('ll-timers');
-    
-            if (!timerContainer) timerContainer = document.querySelector('.right-main-column-wrapper .bottom-wrapper');
-            if (!timerContainer) return;
-    
-            const triggers = timerContainer.querySelectorAll('[data-slot="tooltip-trigger"]');
-            
-            triggers.forEach(trigger => {
-                try {
-                    const nameSpan = trigger.querySelector('span > span > span:first-child');
-                    const timeSpan = trigger.querySelector('span > span > span:nth-child(2)');
-    
-                    if (nameSpan && timeSpan) {
-                        const bossName = nameSpan.innerText.trim();
-                        const timeText = timeSpan.innerText.trim();
-    
-                        if (bossName) {
-                            const isActive = trigger.querySelector('.ll\\:text-orange-400') !== null || 
-                                             trigger.className.includes('text-orange-400');
-    
-                            cache[bossName] = {
-                                time: timeText || "--:--",
-                                color: isActive ? 'orange' : '#fff'
-                            };
-                        }
-                    }
-                } catch (nodeErr) {}
+            const rawTimers = getRawTimers();
+            const now = Date.now();
+
+            rawTimers.forEach(item => {
+                const npcName = item.npc?.name;
+                if (!npcName) return;
+
+                const maxTime = new Date(item.maxSpawnTime).getTime();
+                const minTime = item.minSpawnTime ? new Date(item.minSpawnTime).getTime() : maxTime;
+                const remainingMax = Math.floor((maxTime - now) / 1000);
+
+                if (remainingMax <= 0) {
+                    cache[npcName] = { time: "brak", color: "rgba(255, 255, 255, 0.4)", seconds: 0 };
+                    return;
+                }
+
+                const h = Math.floor(remainingMax / 3600);
+                const m = Math.floor((remainingMax % 3600) / 60);
+                const s = Math.floor(remainingMax % 60);
+                const timeText = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                
+                const isMinReached = now >= minTime;
+
+                cache[npcName] = {
+                    time: timeText,
+                    color: isMinReached ? 'orange' : '#fff',
+                    seconds: remainingMax
+                };
             });
-    
+
             bossTimerCache = cache;
         } catch (e) {
-            console.error("Błąd podczas odświeżania timerów:", e);
+            console.error("Błąd podczas odświeżania timerów API:", e);
         }
     }
 
     function formatTime(raw) {
         if (!raw || typeof raw !== 'string') return "??";
-        if (raw.trim().startsWith('-')) return "brak";
+        if (raw.trim().startsWith('-') || raw === "brak") return "brak";
         const parts = raw.split(':');
         return parts.length === 3 ? `${parts[1]}:${parts[2]}` : raw;
     }
@@ -172,18 +186,17 @@
             }
 
             activeStones.forEach(stone => {
-                // Sprawdź czy element DOM nadal istnieje w dokumencie
                 if (!document.body.contains(stone.dom)) return;
 
-                const cacheKeys = Object.keys(bossTimerCache);
-                const found = cacheKeys.find(fullTextFromGame => {
-                    return stone.bosses.some(bossName =>
-                         fullTextFromGame.includes(bossName)
-                    );
+                let foundData = null;
+                stone.bosses.forEach(bossName => {
+                    if (bossTimerCache[bossName]) {
+                        foundData = bossTimerCache[bossName];
+                    }
                 });
 
-                if (found) {
-                    const { time, color } = bossTimerCache[found];
+                if (foundData) {
+                    const { time, color } = foundData;
                     const formatted = formatTime(time);
                     const isExpired = formatted === "brak";  
                     if (stone.dom.innerText !== formatted) stone.dom.innerText = formatted;
