@@ -15,19 +15,21 @@
     let columnsData = [];
     let currentTab = parseInt(localStorage.getItem('mapSync_currentTab')) || 0;
     let bossTimersMap = new Map();
-    let tabButtonElements = []; // Przechowywanie referencji do przycisków dla optymalizacji
+    let tabButtonElements = [];
 
-    function getWorldName() {
-        if (window.Engine?.worldConfig?.getWorldName) return window.Engine.worldConfig.getWorldName();
-        if (window.g?.worldname) return window.g.worldname;
+   function getWorldName() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        if (win.Engine?.worldConfig?.getWorldName) return win.Engine.worldConfig.getWorldName();
+        if (win.g?.worldname) return win.g.worldname;
         const host = window.location.hostname.split('.');
         return host.length > 2 ? host[0] : '';
     }
 
     function getLootLogTimers() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         const world = getWorldName();
-        if (window.lootlogGameClientApi && typeof window.lootlogGameClientApi.getTimers === 'function') {
-            return window.lootlogGameClientApi.getTimers({ world }) || [];
+        if (win.lootlogGameClientApi && typeof win.lootlogGameClientApi.getTimers === 'function') {
+            return win.lootlogGameClientApi.getTimers({ world }) || [];
         }
         return [];
     }
