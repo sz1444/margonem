@@ -13,6 +13,53 @@
     let currentMyId = null;
     let filterActive = false;
     let columnsData = [];
+    let currentTab = parseInt(localStorage.getItem('mapSync_currentTab')) || 0;
+    let bossTimersMap = new Map();
+    let tabButtonElements = []; // Przechowywanie referencji do przycisków dla optymalizacji
+
+    function getWorldName() {
+        if (window.Engine?.worldConfig?.getWorldName) return window.Engine.worldConfig.getWorldName();
+        if (window.g?.worldname) return window.g.worldname;
+        const host = window.location.hostname.split('.');
+        return host.length > 2 ? host[0] : '';
+    }
+
+    function getLootLogTimers() {
+        const world = getWorldName();
+        if (window.lootlogGameClientApi && typeof window.lootlogGameClientApi.getTimers === 'function') {
+            return window.lootlogGameClientApi.getTimers({ world }) || [];
+        }
+        return [];
+    }
+
+    function formatTimer(totalSeconds) {
+        if (totalSeconds <= 0) return "00:00:00";
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = Math.floor(totalSeconds % 60);
+
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function syncTimersData() {
+        const rawTimers = getLootLogTimers();
+        const now = Date.now();
+        bossTimersMap.clear();
+
+        rawTimers.forEach(item => {
+            if (!item.npc || !item.npc.name) return;
+            const npcName = item.npc.name.trim().toLowerCase();
+            const maxTime = new Date(item.maxSpawnTime).getTime();
+
+            if (!isNaN(maxTime) && maxTime > now) {
+                bossTimersMap.set(npcName, {
+                    name: item.npc.name,
+                    maxTime: maxTime,
+                    minTime: item.minSpawnTime ? new Date(item.minSpawnTime).getTime() : maxTime
+                });
+            }
+        });
+    }
 
     function checkUrlForToken() {
         const hash = window.location.hash;
@@ -157,10 +204,6 @@
         }
     }
 
-    let arkusz1 = [];
-    let arkusz2 = [];
-    let arkusz3 = [];
-
     async function loadData() {
         try {
             const response = await fetch('https://margonem.vercel.app/data.json');
@@ -176,14 +219,20 @@
         const tabsHeader = document.getElementById('tabsHeader');
         const filterBtn = document.getElementById('filterBtn');
         tabsHeader.innerHTML = '';
+        tabButtonElements = [];
+
+        syncTimersData();
 
         columnsData.forEach((col, index) => {
             const btn = document.createElement('button');
             btn.className = 'nav-btn';
-            btn.style.cssText = 'flex: 1; cursor: pointer; padding: 3px; font-size: 10px;';
 
             const match = col.boss_name.match(/\((.*?)\)/);
-            btn.innerText = match ? match[1] : col.id;
+            const tabName = match ? match[1] : col.id;
+
+            btn.dataset.index = index;
+            btn.dataset.fullBossName = col.boss_name ? col.boss_name.toLowerCase() : "";
+            btn.dataset.tabName = tabName;
 
             btn.onclick = () => {
                 currentTab = index;
@@ -191,10 +240,77 @@
                 updateBtn();
                 render();
             };
+
+            btn.innerHTML = `
+                <span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; letter-spacing: 0.3px;">${tabName}</span>
+                <span class="tab-timer-span" style="font-size: 9.5px; font-weight: 500; line-height: 1.2; margin-top: 1px; color: #64748b; opacity: 0.4;">brak</span>
+            `;
+
             tabsHeader.appendChild(btn);
+            tabButtonElements.push(btn);
         });
         tabsHeader.appendChild(filterBtn);
         updateBtn();
+        updateTabTimers();
+    }
+
+    function updateTabTimers() {
+        syncTimersData();
+        const now = Date.now();
+
+        tabButtonElements.forEach(btn => {
+            const fullBossName = btn.dataset.fullBossName;
+            const tabName = btn.dataset.tabName;
+            const index = parseInt(btn.dataset.index);
+
+            let timerText = "";
+            let timerColor = "#64748b";
+
+            for (let [key, val] of bossTimersMap.entries()) {
+                if (fullBossName.includes(key) || key.includes(fullBossName) || tabName.toLowerCase().includes(key)) {
+                    if (now < val.minTime) {
+                        const remMin = Math.floor((val.minTime - now) / 1000);
+                        timerText = formatTimer(remMin);
+                        timerColor = "#ffffff";
+                    } else if (now < val.maxTime) {
+                        const remMax = Math.floor((val.maxTime - now) / 1000);
+                        timerText = formatTimer(remMax);
+                        timerColor = "#f98509";
+                    }
+                    break;
+                }
+            }
+
+            let bgStyle = "background: rgba(0, 0, 0, 0.2);";
+
+            if (index === currentTab) {
+                bgStyle = "background: rgba(100, 116, 139, 0.4);";
+            }
+
+            btn.style.cssText = `
+                flex: 1;
+                cursor: pointer;
+                padding: 4px 2px;
+                font-size: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                box-sizing: border-box;
+                border-radius: 4px;
+                ${bgStyle}
+                transition: all 0.2s ease;
+            `;
+
+            const timerSpan = btn.querySelector('.tab-timer-span');
+
+            if (timerSpan) {
+                timerSpan.style.color = timerColor;
+                timerSpan.style.opacity = timerText ? '1' : '0.4';
+                timerSpan.innerText = timerText || 'brak';
+            }
+        });
     }
 
     function updateBtn() {
@@ -202,6 +318,7 @@
         btns.forEach((btn, idx) => {
             btn.classList.toggle('active', idx === currentTab);
         });
+        updateTabTimers();
     }
 
     function showGlobalModal(data) {
@@ -247,7 +364,7 @@
                 <div class="left-decor"></div>
                 <div class="right-decor"></div>
                 <div class="text" id="windowTitleText" style="display: flex; align-items: center; gap: 4px; justify-content: center;">
-                    <span id="tabTitleSpan">Event Heros Helper (173h)</span>
+                    <span id="tabTitleSpan">Event Heros Helper</span>
                 </div>
             </div>
         </div>
@@ -255,11 +372,8 @@
             <div class="inner-content">
                 <div class="tab-content">
 
-                    <div style="display: flex; gap: 4px; margin-bottom: 6px; padding: 0;" id="tabsHeader">
-                        <button id="t1" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">114p</button>
-                        <button id="t2" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">165h</button>
-                        <button id="t3" class="nav-btn" style="flex: 1; cursor: pointer; padding: 3px; font-size: 10px;">284w</button>
-                        <button id="filterBtn" class="nav-btn" style="cursor: pointer; padding: 3px 8px; font-size: 10px;">⌛</button>
+                    <div style="display: flex; gap: 3px; margin-bottom: 6px; padding: 0;" id="tabsHeader">
+                        <button id="filterBtn" class="nav-btn" style="cursor: pointer; padding: 3px 6px; font-size: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 3px;">⌛</button>
                     </div>
 
                     <div class="scroll-wrapper small-bar" style="position: relative;">
@@ -347,9 +461,9 @@
         .m-occ { width: 16px; display: inline-block; text-align: center; font-size: 10px; margin-right: 4px; }
         .m-name { color: #eaeaea; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
         .m-timer { font-family: monospace; font-size: 10px; font-weight: bold; min-width: 32px; text-align: right; }
-        .nav-btn { background: transparent; border: 0; color: #8b8b8b; }
+        .nav-btn { background: transparent; border: 0; color: #8b8b8b; transition: all 0.2s ease; }
         .nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .nav-btn.active { color: gold; }
+        .nav-btn.active { color: gold !important; }
 
         #minBtn {
            transition: transform 0.3s ease;
@@ -357,11 +471,9 @@
     `;
     document.head.appendChild(styleSheet);
 
-
     const mList = document.getElementById('mList');
-    let currentTab = parseInt(localStorage.getItem('mapSync_currentTab')) || 0;
 
-     function render() {
+    function render() {
         mList.innerHTML = "";
         const activeCol = columnsData[currentTab];
         if (!activeCol) return;
@@ -492,6 +604,7 @@
             } else {
                 occSpan.innerHTML = "";
             }
+
             let diff = -1;
             if (lastTs > 0) {
                 diff = Math.max(0, (now - lastTs) / 1000);
@@ -598,8 +711,6 @@
         }
     };
 
-
-
     document.getElementById('opacityBtn').onclick = () => {
         opacityLvl = opacityLvl >= 5 ? 0 : opacityLvl + 1;
         container.setAttribute('data-opacity-lvl', opacityLvl);
@@ -681,7 +792,7 @@
     let assignedKey = localStorage.getItem("mapsync-userKey") || "y";
 
     window.addEventListener("keydown", (event) => {
-        const isTyping = event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable;;
+        const isTyping = event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable;
         if (isTyping) return;
         if (event.key.toLowerCase() === assignedKey) {
             sendGlobalAlert(`Potrzebna pomoc na: <b style="color:#ef4444">${getMapNameWithXY()}</b>`);
@@ -692,6 +803,10 @@
         e.stopPropagation();
     }, { passive: false });
 
-    setInterval(updateMapColors, 1000);
+    setInterval(() => {
+        updateTabTimers();
+        updateMapColors();
+    }, 1000);
+
     loadData();
 })();
