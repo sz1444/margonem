@@ -36,7 +36,7 @@
     {
       "id": "dru",
       "boss_name": "Drude (190 lvl)",
-      "boss_gif": "https//micc.garmory-cdn.cloud/obrazki/npc/hev/h26-h3-drude.gif",
+      "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/h26-h3-drude.gif",
       "items": [],
       "maps": [
         ["Ogrza Kawerna p.1", "#34495e"],
