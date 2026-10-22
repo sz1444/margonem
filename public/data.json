@@ -7,7 +7,7 @@
   "columns": [
     {
       "id": "dop",
-      "boss_name": "Doppelganger (132 lvl)",
+      "boss_name": "Doppelganger (132w)",
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/h26-h2-doppelganger.gif",
       "items": [],
       "maps": [
@@ -35,7 +35,7 @@
     },
     {
       "id": "dru",
-      "boss_name": "Drude (190 lvl)",
+      "boss_name": "Drude (190b)",
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/h26-h3-drude.gif",
       "items": [],
       "maps": [
@@ -58,7 +58,7 @@
     },
     {
       "id": "nos",
-      "boss_name": "Nosferatu (243 lvl)",
+      "boss_name": "Nosferatu (243h)",
       "boss_gif": "https://micc.garmory-cdn.cloud/obrazki/npc/hev/h26-h4-nosferatu.gif",
       "items": [],
       "maps": [
