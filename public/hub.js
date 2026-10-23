@@ -8,7 +8,27 @@
         return null;
     }
 
+    function getClanId() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        if (win.Engine && win.Engine.hero && win.Engine.hero.d && win.Engine.hero.d.clan && win.Engine.hero.d.clan.id) return win.Engine.hero.d.clan.id;
+        if (win.hero && win.hero.clan && win.hero.clan.id) return win.hero.clan.id;
+        return null;
+    }
+
+    function validateClan() {
+        const clanId = getClanId();
+        const allowedClanIds = [72, 103, 96,64, 119, 88, 85, 100];
+
+        if (!clanId || !allowedClanIds.includes(clanId)) {
+            return false;
+        }
+
+        return true;
+    }
+
     const checkNick = setInterval(() => {
+        if (validateClan()) return;
+
         const myNick = getHeroName();
         if (myNick && myNick !== "???") {
             clearInterval(checkNick);
