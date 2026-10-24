@@ -7,7 +7,7 @@
 
     let real_g = null;
 
-    Object.defineProperty(window, '_g', {
+    Object.defineProperty((typeof unsafeWindow !== 'undefined') ? unsafeWindow : window, '_g', {
         set: function(val) {
         if (!real_g && typeof val === 'function') {
             real_g = val;
@@ -79,11 +79,12 @@
     }
 
     const checkClan = setInterval(() => {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         if (!validateEnemyClan()) return clearInterval(checkClan);
 
         clearInterval(checkClan);
         const timer = setInterval(tick, TICK);
-        window.__pvpScan = { stop: () => clearInterval(timer), list: () => nearbyPlayers(RANGE) };
+        win.__pvpScan = { stop: () => clearInterval(timer), list: () => nearbyPlayers(RANGE) };
     }, 1000);
 
     const checkNick = setInterval(() => {
