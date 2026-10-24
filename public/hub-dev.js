@@ -76,7 +76,7 @@
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
 
         return true;
-        
+
         return titanMapsIds.includes(win.Engine?.map?.d?.id);
     }
 
@@ -107,15 +107,15 @@
     }
 
     const checkClan = setInterval(() => {
-        const clanId = getClanId();
+        // const clanId = getClanId();
 
-        if (clanId === null) {
-            clanCheckAttempts++;
-            if (clanCheckAttempts >= MAX_CLAN_CHECK_ATTEMPTS) {
-                clearInterval(checkClan);
-            }
-            return;
-        }
+        // if (clanId === null) {
+        //     clanCheckAttempts++;
+        //     if (clanCheckAttempts >= MAX_CLAN_CHECK_ATTEMPTS) {
+        //         clearInterval(checkClan);
+        //     }
+        //     return;
+        // }
 
         clearInterval(checkClan);
     
