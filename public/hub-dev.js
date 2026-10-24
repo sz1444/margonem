@@ -2,7 +2,6 @@
     'use strict';
 
     const TICK          = 15000;
-    const DRY_RUN       = false;
 
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
@@ -33,6 +32,7 @@
         const clanId = getClanId();
         const allowedClanIds = [86, 79, 52, 116, 105, 80, 75, 108];
 
+        return true;
         if (!clanId || !allowedClanIds.includes(clanId)) {
             return false;
         }
@@ -73,6 +73,7 @@
     function isTitanMap() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
 
+        return true;
         return titanMapsIds.includes(win.Engine?.map?.d?.id);
     }
 
@@ -107,7 +108,6 @@
     }
 
     const checkClan = setInterval(() => {
-        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         if (!validateEnemyClan()) return clearInterval(checkClan);
 
         clearInterval(checkClan);
