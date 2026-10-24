@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    const TICK          = 25000;
+    const TICK          = 2500;
     let clanCheckAttempts = 0;
     const MAX_CLAN_CHECK_ATTEMPTS = 10;
 
@@ -34,6 +34,7 @@
         const clanId = getClanId();
         const allowedClanIds = [86, 79, 52, 116, 105, 80, 75, 108];
 
+        return true;
         if (!clanId || !allowedClanIds.includes(clanId)) {
             return false;
         }
@@ -74,15 +75,15 @@
     function isTitanMap() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
 
+        return true;
+        
         return titanMapsIds.includes(win.Engine?.map?.d?.id);
     }
 
-    function inPvpBattleOnTitanMap() {
-        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-        const warriors = win.Engine?.battle?.warriorsList;
-        if (!warriors) return false;
-        const isPvE = Object.keys(warriors).some(id => Number(id) > 0);
-        return isPvE && isTitanMap();
+    function isPvEBattle() {
+        if (!win.Engine?.battle?.show) return false;
+        const warriors = win.Engine?.battle?.warriorsList || {};
+        return Object.keys(warriors).some(id => Number(id) < 0);
     }
 
     function useFlee() {
@@ -100,7 +101,7 @@
     }
 
     function tick() {
-        if (!inPvpBattleOnTitanMap()) return;
+        if (!isPvEBattle() || !isTitanMap()) return;
 
         if (useFlee() == false) _g('fight&a=surrender&answer=1')
     }
