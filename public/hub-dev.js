@@ -5,6 +5,9 @@
     const DRY_RUN       = false;
 
 
+    const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+    const orgiginalG = win._g;
+
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         if (win.Engine && win.Engine.hero && win.Engine.hero.d) return win.Engine.hero.d.nick;
@@ -95,7 +98,7 @@
 
         for (const item of items) {
             if (parseStats(item)?.action === 'flee' && !getCooldownProgress(item)) {
-                win._g('moveitem&st=1&id=' + item.id);
+                orgiginalG('moveitem&st=1&id=' + item.id);
                 return true;
             }
         }
