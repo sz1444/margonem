@@ -81,6 +81,7 @@
     }
 
     function isPvEBattle() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         if (!win.Engine?.battle?.show) return false;
         const warriors = win.Engine?.battle?.warriorsList || {};
         return Object.keys(warriors).some(id => Number(id) < 0);
