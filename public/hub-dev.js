@@ -84,7 +84,7 @@
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         const warriors = win.Engine?.battle?.warriorsList;
         if (!warriors) return false;
-        const isPvE = !Object.keys(warriors).some(id => Number(id) > 0);
+        const isPvE = Object.keys(warriors).some(id => Number(id) > 0);
         return isPvE && isTitanMap();
     }
 
