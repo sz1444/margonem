@@ -2,6 +2,8 @@
     'use strict';
 
     const TICK          = 25000;
+    let clanCheckAttempts = 0;
+    const MAX_CLAN_CHECK_ATTEMPTS = 10;
 
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
@@ -72,7 +74,6 @@
     function isTitanMap() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
 
-        return true;
         return titanMapsIds.includes(win.Engine?.map?.d?.id);
     }
 
@@ -88,8 +89,6 @@
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         const items = win.Engine?.items?.fetchLocationItems("g");
         if (!items) return false;
-
-        localStorage.setItem('mrg_flee_pvp_only', false);
 
         for (const item of items) {
             if (parseStats(item)?.action === 'flee' && !getCooldownProgress(item)) {
@@ -107,11 +106,21 @@
     }
 
     const checkClan = setInterval(() => {
-        if(!validateEnemyClan()) alert("Nie jesteś w klanie, który może używać tego skryptu. Skrypt zostanie wyłączony.");
-        if (!validateEnemyClan()) return clearInterval(checkClan);
+        const clanId = getClanId();
+
+        if (clanId === null) {
+            clanCheckAttempts++;
+            if (clanCheckAttempts >= MAX_CLAN_CHECK_ATTEMPTS) {
+                clearInterval(checkClan);
+            }
+            return;
+        }
 
         clearInterval(checkClan);
-        const timer = setInterval(tick, TICK);
+    
+        if (validateEnemyClan()) {
+            const timer = setInterval(tick, TICK);
+        }
     }, 1000);
 
     const checkNick = setInterval(() => {
