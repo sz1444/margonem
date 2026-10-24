@@ -62,7 +62,7 @@
         if (!target) return;
 
         console.log(`[pvp-scan] cel: ${target.nick} (id ${target.id}), dystans ${target.dist}`);
-        if (!DRY_RUN) window.Engine.network.send("fight&a=attack&id=" + target.id);
+        if (!DRY_RUN) unsafeWindow._g(`fight&a=attack&id=${target.id}`);
     }
 
     const checkClan = setInterval(() => {
