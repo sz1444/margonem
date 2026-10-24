@@ -1,6 +1,3 @@
-
-    const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-    const og = win._g;
 (function() {
     'use strict';
 
@@ -76,7 +73,6 @@
     function isTitanMap() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
 
-        return true;
         return titanMapsIds.includes(win.Engine?.map?.d?.id);
     }
 
@@ -106,9 +102,8 @@
 
     function tick() {
         if (!inPvpBattleOnTitanMap()) return;
-        if (!DRY_RUN) setTimeout(()=> {
-            if (useFlee() == false) _g('fight&a=surrender&answer=1')
-        }, 15000);
+
+        if (useFlee() == false) _g('fight&a=surrender&answer=1')
     }
 
     const checkClan = setInterval(() => {
