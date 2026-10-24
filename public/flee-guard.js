@@ -154,4 +154,4 @@ function fleeGuard() {
 
 };
 
-setTimeout(fleeGuard, 0);
+setTimeout(fleeGuard, 200);
