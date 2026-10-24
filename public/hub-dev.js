@@ -7,7 +7,7 @@
 
     let real_g = null;
 
-    Object.defineProperty((typeof unsafeWindow !== 'undefined') ? unsafeWindow : window, '_g', {
+    Object.defineProperty(unsafeWindow, '_g', {
         set: function(val) {
         if (!real_g && typeof val === 'function') {
             real_g = val;
