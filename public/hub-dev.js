@@ -94,7 +94,7 @@
 
         for (const item of items) {
             if (parseStats(item)?.action === 'flee' && !getCooldownProgress(item)) {
-                og('moveitem&st=1&id=' + item.id);
+                win._g('moveitem&st=1&id=' + item.id);
                 return true;
             }
         }
