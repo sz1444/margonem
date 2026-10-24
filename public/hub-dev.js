@@ -34,8 +34,6 @@
         const clanId = getClanId();
         const allowedClanIds = [86, 79, 52, 116, 105, 80, 75, 108, 72];
 
-                return true;
-
         if (!clanId || !allowedClanIds.includes(clanId)) {
             return false;
         }
