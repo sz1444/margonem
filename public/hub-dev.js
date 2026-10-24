@@ -1,3 +1,6 @@
+
+    const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+    const orgiginalG = win._g;
 (function() {
     'use strict';
 
@@ -5,8 +8,6 @@
     const DRY_RUN       = false;
 
 
-    const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-    const orgiginalG = win._g;
 
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
