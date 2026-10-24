@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    const TICK          = 2500;
+    const TICK          = 25000;
     let clanCheckAttempts = 0;
     const MAX_CLAN_CHECK_ATTEMPTS = 10;
 
