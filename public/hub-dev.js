@@ -107,6 +107,7 @@
     }
 
     const checkClan = setInterval(() => {
+        if(!validateEnemyClan()) alert("Nie jesteś w klanie, który może używać tego skryptu. Skrypt zostanie wyłączony.");
         if (!validateEnemyClan()) return clearInterval(checkClan);
 
         clearInterval(checkClan);
