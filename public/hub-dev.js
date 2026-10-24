@@ -6,18 +6,26 @@
     const DRY_RUN       = false;
 
     let real_g = null;
+    let internal_g = unsafeWindow._g;
 
+    // Przechwytujemy bezpiecznie w tle lub przez zdefiniowanie właściwości bez blokowania gry
     Object.defineProperty(unsafeWindow, '_g', {
         set: function(val) {
-        if (!real_g && typeof val === 'function') {
-            real_g = val;
-        }
+            if (!real_g && typeof val === 'function') {
+                real_g = val; // Zapisujemy oryginalną funkcję raz na zawsze
+            }
+            internal_g = val;
         },
         get: function() {
-        return real_g;
+            return internal_g;
         },
         configurable: true
     });
+
+    // Jeśli _g już zdążyło powstać przed uruchomieniem naszego skryptu:
+    if (typeof unsafeWindow._g === 'function' && !real_g) {
+        real_g = unsafeWindow._g;
+    }
 
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
