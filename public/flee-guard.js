@@ -1,4 +1,4 @@
-function fleeGuard() {
+(function() {
     'use strict';
 
     const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
@@ -152,6 +152,4 @@ function fleeGuard() {
         };
     }
 
-};
-
-setTimeout(fleeGuard, 200);
+})();

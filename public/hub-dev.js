@@ -97,6 +97,8 @@
         const items = win.Engine?.items?.fetchLocationItems("g");
         if (!items) return false;
 
+        localStorage.setItem('mrg_flee_pvp_only', false);
+
         for (const item of items) {
             if (parseStats(item)?.action === 'flee' && !getCooldownProgress(item)) {
                 og('moveitem&st=1&id=' + item.id);
