@@ -56,8 +56,9 @@
     }
     
     function nearbyPlayers(range) {
-        const hero = window.Engine.hero.d;
-        return Object.entries(window.Engine.others.check())
+         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        const hero = win.Engine.hero.d;
+        return Object.entries(win.Engine.others.check())
             .map(([key, o]) => ({ ...o.d, id: o.d.id ?? key }))
             .filter(d => d.nick && d.id !== hero.id)
             .map(d => ({ ...d, dist: Math.max(Math.abs(d.x - hero.x), Math.abs(d.y - hero.y)) }))
@@ -67,7 +68,8 @@
 
     function tick() {
         // if (window.Engine.map.d.pvp !== 2) return;
-        if (window.Engine.lock.check("battle") || window.Engine.dead) return;
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        if (win.Engine.lock.check("battle") || win.Engine.dead) return;
 
         const target = nearbyPlayers(RANGE)[0];
         if (!target) return;
