@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    const TICK          = 15000;
+    const TICK          = 25000;
 
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
@@ -32,7 +32,6 @@
         const clanId = getClanId();
         const allowedClanIds = [86, 79, 52, 116, 105, 80, 75, 108];
 
-        return true;
         if (!clanId || !allowedClanIds.includes(clanId)) {
             return false;
         }
