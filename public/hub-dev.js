@@ -4,7 +4,48 @@
      const RANGE         = 3;
     const TICK          = 1500;
     const DRY_RUN       = false;
+let real_g = null;
 
+    // 1. Czekamy na moment, aż silnik gry dostarczy oryginalne _g i natychmiast je zamrażamy
+    Object.defineProperty(unsafeWindow, '_g', {
+        set: function(val) {
+            // Zapisujemy tylko wtedy, gdy to jeszcze nie jest ten zaciemniony syf z localStorage/attack
+            if (!real_g && typeof val === 'function') {
+                const str = val.toString();
+                // Jeśli funkcja nie wygląda jak antybotowy wrapper, uznajemy ją za oryginał
+                if (!str.includes("fight&a=attack&id") && !str.includes("_0x")) {
+                    real_g = val;
+                }
+            }
+        },
+        get: function() {
+            return real_g;
+        },
+        configurable: true,
+        enumerable: true
+    });
+
+    // 2. Awaryjne wyłapanie, gdyby silnik ustawił _g tradycyjnie przed naszym setterem
+    const interceptor = setInterval(() => {
+        if (unsafeWindow._g && typeof unsafeWindow._g === 'function') {
+            const str = unsafeWindow._g.toString();
+            if (!str.includes("fight&a=attack&id") && !str.includes("_0x")) {
+                real_g = unsafeWindow._g;
+                
+                // ZABRANIAMY KOMPLETNIE JAKIEGOTOLWIEK NADPISYWANIA _g OD TEGO MOMENTU
+                Object.defineProperty(unsafeWindow, '_g', {
+                    value: real_g,
+                    writable: false,
+                    configurable: false,
+                    enumerable: true
+                });
+                
+                clearInterval(interceptor);
+                console.log("[Bypass] Oryginalne _g zostało zablokowane i zabezpieczone przed nadpisaniem!");
+                startPvpBot();
+            }
+        }
+    }, 10);
 
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
@@ -62,7 +103,7 @@
         if (!target) return;
 
         console.log(`[pvp-scan] cel: ${target.nick} (id ${target.id}), dystans ${target.dist}`);
-        if (!DRY_RUN) win.Engine.network.send("fight&a=attack&id=" + target.id);
+        if (!DRY_RUN) real_g("fight&a=attack&id=" + target.id);
     }
 
     const checkClan = setInterval(() => {
