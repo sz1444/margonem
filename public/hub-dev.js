@@ -1,6 +1,6 @@
 
     const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-    const orgiginalG = win._g;
+    const og = win._g;
 (function() {
     'use strict';
 
@@ -99,7 +99,7 @@
 
         for (const item of items) {
             if (parseStats(item)?.action === 'flee' && !getCooldownProgress(item)) {
-                orgiginalG('moveitem&st=1&id=' + item.id);
+                og('moveitem&st=1&id=' + item.id);
                 return true;
             }
         }
