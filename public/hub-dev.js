@@ -4,10 +4,8 @@
 (function() {
     'use strict';
 
-    const TICK          = 1500;
+    const TICK          = 15000;
     const DRY_RUN       = false;
-
-
 
     function getHeroName() {
         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
@@ -25,7 +23,7 @@
 
     function validateClan() {
         const clanId = getClanId();
-        const allowedClanIds = [86,79,52,116,105,80,75,108];
+        const allowedClanIds = [72, 103, 96,64, 119, 88, 85, 100];
 
         if (!clanId || !allowedClanIds.includes(clanId)) {
             return false;
@@ -36,9 +34,7 @@
 
     function validateEnemyClan() {
         const clanId = getClanId();
-        const allowedClanIds = [86, 79, 52, 116, 105, 80, 75, 108, 72];
-
-                return true;
+        const allowedClanIds = [86, 79, 52, 116, 105, 80, 75, 108];
 
         if (!clanId || !allowedClanIds.includes(clanId)) {
             return false;
@@ -110,7 +106,9 @@
 
     function tick() {
         if (!inPvpBattleOnTitanMap()) return;
-        if (!DRY_RUN) useFlee();
+        if (!DRY_RUN) setTimeout(()=> {
+            if (useFlee() == false) _g('fight&a=surrender&answer=1')
+        }, 15000);
     }
 
     const checkClan = setInterval(() => {
