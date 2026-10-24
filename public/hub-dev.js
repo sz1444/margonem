@@ -1,7 +1,6 @@
 (function() {
     'use strict';
 
-     const RANGE         = 3;
     const TICK          = 1500;
     const DRY_RUN       = false;
 
@@ -22,7 +21,7 @@
 
     function validateClan() {
         const clanId = getClanId();
-        const allowedClanIds = [72, 103, 96,64, 119, 88, 85, 100];
+        const allowedClanIds = [86,79,52,116,105,80,75,108];
 
         if (!clanId || !allowedClanIds.includes(clanId)) {
             return false;
@@ -35,34 +34,77 @@
         const clanId = getClanId();
         const allowedClanIds = [86, 79, 52, 116, 105, 80, 75, 108, 72];
 
+                return true;
+
         if (!clanId || !allowedClanIds.includes(clanId)) {
             return false;
         }
 
         return true;
     }
-    
-    function nearbyPlayers(range) {
-         const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-        const hero = win.Engine.hero.d;
-        return Object.entries(win.Engine.others.check())
-            .map(([key, o]) => ({ ...o.d, id: o.d.id ?? key }))
-            .filter(d => d.nick && d.id !== hero.id)
-            .map(d => ({ ...d, dist: Math.max(Math.abs(d.x - hero.x), Math.abs(d.y - hero.y)) }))
-            .filter(d => d.dist <= range)
-            .sort((a, b) => a.dist - b.dist);
+
+    function parseStats(item) {
+        const res = {};
+        (item.stat || "").split(";").forEach(entry => {
+            if (!entry) return;
+            const [key, val] = entry.split("=");
+            if (key) res[key] = val ?? "true";
+        });
+        return res;
+    }
+
+    function parseTimelimit(raw) {
+        if (!raw) return null;
+        const parts = raw.split(",");
+        if (parts.length === 2) {
+            return { maxSec: parseInt(parts[0]), endTs: parseInt(parts[1]) };
+        }
+        return null;
+    }
+
+    function getCooldownProgress(item) {
+        if (!item || typeof item.getItemStat !== 'function') return 0;
+        const raw = item.getItemStat("timelimit") || item.getItemStat("custom_timelimit") || "";
+        const tl = parseTimelimit(raw);
+        if (!tl) return 0;
+        const remaining = tl.endTs - Math.floor(Date.now() / 1000);
+        return remaining <= 0 ? 0 : Math.min(remaining / tl.maxSec, 1);
+    }
+
+    const titanMapsIds = [1800, 1745, 6950, 7061, 7478, 6058, 5947, 7849, 5710, 3313, 2758, 4238, 8631];
+
+    function isTitanMap() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+
+        return true;
+        return titanMapsIds.includes(win.Engine?.map?.d?.id);
+    }
+
+    function inPvpBattleOnTitanMap() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        const warriors = win.Engine?.battle?.warriorsList;
+        if (!warriors) return false;
+        const isPvE = !Object.keys(warriors).some(id => Number(id) > 0);
+        return isPvE && isTitanMap();
+    }
+
+    function useFlee() {
+        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        const items = win.Engine?.items?.fetchLocationItems("g");
+        if (!items) return false;
+
+        for (const item of items) {
+            if (parseStats(item)?.action === 'flee' && !getCooldownProgress(item)) {
+                win._g('moveitem&st=1&id=' + item.id);
+                return true;
+            }
+        }
+        return false;
     }
 
     function tick() {
-        // if (window.Engine.map.d.pvp !== 2) return;
-        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-        if (win.Engine.lock.check("battle") || win.Engine.dead) return;
-
-        const target = nearbyPlayers(RANGE)[0];
-        if (!target) return;
-
-        console.log(`[pvp-scan] cel: ${target.nick} (id ${target.id}), dystans ${target.dist}`);
-        if (!DRY_RUN) unsafeWindow._g(`fight&a=attack&id=${target.id}`);
+        if (!inPvpBattleOnTitanMap()) return;
+        if (!DRY_RUN) useFlee();
     }
 
     const checkClan = setInterval(() => {
@@ -71,7 +113,6 @@
 
         clearInterval(checkClan);
         const timer = setInterval(tick, TICK);
-        win.__pvpScan = { stop: () => clearInterval(timer), list: () => nearbyPlayers(RANGE) };
     }, 1000);
 
     const checkNick = setInterval(() => {
