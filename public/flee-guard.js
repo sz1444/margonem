@@ -5,24 +5,6 @@
     let pvpOnly = localStorage.getItem('mrg_flee_pvp_only') !== 'false';
     const savedPos = JSON.parse(localStorage.getItem('mrg_flee_mini_pos')) || { top: "80%", left: "20px" };
 
-    function getClanId() {
-        const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-        if (win.Engine && win.Engine.hero && win.Engine.hero.d && win.Engine.hero.d.clan && win.Engine.hero.d.clan.id) return win.Engine.hero.d.clan.id;
-        if (win.hero && win.hero.clan && win.hero.clan.id) return win.hero.clan.id;
-        return null;
-    }
-
-    function validateEnemyClan() {
-        const clanId = getClanId();
-        const allowedClanIds = [86, 79, 52, 116, 105, 80, 75, 108];
-
-        if (!clanId || !allowedClanIds.includes(clanId)) {
-            return false;
-        }
-
-        return true;
-    }
-
     const style = document.createElement('style');
     style.innerText = `
         #mrgFleeBtn {
@@ -152,8 +134,6 @@
         const warriors = win.Engine?.battle?.warriorsList || {};
         return Object.keys(warriors).some(id => Number(id) < 0);
     }
-
-    if (validateEnemyClan()) return;
 
     const originalG = win._g;
     if (typeof originalG === 'function') {
