@@ -33,10 +33,17 @@ const CSS = `
     }
     #pqiPanel .pqi-row.checked .pqi-check { border-color: #c9a35b; background: #3a2c1c; }
     #pqiPanel .pqi-row.checked .pqi-check::after { content: '✓'; }
-    #pqiPanel .pqi-nick { flex: 1; font-size: 11px; line-height: 20px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #pqiPanel .pqi-nick.friend { color: #6fd36f; }
-    #pqiPanel .pqi-nick.clan { color: #6fb7ff; }
-    #pqiPanel .pqi-lvl { color: #aaa; font-size: 10px; }
+    #pqiPanel .pqi-nick {
+        display: block !important; visibility: visible !important;
+        flex: 1 1 auto; min-width: 0; color: #eaeaea !important;
+        font: 600 11px/20px Verdana, sans-serif !important;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    #pqiPanel .pqi-nick.pqi-kind-friend { color: #6fd36f !important; }
+    #pqiPanel .pqi-nick.pqi-kind-clan { color: #6fb7ff !important; }
+    #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #aaa !important; font: 10px/20px Verdana, sans-serif !important; }
+    #pqiPanel .pqi-btn { display: block; width: 100%; margin-top: 4px; padding: 4px; background: #222; color: #eee; border: 1px solid #444; border-radius: 3px; font: bold 9px Verdana, sans-serif; cursor: pointer; }
+    #pqiPanel .pqi-btn:hover { border-color: #8a6d3b; }
     #pqiPanel .pqi-empty { color: #eaeaea; font-style: italic; font-size: 11px; padding: 4px; text-align: center; }
 `;
 
@@ -51,6 +58,7 @@ const PANEL_HTML = `
     </div>
     <div class="content" id="pqiContent" style="padding: 4px 6px;">
         <div class="pqi-list" id="pqiList"></div>
+        <button type="button" class="pqi-btn" id="pqiCreate">Utwórz grupę teraz</button>
     </div>
     <div class="c-window__bottom-bar">
         <div class="interface-element-bottom-bar-background-stretch"></div>
@@ -156,8 +164,8 @@ export default {
             listEl.innerHTML = players.map(p => `
                 <div class="pqi-row${p.away ? ' away' : ''}${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${p.away ? 'Poza mapą' : ''}">
                     <span class="pqi-check"></span>
-                    <span class="pqi-nick ${p.kind}">${escapeHtml(p.nick)}</span>
-                    <span class="pqi-lvl">${p.lvl ?? ''}</span>
+                    <div class="pqi-nick pqi-kind-${p.kind}">${escapeHtml(p.nick)}</div>
+                    <div class="pqi-lvl">${p.lvl ?? ''}</div>
                 </div>
             `).join('');
         }
@@ -176,8 +184,8 @@ export default {
             render(true);
         });
 
-        /** Po walce: rozwiązuje (lider) lub opuszcza starą grupę i zaprasza zaznaczonych. */
-        function newPartyAfterBattle() {
+        /** Rozwiązuje (lider) lub opuszcza starą grupę i zaprasza zaznaczonych — po walce albo z przycisku. */
+        function newParty() {
             if (!selected.size) return;
             if (isInParty()) {
                 if (isPartyLeader()) disbandParty();
@@ -186,9 +194,14 @@ export default {
             for (const m of selected.values()) inviteToParty(m.id);
         }
 
+        panel.querySelector('#pqiCreate').addEventListener('click', e => {
+            e.stopPropagation();
+            newParty();
+        });
+
         setInterval(() => {
             const nowInBattle = isInBattle();
-            if (inBattle && !nowInBattle) newPartyAfterBattle();
+            if (inBattle && !nowInBattle) newParty();
             inBattle = nowInBattle;
             if (!isCollapsed) render();
         }, 500);
