@@ -3,7 +3,7 @@ import { win } from '../core/env.js';
 import { loadJSON, loadFlag, saveFlag } from '../core/storage.js';
 import {
     getHeroId, getClanId, getWorldName, getMapPlayers, inviteToParty,
-    isInParty, isPartyLeader, isInBattle, disbandParty, leaveParty,
+    isInParty, isPartyLeader, disbandParty, leaveParty,
 } from '../core/game.js';
 import { makeDraggable } from '../core/drag.js';
 import { setupOpacityButton } from '../core/ui.js';
@@ -92,12 +92,6 @@ const PANEL_HTML = `
     </div>
 `;
 
-/**
- * Walka trwa: okno walki otwarte i walka nierozstrzygnięta.
- * Blokada `battle` schodzi dopiero po zamknięciu okna, a koniec walki to Engine.battle.endBattle.
- */
-const isFighting = () => isInBattle() && !win.Engine?.battle?.endBattle;
-
 const escapeHtml = s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
 
 // Relacje z silnika (SocietyData.RELATION) — w starym interfejsie jako tekst.
@@ -149,7 +143,6 @@ export default {
 
         const savedPos = loadJSON(POS_KEY, { top: '200px', left: '20px' });
         let isCollapsed = loadFlag(COLLAPSED_KEY);
-        let inBattle = isFighting();
         // Jednorazowo: po najbliższej walce tworzy nową grupę i się wyłącza.
         let armed = false;
         // Zaznaczeni gracze: id → gracz (tylko obecni na mapie).
@@ -292,15 +285,15 @@ export default {
             setArmed(!armed);
         });
 
-        setInterval(() => {
-            const nowInBattle = isFighting();
-            if (inBattle && !nowInBattle && armed) {
-                setArmed(false);
-                newParty();
-            }
-            inBattle = nowInBattle;
-            if (!isCollapsed) render();
-        }, 500);
+        // Gra woła SHOW_CLOSE_BATTLE, gdy walka kończy się dla bohatera (zanim zamknie się okno walki).
+        win.API?.addCallbackToEvent(win.Engine.apiData.SHOW_CLOSE_BATTLE, () => {
+            if (!armed) return;
+            setArmed(false);
+            newParty();
+        });
+
+        // Lista: dochodzący/wychodzący gracze i statusy AFK/walki.
+        setInterval(() => { if (!isCollapsed) render(); }, 500);
 
         render(true);
     },
