@@ -44,6 +44,8 @@ const CSS = `
     #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #aaa !important; font: 10px/20px Verdana, sans-serif !important; }
     #pqiPanel .pqi-btn { display: block; width: 100%; margin-top: 4px; padding: 4px; background: #222; color: #eee; border: 1px solid #444; border-radius: 3px; font: bold 9px Verdana, sans-serif; cursor: pointer; }
     #pqiPanel .pqi-btn:hover { border-color: #8a6d3b; }
+    #pqiPanel .pqi-btn.on { background: linear-gradient(180deg, #7a1a1a 0%, #4a0e0e 100%); border-color: #8b0000; color: #fff; box-shadow: 0 0 5px #e74c3c; }
+    #pqiPanel .pqi-group { color: #c9a35b !important; font: bold 9px/16px Verdana, sans-serif !important; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 2px 0; border-bottom: 1px solid #3a2c1c; margin: 2px 0; }
     #pqiPanel .pqi-empty { color: #eaeaea; font-style: italic; font-size: 11px; padding: 4px; text-align: center; }
 `;
 
@@ -59,6 +61,7 @@ const PANEL_HTML = `
     <div class="content" id="pqiContent" style="padding: 4px 6px;">
         <div class="pqi-list" id="pqiList"></div>
         <button type="button" class="pqi-btn" id="pqiCreate">Utwórz grupę teraz</button>
+        <button type="button" class="pqi-btn" id="pqiArm">Utwórz nową grupę po walce</button>
     </div>
     <div class="c-window__bottom-bar">
         <div class="interface-element-bottom-bar-background-stretch"></div>
@@ -73,7 +76,17 @@ const PANEL_HTML = `
     </div>
 `;
 
-const escapeHtml = s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
+// Kolejność grup na liście.
+const PROFS = [
+    { code: 'w', name: 'Wojownicy' },
+    { code: 'p', name: 'Paladyni' },
+    { code: 'b', name: 'Tancerze ostrzy' },
+    { code: 'h', name: 'Łowcy' },
+    { code: 'm', name: 'Magowie' },
+    { code: 't', name: 'Tropiciele' },
+];
+
+const escapeHtml =s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
 
 /** 'clan' / 'friend' / null (pozostałych nie pokazujemy). */
 function playerKind(p, myClanId) {
@@ -85,7 +98,7 @@ function playerKind(p, myClanId) {
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Zaznacz przyjaciół i klanowiczów z mapy — po walce rozwiązuje grupę i tworzy nową z zaznaczonych.',
+    description: 'Zaznacz przyjaciół i klanowiczów z mapy i utwórz z nich nową grupę — od razu albo po walce.',
     dev: true,
 
     run() {
@@ -94,7 +107,9 @@ export default {
         const savedPos = loadJSON(POS_KEY, { top: '200px', left: '20px' });
         let isCollapsed = loadFlag(COLLAPSED_KEY);
         let inBattle = isInBattle();
-        // Zaznaczeni gracze: id → { id, nick, lvl, kind }. Zostają, nawet gdy zejdą z mapy.
+        // Jednorazowo: po najbliższej walce tworzy nową grupę i się wyłącza.
+        let armed = false;
+        // Zaznaczeni gracze: id → { id, nick, lvl, prof, kind }. Zostają, nawet gdy zejdą z mapy.
         const selected = new Map();
         let lastSignature = '';
 
@@ -115,6 +130,7 @@ export default {
         const contentEl = panel.querySelector('#pqiContent');
         const headerText = panel.querySelector('#pqiHeaderText');
         const iconEl = panel.querySelector('#pqiToggle .ie-icon');
+        const armBtn = panel.querySelector('#pqiArm');
 
         isolateWheel(listEl);
         setupOpacityButton(panel, panel.querySelector('#pqiOpacityBtn'), OPACITY_KEY, 3);
@@ -141,7 +157,7 @@ export default {
             const onMap = new Map();
             for (const p of getMapPlayers()) {
                 const kind = p.id !== myId && playerKind(p, myClanId);
-                if (kind) onMap.set(p.id, { id: p.id, nick: p.nick, lvl: p.lvl, kind });
+                if (kind) onMap.set(p.id, { id: p.id, nick: p.nick, lvl: p.lvl, prof: p.prof, kind });
             }
             const players = [...onMap.values()].map(p => ({ ...p, away: false }));
             for (const p of selected.values()) if (!onMap.has(p.id)) players.push({ ...p, away: true });
@@ -149,6 +165,14 @@ export default {
             return players.sort((a, b) =>
                 (a.kind === b.kind ? 0 : a.kind === 'clan' ? -1 : 1) || a.nick.localeCompare(b.nick));
         }
+
+        const rowHtml = p => `
+            <div class="pqi-row${p.away ? ' away' : ''}${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${p.away ? 'Poza mapą' : ''}">
+                <span class="pqi-check"></span>
+                <div class="pqi-nick pqi-kind-${p.kind}">${escapeHtml(p.nick)}</div>
+                <div class="pqi-lvl">${p.lvl ?? ''}${p.prof ?? ''}</div>
+            </div>
+        `;
 
         function render(force = false) {
             const players = collectPlayers();
@@ -161,13 +185,15 @@ export default {
                 listEl.innerHTML = '<div class="pqi-empty">Brak przyjaciół i klanowiczów na mapie.</div>';
                 return;
             }
-            listEl.innerHTML = players.map(p => `
-                <div class="pqi-row${p.away ? ' away' : ''}${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${p.away ? 'Poza mapą' : ''}">
-                    <span class="pqi-check"></span>
-                    <div class="pqi-nick pqi-kind-${p.kind}">${escapeHtml(p.nick)}</div>
-                    <div class="pqi-lvl">${p.lvl ?? ''}</div>
-                </div>
-            `).join('');
+
+            const groups = [...PROFS, { code: null, name: 'Inne' }].map(prof => ({
+                name: prof.name,
+                players: players.filter(p => prof.code ? p.prof === prof.code : !PROFS.some(x => x.code === p.prof)),
+            }));
+            listEl.innerHTML = groups
+                .filter(g => g.players.length)
+                .map(g => `<div class="pqi-group">${g.name} (${g.players.length})</div>${g.players.map(rowHtml).join('')}`)
+                .join('');
         }
 
         listEl.addEventListener('click', e => {
@@ -179,12 +205,12 @@ export default {
                 selected.delete(id);
             } else {
                 const p = collectPlayers().find(x => x.id === id);
-                if (p) selected.set(id, { id: p.id, nick: p.nick, lvl: p.lvl, kind: p.kind });
+                if (p) selected.set(id, { id: p.id, nick: p.nick, lvl: p.lvl, prof: p.prof, kind: p.kind });
             }
             render(true);
         });
 
-        /** Rozwiązuje (lider) lub opuszcza starą grupę i zaprasza zaznaczonych — po walce albo z przycisku. */
+        /** Rozwiązuje (lider) lub opuszcza starą grupę i zaprasza zaznaczonych — z przycisku albo po walce. */
         function newParty() {
             if (!selected.size) return;
             if (isInParty()) {
@@ -194,14 +220,27 @@ export default {
             for (const m of selected.values()) inviteToParty(m.id);
         }
 
+        function setArmed(value) {
+            armed = value;
+            armBtn.classList.toggle('on', armed);
+        }
+
         panel.querySelector('#pqiCreate').addEventListener('click', e => {
             e.stopPropagation();
             newParty();
         });
 
+        armBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            setArmed(!armed);
+        });
+
         setInterval(() => {
             const nowInBattle = isInBattle();
-            if (inBattle && !nowInBattle) newParty();
+            if (inBattle && !nowInBattle && armed) {
+                setArmed(false);
+                newParty();
+            }
             inBattle = nowInBattle;
             if (!isCollapsed) render();
         }, 500);
