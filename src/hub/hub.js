@@ -2,7 +2,9 @@ import { injectStyle } from '../core/dom.js';
 import { loadJSON } from '../core/storage.js';
 import { makeDraggable } from '../core/drag.js';
 
-const DEFAULT_OPTIONS = { id: 'hub', title: 'DODATKI GROLI', posKey: 'hubPos', storagePrefix: 'hub_' };
+const ICON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`;
+
+const DEFAULT_OPTIONS = { id: 'hub', title: 'DODATKI GROLI', icon: ICON_SVG, posKey: 'hubPos', storagePrefix: 'hub_' };
 
 const css = id => `
     #${id}Main { position: fixed; z-index: 30000; font-family: 'Verdana', sans-serif; user-select: none; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -25,8 +27,6 @@ const css = id => `
     }
     #${id}Menu .hub-save-btn:hover { background: #27ae60; }
 `;
-
-const ICON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`;
 
 const storageKey = (module, prefix = DEFAULT_OPTIONS.storagePrefix) => prefix + module.id;
 
@@ -56,10 +56,10 @@ function createRow(module, prefix, onToggle) {
 
 /**
  * Ramka panelu: przeciągalna ikona + rozwijane menu z tytułem. Zwraca { hub, menu }.
- * options: id (prefiks id elementów), title, posKey — osobne dla każdego hubu, żeby się nie gryzły.
+ * options: id (prefiks id elementów), title, icon (SVG), posKey — osobne dla każdego hubu, żeby się nie gryzły.
  */
 export function createHubFrame(options = {}) {
-    const { id, title, posKey } = { ...DEFAULT_OPTIONS, ...options };
+    const { id, title, icon: iconSvg, posKey } = { ...DEFAULT_OPTIONS, ...options };
     injectStyle(css(id));
 
     const savedPos = loadJSON(posKey, { top: '80%', left: '20px' });
@@ -68,7 +68,7 @@ export function createHubFrame(options = {}) {
     hub.id = `${id}Main`;
     hub.style.top = savedPos.top;
     hub.style.left = savedPos.left;
-    hub.innerHTML = `<div id="${id}Icon">${ICON_SVG}</div><div id="${id}Menu"><div class="hub-title">${title}</div></div>`;
+    hub.innerHTML = `<div id="${id}Icon">${iconSvg}</div><div id="${id}Menu"><div class="hub-title">${title}</div></div>`;
     document.body.appendChild(hub);
 
     const icon = hub.querySelector(`#${id}Icon`);

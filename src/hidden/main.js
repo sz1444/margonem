@@ -8,6 +8,8 @@ import { ERRORS, consumeAuthResult, redirectToLogin, logout, getSession, fetchMo
 const GAME_READY_TIMEOUT = 20000;
 const STORAGE_PREFIX = 'hidden_';
 
+const LOCK_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1"/></svg>`;
+
 const CSS = `
     .hidden-auth { margin-bottom: 10px; color: #adadad; font-size: 9px; line-height: 1.4; }
     .hidden-auth-error { color: #e74c3c; margin-bottom: 6px; }
@@ -51,7 +53,7 @@ function renderUser(box, session) {
     const authResult = consumeAuthResult();
 
     injectStyle(CSS);
-    const { menu } = createHubFrame({ id: 'hiddenHub', title: 'UKRYTE DODATKI', posKey: 'hiddenHubPos' });
+    const { menu } = createHubFrame({ id: 'hiddenHub', title: 'UKRYTE DODATKI', icon: LOCK_ICON_SVG, posKey: 'hiddenHubPos' });
 
     const box = document.createElement('div');
     box.className = 'hidden-auth';
