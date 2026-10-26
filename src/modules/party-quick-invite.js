@@ -1,6 +1,9 @@
-import { injectStyle, isolateWheel } from '../core/dom.js';
+import { injectStyle, isolateWheel, waitFor } from '../core/dom.js';
 import { loadJSON, saveJSON, loadFlag, saveFlag } from '../core/storage.js';
-import { getHeroId, getWorldName, getPartyMembers, inviteToParty, isInParty, isPartyLeader } from '../core/game.js';
+import {
+    getHeroId, getWorldName, getPartyMembers, inviteToParty,
+    isInParty, isPartyLeader, isInBattle, disbandParty, leaveParty,
+} from '../core/game.js';
 import { makeDraggable } from '../core/drag.js';
 import { setupOpacityButton, showTooltip, hideTooltip, tooltipList } from '../core/ui.js';
 
@@ -11,6 +14,8 @@ const COLLAPSED_KEY = 'pqi_widget_collapsed';
 const presetsKey = () => `pqi_presets_${getWorldName()}`;
 
 const INVITE_DELAY = 400;
+const BATTLE_POLL = 200;
+const LEAVE_TIMEOUT = 3000;
 
 const CSS = `
     #pqiPanel .pqi-list { max-height: 220px; overflow-y: auto; overflow-x: hidden; }
@@ -24,6 +29,8 @@ const CSS = `
     #pqiPanel .pqi-btn { background: #222; color: #eee; border: 1px solid #444; border-radius: 3px; font: bold 9px Verdana, sans-serif; padding: 2px 6px; cursor: pointer; }
     #pqiPanel .pqi-btn:hover { border-color: #8a6d3b; }
     #pqiPanel .pqi-btn.pqi-del { color: #c0392b; padding: 2px 5px; }
+    #pqiPanel .pqi-btn.pqi-arm { padding: 2px 5px; color: #777; }
+    #pqiPanel .pqi-btn.pqi-arm.on { background: linear-gradient(180deg, #7a1a1a 0%, #4a0e0e 100%); border-color: #8b0000; color: #fff; box-shadow: 0 0 5px #e74c3c; }
     #pqiPanel .pqi-save { width: 100%; margin-top: 4px; padding: 4px; }
     #pqiPanel .pqi-status { color: #ffd76a; font-size: 10px; text-align: center; min-height: 12px; margin-top: 3px; }
     #pqiPanel .pqi-empty { color: #eaeaea; font-style: italic; font-size: 11px; padding: 4px; text-align: center; }
@@ -65,7 +72,7 @@ const savePresets = presets => saveJSON(presetsKey(), presets);
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Zapisane składy grupy — zaproszenie całej ekipy jednym kliknięciem.',
+    description: 'Zapisane składy grupy — zaproszenie całej ekipy jednym kliknięciem. ⚡ = po najbliższej walce rozwiązuje starą grupę i zaprasza skład.',
 
     run() {
         injectStyle(CSS);
@@ -73,6 +80,9 @@ export default {
         const savedPos = loadJSON(POS_KEY, { top: '200px', left: '20px' });
         let isCollapsed = loadFlag(COLLAPSED_KEY);
         let inviting = false;
+        // Indeks składu uzbrojonego na „po walce” (jednorazowo, nie zapisywany).
+        let armedIndex = null;
+        let inBattle = isInBattle();
 
         const panel = document.createElement('div');
         panel.id = 'pqiPanel';
@@ -127,6 +137,7 @@ export default {
                 <div class="pqi-row tw-list-item" data-i="${i}">
                     <div class="pqi-name" data-act="rename" title="Kliknij, by zmienić nazwę">${escapeHtml(p.name)}</div>
                     <span class="pqi-count">${p.members.length}</span>
+                    <button type="button" class="pqi-btn pqi-arm${armedIndex === i ? ' on' : ''}" data-act="arm" title="Po walce: rozwiąż grupę i zaproś ten skład">⚡</button>
                     <button type="button" class="pqi-btn" data-act="invite">Zaproś</button>
                     <button type="button" class="pqi-btn pqi-del" data-act="delete" title="Usuń skład">✕</button>
                 </div>
@@ -170,6 +181,29 @@ export default {
             }
         }
 
+        /** Rozwiązuje (lider) lub opuszcza starą grupę, czeka aż zniknie i zaprasza skład. */
+        async function swapToPreset(preset) {
+            if (isInParty()) {
+                setStatus('Rozwiązuję starą grupę…', 0);
+                if (isPartyLeader()) disbandParty();
+                else leaveParty();
+                const left = await waitFor(() => !isInParty(), { interval: 100, timeout: LEAVE_TIMEOUT });
+                if (!left) return setStatus('Nie udało się wyjść z grupy.');
+            }
+            await invitePreset(preset);
+        }
+
+        setInterval(() => {
+            const nowInBattle = isInBattle();
+            if (inBattle && !nowInBattle && armedIndex !== null) {
+                const preset = loadPresets()[armedIndex];
+                armedIndex = null;
+                render();
+                if (preset) swapToPreset(preset);
+            }
+            inBattle = nowInBattle;
+        }, BATTLE_POLL);
+
         listEl.addEventListener('click', e => {
             const act = e.target.closest('[data-act]')?.dataset.act;
             const row = e.target.closest('.pqi-row');
@@ -182,9 +216,16 @@ export default {
             if (!preset) return;
 
             if (act === 'invite') return invitePreset(preset);
+            if (act === 'arm') {
+                armedIndex = armedIndex === i ? null : i;
+                setStatus(armedIndex === null ? 'Rozbrojono.' : `Po walce: ${preset.name}`);
+                return render();
+            }
             if (act === 'delete') {
                 if (!confirm(`Usunąć skład "${preset.name}"?`)) return;
                 presets.splice(i, 1);
+                if (armedIndex === i) armedIndex = null;
+                else if (armedIndex > i) armedIndex--;
             } else if (act === 'rename') {
                 const name = prompt('Nowa nazwa składu:', preset.name);
                 if (!name?.trim()) return;
