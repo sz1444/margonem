@@ -1,4 +1,4 @@
-import { injectStyle } from '../core/dom.js';
+import { injectStyle, isolateWheel } from '../core/dom.js';
 import { loadJSON } from '../core/storage.js';
 import { makeDraggable } from '../core/drag.js';
 
@@ -10,7 +10,11 @@ const css = id => `
     #${id}Main { position: fixed; z-index: 30000; font-family: 'Verdana', sans-serif; user-select: none; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
     #${id}Icon { width: 32px; height: 32px; background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: move; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: transform 0.2s; }
     #${id}Icon:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.3); }
-    #${id}Menu { display: none; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); max-width: 360px; border-radius: 10px; padding: 12px; min-width: 180px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+    #${id}Menu { display: none; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); max-width: 360px; border-radius: 10px; padding: 12px; min-width: 180px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height: 70vh; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #444 transparent; }
+    #${id}Menu::-webkit-scrollbar { width: 5px; }
+    #${id}Menu::-webkit-scrollbar-track { background: transparent; margin: 8px 0; }
+    #${id}Menu::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+    #${id}Menu::-webkit-scrollbar-thumb:hover { background: #2ecc71; }
     .hub-title { color: #666; font-size: 9px; margin-bottom: 12px; font-weight: bold; border-bottom: 1px solid #222; padding-bottom: 6px; letter-spacing: 1px; }
     .hub-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 15px; border-bottom: 1px solid #222222; }
     .hub-desc { padding-bottom: 5px; width: 100%; font-size: 8px; font-weight: 300; line-height: 1.2; text-transform: none; color: #adadad; margin-top: 2px; }
@@ -73,6 +77,7 @@ export function createHubFrame(options = {}) {
 
     const icon = hub.querySelector(`#${id}Icon`);
     const menu = hub.querySelector(`#${id}Menu`);
+    isolateWheel(menu);
 
     makeDraggable(hub, {
         handle: icon,
