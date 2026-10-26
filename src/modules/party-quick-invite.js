@@ -138,7 +138,6 @@ export default {
     id: 'party-quick-invite',
     name: 'Quick Party',
     description: 'Szybkie tworzenie grupy z listy graczy na mapie.',
-    dev: true,
 
     run() {
         injectStyle(CSS);
