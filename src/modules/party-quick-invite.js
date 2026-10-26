@@ -135,7 +135,7 @@ function openPlayerMenu(p, e) {
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Zmieniasz ekipę po bossie? Jeszcze w trakcie walki zaznacz ludzi do nowej grupy, a potem podmień ją jednym kliknięciem — albo włącz „Zrób grupę po walce”, a dodatek sam rozwiąże starą grupę i zaprosi nową, jak tylko walka się skończy. Na liście masz klan, sojuszników i znajomych z mapy według profesji, z levelem i info, kto jest AFK albo w walce.',
+    description: 'Dodatek wyświetla listę graczy na mapie według profesji i pozwala przygotować nową grupę podczas walki. Po zaznaczeniu „Zrób grupę po walce” dodatek automatycznie rozwiąże obecną grupę i utworzy nową.',
     dev: true,
 
     run() {
@@ -285,14 +285,12 @@ export default {
             setArmed(!armed);
         });
 
-        // Gra woła SHOW_CLOSE_BATTLE, gdy walka kończy się dla bohatera (zanim zamknie się okno walki).
         win.API?.addCallbackToEvent(win.Engine.apiData.SHOW_CLOSE_BATTLE, () => {
             if (!armed) return;
             setArmed(false);
             newParty();
         });
 
-        // Lista: dochodzący/wychodzący gracze i statusy AFK/walki.
         setInterval(() => { if (!isCollapsed) render(); }, 500);
 
         render(true);
