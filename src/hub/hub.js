@@ -31,17 +31,17 @@ const css = id => `
     }
     #${id}Menu .hub-save-btn:hover { background: #27ae60; }
 
-    /* Tryb modal: lista dodatków na środku ekranu. */
+    /* Tryb modal: lista dodatków na środku ekranu; poza oknem gra zostaje klikalna. */
     #${id}Overlay {
         display: none; position: fixed; inset: 0; z-index: 30001;
-        background: rgba(0,0,0,0.55); backdrop-filter: blur(2px);
+        pointer-events: none;
         align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;
         font-family: 'Verdana', sans-serif; user-select: none;
     }
     #${id}Overlay.open { display: flex; }
     #${id}Overlay #${id}Menu {
         display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); column-gap: 20px; align-content: start;
-        width: 100%; max-width: 700px; max-height: min(85vh, 85dvh); box-sizing: border-box; padding: 16px;
+        pointer-events: auto; width: 100%; max-width: 700px; max-height: min(85vh, 85dvh); box-sizing: border-box; padding: 16px;
     }
     #${id}Overlay #${id}Menu > .hub-title, #${id}Overlay #${id}Menu > .hub-save-btn { grid-column: 1 / -1; }
     #${id}Overlay .hub-title { display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
@@ -119,9 +119,7 @@ export function createHubFrame(options = {}) {
         const setOpen = open => overlay.classList.toggle('open', open);
         toggleMenu = () => setOpen(!overlay.classList.contains('open'));
         close.onclick = () => setOpen(false);
-        overlay.addEventListener('click', e => { if (e.target === overlay) setOpen(false); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
-        isolateWheel(overlay);
     }
 
     makeDraggable(hub, {
