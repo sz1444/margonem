@@ -141,7 +141,7 @@ function openPlayerMenu(p, e) {
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Zaznacz przyjaciół, klanowiczów i sojuszników z mapy i utwórz z nich nową grupę — od razu albo po walce.',
+    description: 'Lista klanowiczów, sojuszników i przyjaciół z mapy, pogrupowana po profesjach, ze statusem AFK i walki. Zaznacz, kogo chcesz, i jednym kliknięciem zrób z nich nową grupę — od razu albo zaraz po walce.',
     dev: true,
 
     run() {
