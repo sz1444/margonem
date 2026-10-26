@@ -23,15 +23,16 @@ const PROFS = [
 ];
 
 const CSS = `
-    #pqiPanel .pqi-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-    #pqiPanel .pqi-table th {
+    #pqiPanel .pqi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    #pqiPanel .pqi-section { min-width: 0; background: rgba(0,0,0,0.25); border: 1px solid rgba(90,71,52,0.5); border-radius: 2px; }
+    #pqiPanel .pqi-section-head {
+        display: flex; justify-content: space-between;
         color: #c9a35b !important; font: bold 10px/18px Verdana, sans-serif !important;
-        text-align: left; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        border-bottom: 1px solid #5a4734; background: rgba(0,0,0,0.35);
+        padding: 0 4px; border-bottom: 1px solid #5a4734; background: rgba(0,0,0,0.35);
     }
-    #pqiPanel .pqi-table th .pqi-count { color: #ddd; font-weight: normal; }
-    #pqiPanel .pqi-table td { vertical-align: top; padding: 2px 2px 0; }
-    #pqiPanel .pqi-table td + td, #pqiPanel .pqi-table th + th { border-left: 1px solid rgba(90,71,52,0.5); }
+    #pqiPanel .pqi-section-head .pqi-count { color: #ddd; font-weight: normal; }
+    #pqiPanel .pqi-section-body { padding: 2px; }
+    .popup-menu-layer { z-index: 1000 !important; }
     #pqiPanel .pqi-row {
         display: flex !important; align-items: center; gap: 3px;
         height: 16px !important; min-height: 0 !important; max-height: 16px !important;
@@ -88,53 +89,31 @@ const PANEL_HTML = `
 
 const escapeHtml = s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
 
+// Relacje z silnika (SocietyData.RELATION) — w starym interfejsie jako tekst.
+const RELATION_FRIEND = [2, 'fr'];
+const RELATION_CLAN = [4, 'cl'];
+
 /** 'clan' / 'friend' / null (pozostałych nie pokazujemy). */
 function playerKind(p, myClanId) {
-    if (p.relation === 'cl' || (myClanId && p.clanId === myClanId)) return 'clan';
-    if (p.relation === 'fr') return 'friend';
+    if (RELATION_CLAN.includes(p.relation) || (myClanId && p.clanId === myClanId)) return 'clan';
+    if (RELATION_FRIEND.includes(p.relation)) return 'friend';
     return null;
 }
 
-function openProfile(p) {
-    if (win.Engine?.iframeWindowManager?.newPlayerProfile) {
-        return win.Engine.iframeWindowManager.newPlayerProfile({ accountId: p.account, characterId: p.id });
-    }
-    window.open(`https://www.margonem.pl/profile/view,${p.account}#char_${p.id},${getWorldName()}`);
-}
-
-/**
- * PPM na graczu: natywne menu gry (to samo co na mapie), a gdy się nie da — własne przez showPopupMenu.
- * Natywne wywołanie podsłuchujemy przez podmianę showPopupMenu, żeby wiedzieć, czy zadziałało.
- */
-function openPlayerMenu(p, e, extraItems) {
-    const iface = win.Engine?.interface;
-    if (!iface?.showPopupMenu) return;
-    e.originalEvent = e.originalEvent || e;
-
-    const other = win.Engine.others?.getById?.(p.id);
-    if (other && typeof win.Engine.others.createOtherContextMenu === 'function') {
-        const original = iface.showPopupMenu;
-        let shown = false;
-        iface.showPopupMenu = function (items, ...rest) {
-            shown = true;
-            if (Array.isArray(items)) items.push(...extraItems);
-            return original.call(this, items, ...rest);
-        };
-        try {
-            win.Engine.others.createOtherContextMenu(other, e);
-        } catch {} finally {
-            iface.showPopupMenu = original;
-        }
-        if (shown) return;
-    }
-
-    const items = [
-        ['Napisz wiadomość', () => win.Engine.chatController?.getChatInputWrapper?.().setPrivateMessageProcedure(p.nick)],
-        ['Zaproś do grupy', () => inviteToParty(p.id)],
-        ...extraItems,
-    ];
-    if (p.account) items.splice(1, 0, ['Profil', () => openProfile(p)]);
-    iface.showPopupMenu(items, e);
+/** PPM na graczu: „Pokaż ekwipunek” — to samo, co robi menu gracza w grze. */
+function openPlayerMenu(p, e) {
+    const engine = win.Engine;
+    if (!engine?.interface?.showPopupMenu || !engine.showEqManager) return;
+    const label = typeof win._t === 'function' ? win._t('show_eq') : 'Pokaż ekwipunek';
+    engine.interface.showPopupMenu([[label, () => engine.showEqManager.update({
+        id: p.id,
+        account: p.account,
+        lvl: p.lvl,
+        nick: p.nick,
+        prof: p.prof,
+        icon: '',
+        world: getWorldName(),
+    })]], e, { header: escapeHtml(p.nick) });
 }
 
 export default {
@@ -163,7 +142,7 @@ export default {
             z-index: 100 !important;
             left: ${savedPos.left};
             top: ${savedPos.top};
-            width: 520px !important;
+            width: 300px !important;
         `;
         panel.innerHTML = PANEL_HTML;
         document.body.appendChild(panel);
@@ -210,7 +189,7 @@ export default {
         const rowHtml = p => `
             <div class="pqi-row${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}">
                 <div class="pqi-nick">${escapeHtml(p.nick)}</div>
-                <div class="pqi-lvl">${p.lvl ?? ''}</div>
+                <div class="pqi-lvl">${p.lvl ?? ''}${p.prof ?? ''}</div>
             </div>
         `;
 
@@ -230,12 +209,12 @@ export default {
             const columns = PROFS.map(prof => players.filter(p => p.prof === prof.code));
             columns[0].push(...players.filter(p => !PROFS.some(x => x.code === p.prof)));
 
-            listEl.innerHTML = `
-                <table class="pqi-table">
-                    <thead><tr>${PROFS.map((prof, i) => `<th title="${prof.name}">${prof.name} <span class="pqi-count">${columns[i].length}</span></th>`).join('')}</tr></thead>
-                    <tbody><tr>${columns.map(col => `<td>${col.length ? col.map(rowHtml).join('') : '<div class="pqi-dash">–</div>'}</td>`).join('')}</tr></tbody>
-                </table>
-            `;
+            listEl.innerHTML = `<div class="pqi-grid">${PROFS.map((prof, i) => `
+                <div class="pqi-section">
+                    <div class="pqi-section-head">${prof.name}<span class="pqi-count">${columns[i].length}</span></div>
+                    <div class="pqi-section-body">${columns[i].length ? columns[i].map(rowHtml).join('') : '<div class="pqi-dash">–</div>'}</div>
+                </div>
+            `).join('')}</div>`;
         }
 
         function toggleSelected(id) {
@@ -260,11 +239,8 @@ export default {
             if (!row) return;
             e.preventDefault();
             e.stopPropagation();
-            const id = +row.dataset.id;
-            const p = collectPlayers().find(x => x.id === id);
-            if (!p) return;
-            const label = selected.has(id) ? 'Usuń z nowej grupy' : 'Dodaj do nowej grupy';
-            openPlayerMenu(p, e, [[label, () => toggleSelected(id)]]);
+            const p = collectPlayers().find(x => x.id === +row.dataset.id);
+            if (p) openPlayerMenu(p, e);
         });
 
         /** Rozwiązuje (lider) lub opuszcza starą grupę i zaprasza zaznaczonych — z przycisku albo po walce. */
