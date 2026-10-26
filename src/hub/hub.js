@@ -30,6 +30,29 @@ const css = id => `
         text-align: center; transition: background 0.2s;
     }
     #${id}Menu .hub-save-btn:hover { background: #27ae60; }
+
+    /* Tryb modal: lista dodatków na środku ekranu. */
+    #${id}Overlay {
+        display: none; position: fixed; inset: 0; z-index: 30001;
+        background: rgba(0,0,0,0.55); backdrop-filter: blur(2px);
+        align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;
+        font-family: 'Verdana', sans-serif; user-select: none;
+    }
+    #${id}Overlay.open { display: flex; }
+    #${id}Overlay #${id}Menu {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); column-gap: 20px; align-content: start;
+        width: 100%; max-width: 700px; max-height: min(85vh, 85dvh); box-sizing: border-box; padding: 16px;
+    }
+    #${id}Overlay #${id}Menu > .hub-title, #${id}Overlay #${id}Menu > .hub-save-btn { grid-column: 1 / -1; }
+    #${id}Overlay .hub-title { display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
+    #${id}Overlay .hub-close { background: none; border: none; color: #888; font-size: 16px; line-height: 1; cursor: pointer; padding: 0 2px; }
+    #${id}Overlay .hub-close:hover { color: #fff; }
+    @media (max-width: 600px) {
+        #${id}Overlay { padding: 8px; }
+        #${id}Overlay #${id}Menu { grid-template-columns: 1fr; padding: 12px; max-height: min(90vh, 90dvh); }
+        #${id}Overlay .hub-label { font-size: 11px; }
+        #${id}Overlay .hub-desc { font-size: 9px; }
+    }
 `;
 
 const storageKey = (module, prefix = DEFAULT_OPTIONS.storagePrefix) => prefix + module.id;
@@ -61,9 +84,10 @@ function createRow(module, prefix, onToggle) {
 /**
  * Ramka panelu: przeciągalna ikona + rozwijane menu z tytułem. Zwraca { hub, menu }.
  * options: id (prefiks id elementów), title, icon (SVG), posKey — osobne dla każdego hubu, żeby się nie gryzły.
+ * modal: true — menu otwiera się jako okno na środku ekranu zamiast obok ikony.
  */
 export function createHubFrame(options = {}) {
-    const { id, title, icon: iconSvg, posKey } = { ...DEFAULT_OPTIONS, ...options };
+    const { id, title, icon: iconSvg, posKey, modal } = { ...DEFAULT_OPTIONS, ...options };
     injectStyle(css(id));
 
     const savedPos = loadJSON(posKey, { top: '80%', left: '20px' });
@@ -79,13 +103,34 @@ export function createHubFrame(options = {}) {
     const menu = hub.querySelector(`#${id}Menu`);
     isolateWheel(menu);
 
+    let toggleMenu = () => menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    if (modal) {
+        const overlay = document.createElement('div');
+        overlay.id = `${id}Overlay`;
+        overlay.appendChild(menu);
+        document.body.appendChild(overlay);
+
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'hub-close';
+        close.textContent = '✕';
+        menu.querySelector('.hub-title').appendChild(close);
+
+        const setOpen = open => overlay.classList.toggle('open', open);
+        toggleMenu = () => setOpen(!overlay.classList.contains('open'));
+        close.onclick = () => setOpen(false);
+        overlay.addEventListener('click', e => { if (e.target === overlay) setOpen(false); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+        isolateWheel(overlay);
+    }
+
     makeDraggable(hub, {
         handle: icon,
         storageKey: posKey,
         threshold: 7,
         onDragStart: () => icon.style.opacity = '0.7',
         onDragEnd: () => icon.style.opacity = '1',
-        onClick: () => menu.style.display = menu.style.display === 'block' ? 'none' : 'block',
+        onClick: () => toggleMenu(),
     });
 
     return { hub, menu };
