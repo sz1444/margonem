@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Panel dodatków Groli
 // @namespace    http://tampermonkey.net/
-// @version      3.6
+// @version      3.7
 // @description  Panel dodatków
 // @updateURL    https://margonem.vercel.app/hub.user.js
 // @downloadURL  https://margonem.vercel.app/hub.user.js
@@ -22,7 +22,7 @@
 
     GM_xmlhttpRequest({
         method: "GET",
-        url: REMOTE_URL + "?t=" + Date.now(),
+        url: REMOTE_URL + (REMOTE_URL.includes("?") ? "&" : "?") + "t=" + Date.now(),
         onload: function(res) {
             try {
                 eval(res.responseText);

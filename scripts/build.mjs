@@ -1,5 +1,6 @@
 // Buduje bundle hubów, zaciemnione:
-//   public/hub.js               ← loader public/hub.user.js: panel + wszystkie dodatki
+//   public/hub-builds/hub.js     ← /hub.js, loader public/hub.user.js: panel + dodatki
+//   public/hub-builds/hub-dev.js ← /hub.js?mode=dev: to samo + dodatki z `dev: true`
 //   public/hidden.js            ← loader public/hidden.user.js: panel ukrytych dodatków z logowaniem Discord
 //   private/hidden-modules.js   ← same ukryte dodatki, wydawane przez api/hidden/modules.js po zalogowaniu
 // Ładowane przez eval w kontekście Tampermonkeya.
@@ -38,7 +39,9 @@ const OBFUSCATOR_OPTIONS = {
 };
 
 const TARGETS = [
-    { entry: 'src/main.js', out: 'public/hub.js' },
+    // /hub.js i /hub.js?mode=dev — rewrite w vercel.json (pod /hub.js nie może leżeć prawdziwy plik).
+    { entry: 'src/main.js', out: 'public/hub-builds/hub.js', define: { __HUB_DEV__: 'false' } },
+    { entry: 'src/main.js', out: 'public/hub-builds/hub-dev.js', define: { __HUB_DEV__: 'true' } },
     { entry: 'src/hidden/main.js', out: 'public/hidden.js' },
     // globalName: src/hidden/auth.js odczytuje `hiddenModules.default` po wykonaniu bundla.
     { entry: 'src/hidden/modules/index.js', out: 'private/hidden-modules.js', globalName: 'hiddenModules' },
@@ -71,13 +74,14 @@ function createExtractPlugin(extracted) {
     };
 }
 
-async function buildTarget({ entry, out, globalName }) {
+async function buildTarget({ entry, out, globalName, define }) {
     const extracted = new Map();
     const result = await build({
         entryPoints: [path.join(root, entry)],
         bundle: true,
         format: 'iife',
         globalName,
+        define,
         target: 'es2020',
         charset: 'utf8',
         legalComments: 'none',

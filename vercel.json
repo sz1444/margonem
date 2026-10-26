@@ -5,6 +5,8 @@
     "api/hidden/modules.js": { "includeFiles": "private/**" }
   },
   "rewrites": [
+    { "source": "/hub.js", "has": [{ "type": "query", "key": "mode", "value": "dev(.*)" }], "destination": "/hub-builds/hub-dev.js" },
+    { "source": "/hub.js", "destination": "/hub-builds/hub.js" },
     { "source": "/log", "destination": "/api/log" },
     { "source": "/hidden/login", "destination": "/api/hidden/login" },
     { "source": "/hidden/callback", "destination": "/api/hidden/callback" },

@@ -1,3 +1,4 @@
+// `dev: true` w dodatku = widoczny tylko w /hub.js?mode=dev.
 // Kolejność = kolejność w panelu. `id` to klucz zapisu włączenia (localStorage "hub_<id>") — nie zmieniać.
 import quickSale from './quick-sale.js';
 import gamePad from './game-pad.js';

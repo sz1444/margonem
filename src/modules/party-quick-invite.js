@@ -51,8 +51,7 @@ const PANEL_HTML = `
     <div class="content" id="pqiContent" style="padding: 4px 6px;">
         <div class="pqi-list" id="pqiList"></div>
         <div class="pqi-actions">
-            <button type="button" class="pqi-btn" id="pqiArm" title="Po najbliższej walce rozwiąż starą grupę i zaproś zaznaczonych">⚡ Po walce</button>
-            <button type="button" class="pqi-btn" id="pqiInvite">Zaproś teraz</button>
+            <button type="button" class="pqi-btn" id="pqiArm" title="Po najbliższej walce rozwiąż starą grupę i zaproś zaznaczonych">⚡ Nowa grupa po walce</button>
         </div>
         <div class="pqi-status" id="pqiStatus"></div>
     </div>
@@ -82,7 +81,8 @@ function playerKind(p, myClanId) {
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Wybierz przyjaciół i klanowiczów z mapy do nowej grupy. ⚡ = po najbliższej walce rozwiązuje starą grupę i zaprasza wybranych.',
+    description: 'Wybierz przyjaciół i klanowiczów z mapy do nowej grupy. ⚡ = po najbliższej walce rozwiązuje starą grupę i jednorazowo zaprasza wybranych.',
+    dev: true,
 
     run() {
         injectStyle(CSS);
@@ -233,11 +233,6 @@ export default {
             if (!armed && !selected.size) return setStatus('Najpierw zaznacz graczy.');
             setArmed(!armed);
             setStatus(armed ? 'Nowa grupa po walce.' : 'Rozbrojono.');
-        });
-
-        panel.querySelector('#pqiInvite').addEventListener('click', e => {
-            e.stopPropagation();
-            inviteSelected();
         });
 
         setInterval(() => {
