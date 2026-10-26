@@ -49,6 +49,10 @@ const CSS = `
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     #pqiPanel .pqi-row.checked .pqi-nick { color: #4cfa4f !important; }
+    #pqiPanel .pqi-status { flex: none; font: bold 9px/16px Verdana, sans-serif !important; padding: 0 2px; border-radius: 2px; }
+    #pqiPanel .pqi-status.afk { color: #c7b8ff !important; }
+    #pqiPanel .pqi-status.battle { color: #ff6b6b !important; }
+    #pqiPanel .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic !important; }
     #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #ddd !important; font: 10px/16px Verdana, sans-serif !important; }
     #pqiPanel .pqi-dash { color: #666; font: 10px/16px Verdana, sans-serif; padding-left: 4px; }
     #pqiPanel .pqi-actions { display: flex; gap: 3px; margin-top: 4px; }
@@ -198,15 +202,17 @@ export default {
         }
 
         const rowHtml = p => `
-            <div class="pqi-row${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}">
+            <div class="pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
                 <div class="pqi-nick">${escapeHtml(p.nick)}</div>
+                ${p.afk ? '<div class="pqi-status afk" title="AFK (duch)">👻</div>' : ''}
+                ${p.inBattle ? '<div class="pqi-status battle" title="W walce">⚔</div>' : ''}
                 <div class="pqi-lvl">${p.lvl ?? ''}${p.prof ?? ''}</div>
             </div>
         `;
 
         function render(force = false) {
             const players = collectPlayers();
-            const signature = players.map(p => `${p.id}:${selected.has(p.id)}`).join('|');
+            const signature = players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}`).join('|');
             if (!force && signature === lastSignature) return;
             lastSignature = signature;
 

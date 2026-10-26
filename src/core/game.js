@@ -102,23 +102,28 @@ export function getPartyMembers() {
 }
 
 /**
- * Inni gracze na mapie jako [{ id, nick, lvl, prof, account, relation, clanId }].
+ * Inni gracze na mapie jako [{ id, nick, lvl, prof, account, relation, clanId, afk, inBattle }].
  * prof: 'w' woj, 'p' pal, 'b' tanc, 'h' łowca, 'm' mag, 't' trop.
- * relation z serwera: '' | 'fr' (przyjaciel) | 'en' (wróg) | 'cl' (klan) | 'cl-fr' (sojusz) | 'cl-en'.
+ * relation: w nowym interfejsie liczba (SocietyData.RELATION: 2 przyjaciel, 4 klan, 5 sojusz),
+ * w starym tekst ('fr', 'cl', 'cl-fr', ...).
+ * afk: duch (stasis), inBattle: emotka walki nad graczem — tak samo sprawdza to lista „Kto tu jest”.
  */
 export function getMapPlayers() {
     try {
         const list = win.Engine?.others ? win.Engine.others.check() : win.g?.other;
         return Object.values(list ?? {}).map(o => {
             const d = o?.d ?? o;
+            const id = +d.id;
             return {
-                id: +d.id,
+                id,
                 nick: d.nick,
                 lvl: d.lvl,
                 prof: d.prof,
                 account: d.account,
                 relation: d.relation ?? '',
                 clanId: d.clan?.id ?? d.clan ?? null,
+                afk: o?.stasis === 1 || d.stasis === 1,
+                inBattle: !!win.Engine?.emotions?.checkEmoExist?.(id, 1, 'battle'),
             };
         }).filter(p => p.id && p.nick);
     } catch {}
