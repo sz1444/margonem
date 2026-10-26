@@ -41,7 +41,6 @@ const CSS = `
     }
     #pqiPanel .pqi-row:hover { background: rgba(90,71,52,0.3); }
     #pqiPanel .pqi-row.checked { background: rgba(46,204,113,0.22); border-left-color: #2ecc71; }
-    #pqiPanel .pqi-row.away { opacity: 0.4; }
     #pqiPanel .pqi-nick {
         display: block !important; visibility: visible !important;
         flex: 1 1 auto; min-width: 0; color: #fff !important;
@@ -152,7 +151,7 @@ export default {
         let inBattle = isInBattle();
         // Jednorazowo: po najbliższej walce tworzy nową grupę i się wyłącza.
         let armed = false;
-        // Zaznaczeni gracze: id → gracz. Zostają, nawet gdy zejdą z mapy.
+        // Zaznaczeni gracze: id → gracz (tylko obecni na mapie).
         const selected = new Map();
         let lastSignature = '';
 
@@ -193,24 +192,23 @@ export default {
             applyCollapseState();
         };
 
-        /** Przyjaciele i klanowicze z mapy + zaznaczeni, którzy z niej zeszli. */
+        /** Przyjaciele i klanowicze z mapy. Kto z niej zszedł, wypada też z zaznaczonych. */
         function collectPlayers() {
             const myId = getHeroId();
             const myClanId = getClanId();
-            const onMap = new Map();
+            const players = [];
             for (const p of getMapPlayers()) {
                 const kind = p.id !== myId && playerKind(p, myClanId);
-                if (kind) onMap.set(p.id, { ...p, kind });
+                if (kind) players.push({ ...p, kind });
             }
-            const players = [...onMap.values()].map(p => ({ ...p, away: false }));
-            for (const p of selected.values()) if (!onMap.has(p.id)) players.push({ ...p, away: true });
+            for (const id of selected.keys()) if (!players.some(p => p.id === id)) selected.delete(id);
 
             return players.sort((a, b) =>
                 (a.kind === b.kind ? 0 : a.kind === 'clan' ? -1 : 1) || a.nick.localeCompare(b.nick));
         }
 
         const rowHtml = p => `
-            <div class="pqi-row${p.away ? ' away' : ''}${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.away ? ' — poza mapą' : ''}">
+            <div class="pqi-row${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}">
                 <div class="pqi-nick">${escapeHtml(p.nick)}</div>
                 <div class="pqi-lvl">${p.lvl ?? ''}</div>
             </div>
@@ -218,7 +216,7 @@ export default {
 
         function render(force = false) {
             const players = collectPlayers();
-            const signature = players.map(p => `${p.id}:${p.away}:${selected.has(p.id)}`).join('|');
+            const signature = players.map(p => `${p.id}:${selected.has(p.id)}`).join('|');
             if (!force && signature === lastSignature) return;
             lastSignature = signature;
 
