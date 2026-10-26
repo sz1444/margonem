@@ -141,7 +141,7 @@ function openPlayerMenu(p, e) {
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Zmieniasz ekipę po bossie? Zaznacz ludzi z listy, kliknij „Zrób grupę po walce” i walcz dalej — jak tylko walka się skończy, dodatek sam rozwiąże starą grupę i wyśle zaproszenia nowej. Na liście widzisz klan, sojuszników i znajomych z mapy według profesji, z levelem i info, kto jest AFK albo w walce.',
+    description: 'Zmieniasz ekipę po bossie? Jeszcze w trakcie walki zaznacz ludzi do nowej grupy, a potem podmień ją jednym kliknięciem — albo włącz „Zrób grupę po walce”, a dodatek sam rozwiąże starą grupę i zaprosi nową, jak tylko walka się skończy. Na liście masz klan, sojuszników i znajomych z mapy według profesji, z levelem i info, kto jest AFK albo w walce.',
     dev: true,
 
     run() {
