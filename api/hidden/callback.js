@@ -19,6 +19,14 @@ function finish(req, res, result) {
     res.end();
 }
 
+// Który krok się wysypał — żeby z komunikatu w grze było widać, co poprawić w konfiguracji.
+function errorCode(e) {
+    if (e.message.startsWith('Brak')) return 'config';
+    if (e.message.startsWith('Discord token')) return 'discord_token';
+    if (e.message.startsWith('Discord member')) return 'discord_member';
+    return 'server';
+}
+
 module.exports = async (req, res) => {
     const { code, state, error } = req.query;
 
@@ -36,6 +44,6 @@ module.exports = async (req, res) => {
         finish(req, res, { session: createSession(member, discord) });
     } catch (e) {
         console.error(e);
-        finish(req, res, { error: 'server' });
+        finish(req, res, { error: errorCode(e) });
     }
 };

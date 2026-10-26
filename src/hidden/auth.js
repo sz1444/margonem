@@ -16,6 +16,10 @@ export const ERRORS = {
     no_role: 'Nie masz wymaganej roli na Discordzie.',
     revoked: 'Sesja wygasła. Zaloguj się ponownie.',
     server: 'Błąd serwera. Spróbuj ponownie za chwilę.',
+    config: 'Błąd konfiguracji serwera (brak zmiennych DISCORD_* w Vercelu).',
+    discord_token: 'Discord odrzucił logowanie (sprawdź DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET).',
+    discord_member: 'Nie udało się sprawdzić roli (sprawdź DISCORD_GUILD_ID).',
+    modules: 'Nie udało się pobrać dodatków z serwera.',
 };
 
 /**
@@ -113,7 +117,12 @@ export async function fetchModules(session, retried = false) {
         const result = await getSession({ force: true });
         return result.session ? fetchModules(result.session, true) : { error: result.error || 'revoked' };
     }
-    if (res.status !== 200) return { error: 'server' };
+    if (res.status !== 200) return { error: 'modules' };
 
-    return { modules: evaluateModules(res.responseText) };
+    try {
+        return { modules: evaluateModules(res.responseText) };
+    } catch (e) {
+        console.error('❌ Błąd ukrytych dodatków:', e);
+        return { error: 'modules' };
+    }
 }
