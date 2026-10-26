@@ -135,7 +135,7 @@ function openPlayerMenu(p, e) {
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Dodatek wyświetla listę graczy na mapie według profesji i pozwala przygotować nową grupę podczas walki. Po zaznaczeniu „Zrób grupę po walce” dodatek automatycznie rozwiąże obecną grupę i utworzy nową.',
+    description: 'Szybkie tworzenie grupy z listy graczy na mapie.',
     dev: true,
 
     run() {
