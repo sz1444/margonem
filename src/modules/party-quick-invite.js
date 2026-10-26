@@ -87,15 +87,26 @@ const PANEL_HTML = `
     </div>
 `;
 
+/**
+ * Walka trwa: okno walki otwarte i walka nierozstrzygnięta.
+ * Blokada `battle` schodzi dopiero po zamknięciu okna, a koniec walki to Engine.battle.endBattle.
+ */
+const isFighting = () => isInBattle() && !win.Engine?.battle?.endBattle;
+
 const escapeHtml = s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
 
 // Relacje z silnika (SocietyData.RELATION) — w starym interfejsie jako tekst.
 const RELATION_FRIEND = [2, 'fr'];
 const RELATION_CLAN = [4, 'cl'];
+const RELATION_CLAN_ALLY = [5, 'cl-fr'];
 
-/** 'clan' / 'friend' / null (pozostałych nie pokazujemy). */
+// Kolejność na liście: klan, sojusz, przyjaciele.
+const KIND_ORDER = ['clan', 'ally', 'friend'];
+
+/** 'clan' / 'ally' / 'friend' / null (pozostałych nie pokazujemy). */
 function playerKind(p, myClanId) {
     if (RELATION_CLAN.includes(p.relation) || (myClanId && p.clanId === myClanId)) return 'clan';
+    if (RELATION_CLAN_ALLY.includes(p.relation)) return 'ally';
     if (RELATION_FRIEND.includes(p.relation)) return 'friend';
     return null;
 }
@@ -119,7 +130,7 @@ function openPlayerMenu(p, e) {
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Zaznacz przyjaciół i klanowiczów z mapy i utwórz z nich nową grupę — od razu albo po walce.',
+    description: 'Zaznacz przyjaciół, klanowiczów i sojuszników z mapy i utwórz z nich nową grupę — od razu albo po walce.',
     dev: true,
 
     run() {
@@ -127,7 +138,7 @@ export default {
 
         const savedPos = loadJSON(POS_KEY, { top: '200px', left: '20px' });
         let isCollapsed = loadFlag(COLLAPSED_KEY);
-        let inBattle = isInBattle();
+        let inBattle = isFighting();
         // Jednorazowo: po najbliższej walce tworzy nową grupę i się wyłącza.
         let armed = false;
         // Zaznaczeni gracze: id → gracz (tylko obecni na mapie).
@@ -171,7 +182,7 @@ export default {
             applyCollapseState();
         };
 
-        /** Przyjaciele i klanowicze z mapy. Kto z niej zszedł, wypada też z zaznaczonych. */
+        /** Przyjaciele, klanowicze i sojusznicy z mapy. Kto z niej zszedł, wypada też z zaznaczonych. */
         function collectPlayers() {
             const myId = getHeroId();
             const myClanId = getClanId();
@@ -183,7 +194,7 @@ export default {
             for (const id of selected.keys()) if (!players.some(p => p.id === id)) selected.delete(id);
 
             return players.sort((a, b) =>
-                (a.kind === b.kind ? 0 : a.kind === 'clan' ? -1 : 1) || a.nick.localeCompare(b.nick));
+                KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.nick.localeCompare(b.nick));
         }
 
         const rowHtml = p => `
@@ -201,7 +212,7 @@ export default {
 
             headerText.textContent = `Nowa grupa (${selected.size})`;
             if (!players.length) {
-                listEl.innerHTML = '<div class="pqi-empty">Brak przyjaciół i klanowiczów na mapie.</div>';
+                listEl.innerHTML = '<div class="pqi-empty">Brak przyjaciół, klanowiczów i sojuszników na mapie.</div>';
                 return;
             }
 
@@ -269,7 +280,7 @@ export default {
         });
 
         setInterval(() => {
-            const nowInBattle = isInBattle();
+            const nowInBattle = isFighting();
             if (inBattle && !nowInBattle && armed) {
                 setArmed(false);
                 newParty();
