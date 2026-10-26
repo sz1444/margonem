@@ -14,7 +14,6 @@ import pinnedTimer from './pinned-timer.js';
 import onlineList from './online-list.js';
 import fleeGuard from './flee-guard.js';
 import classicPartyUi from './classic-party-ui.js';
-import partyQuickInvite from './party-quick-invite.js';
 
 export default [
     quickSale,
@@ -32,5 +31,4 @@ export default [
     onlineList,
     fleeGuard,
     classicPartyUi,
-    partyQuickInvite,
 ];

@@ -89,22 +89,6 @@ export function isPartyLeader() {
     return false;
 }
 
-/** Członkowie grupy jako [{ id, nick }] (z bohaterem włącznie). */
-export function getPartyMembers() {
-    try {
-        if (win.Engine?.party) {
-            const members = win.Engine.party.getMembers();
-            return members ? [...members.values()].map(m => ({ id: +m.id, nick: m.nick ?? m.name ?? String(m.id) })) : [];
-        }
-        if (win.g?.party) return Object.entries(win.g.party).map(([id, m]) => ({ id: +id, nick: m.nick ?? String(id) }));
-    } catch {}
-    return [];
-}
-
-export function inviteToParty(id) {
-    sendRequest(`party&a=inv&id=${id}`);
-}
-
 export function disbandParty() {
     sendRequest('party&a=disband');
 }
