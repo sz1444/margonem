@@ -19,22 +19,23 @@ const CSS = `
     #pqiPanel .pqi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 3px; }
     #pqiPanel .pqi-row {
         display: flex !important; align-items: center; gap: 3px;
-        height: 14px !important; min-height: 0 !important; max-height: 14px !important;
+        height: 16px !important; min-height: 0 !important; max-height: 16px !important;
         padding: 0 3px !important; margin: 0 !important; box-sizing: border-box;
         position: relative !important; min-width: 0;
         cursor: pointer; border-left: 2px solid transparent; border-radius: 1px;
     }
     #pqiPanel .pqi-row:hover { background: rgba(90,71,52,0.3); }
-    #pqiPanel .pqi-row.checked { background: rgba(201,163,91,0.22); border-left-color: #c9a35b; }
+    #pqiPanel .pqi-row.checked { background: rgba(46,204,113,0.22); border-left-color: #2ecc71; }
+    #pqiPanel .pqi-row.checked .pqi-nick { color: #4cfa4f !important; }
     #pqiPanel .pqi-row.away { opacity: 0.4; }
     #pqiPanel .pqi-nick {
         display: block !important; visibility: visible !important;
         flex: 1 1 auto; min-width: 0; color: #fff !important;
-        font: 10px/14px Verdana, sans-serif !important;
+        font: 11px/16px Verdana, sans-serif !important;
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #ddd !important; font: 9px/14px Verdana, sans-serif !important; }
-    #pqiPanel .pqi-group { color: #c9a35b !important; font: bold 8px/12px Verdana, sans-serif !important; letter-spacing: 0.5px; margin: 3px 0 1px; opacity: 0.8; }
+    #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #ddd !important; font: 10px/16px Verdana, sans-serif !important; }
+    #pqiPanel .pqi-group { color: #c9a35b !important; font: bold 9px/13px Verdana, sans-serif !important; letter-spacing: 0.5px; margin: 3px 0 1px; opacity: 0.8; }
     #pqiPanel .pqi-group:first-child { margin-top: 0; }
     #pqiPanel .pqi-actions { display: flex; gap: 3px; margin-top: 4px; }
     #pqiPanel .pqi-btn { flex: 1; padding: 3px; background: #222; color: #ddd; border: 1px solid #444; border-radius: 2px; font: bold 9px Verdana, sans-serif; cursor: pointer; }
@@ -117,7 +118,7 @@ export default {
             z-index: 100 !important;
             left: ${savedPos.left};
             top: ${savedPos.top};
-            width: 260px !important;
+            width: 280px !important;
         `;
         panel.innerHTML = PANEL_HTML;
         document.body.appendChild(panel);
