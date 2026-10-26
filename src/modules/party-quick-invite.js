@@ -16,10 +16,24 @@ const CSS = `
     #pqiPanel .pqi-list::-webkit-scrollbar { width: 4px; }
     #pqiPanel .pqi-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.4); }
     #pqiPanel .pqi-list::-webkit-scrollbar-thumb { background: #5a4734; }
-    #pqiPanel .pqi-row { display: flex; align-items: center; gap: 5px; padding: 2px 4px; margin-bottom: 2px; cursor: pointer; }
+    #pqiPanel .pqi-row {
+        display: flex !important; align-items: center; gap: 6px;
+        height: 20px !important; min-height: 0 !important; max-height: 20px !important;
+        padding: 0 4px !important; margin: 0 0 2px !important; box-sizing: border-box;
+        position: relative !important; flex: none !important;
+        cursor: pointer; background: rgba(0,0,0,0.35); border-radius: 2px;
+    }
+    #pqiPanel .pqi-row:hover { background: rgba(90,71,52,0.35); }
     #pqiPanel .pqi-row.away { opacity: 0.45; }
-    #pqiPanel .pqi-row input { margin: 0; cursor: pointer; }
-    #pqiPanel .pqi-nick { flex: 1; font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #pqiPanel .pqi-check {
+        flex: none; width: 11px; height: 11px; box-sizing: border-box;
+        border: 1px solid #5a4734; background: #111; border-radius: 2px;
+        display: flex; align-items: center; justify-content: center;
+        color: #ffd76a; font-size: 9px; line-height: 1;
+    }
+    #pqiPanel .pqi-row.checked .pqi-check { border-color: #c9a35b; background: #3a2c1c; }
+    #pqiPanel .pqi-row.checked .pqi-check::after { content: '✓'; }
+    #pqiPanel .pqi-nick { flex: 1; font-size: 11px; line-height: 20px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #pqiPanel .pqi-nick.friend { color: #6fd36f; }
     #pqiPanel .pqi-nick.clan { color: #6fb7ff; }
     #pqiPanel .pqi-lvl { color: #aaa; font-size: 10px; }
@@ -140,23 +154,24 @@ export default {
                 return;
             }
             listEl.innerHTML = players.map(p => `
-                <label class="pqi-row tw-list-item${p.away ? ' away' : ''}" data-id="${p.id}" title="${p.away ? 'Poza mapą' : ''}">
-                    <input type="checkbox"${selected.has(p.id) ? ' checked' : ''}>
+                <div class="pqi-row${p.away ? ' away' : ''}${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${p.away ? 'Poza mapą' : ''}">
+                    <span class="pqi-check"></span>
                     <span class="pqi-nick ${p.kind}">${escapeHtml(p.nick)}</span>
                     <span class="pqi-lvl">${p.lvl ?? ''}</span>
-                </label>
+                </div>
             `).join('');
         }
 
-        listEl.addEventListener('change', e => {
+        listEl.addEventListener('click', e => {
             const row = e.target.closest('.pqi-row');
             if (!row) return;
+            e.stopPropagation();
             const id = +row.dataset.id;
-            if (e.target.checked) {
+            if (selected.has(id)) {
+                selected.delete(id);
+            } else {
                 const p = collectPlayers().find(x => x.id === id);
                 if (p) selected.set(id, { id: p.id, nick: p.nick, lvl: p.lvl, kind: p.kind });
-            } else {
-                selected.delete(id);
             }
             render(true);
         });
