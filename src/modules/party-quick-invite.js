@@ -69,7 +69,7 @@ const PANEL_HTML = `
         <div class="header-label">
             <div class="left-decor"></div>
             <div class="right-decor"></div>
-            <div class="text" id="pqiHeaderText">Nowa grupa</div>
+            <div class="text" id="pqiHeaderText">Quick Party</div>
         </div>
     </div>
     <div class="content" id="pqiContent" style="padding: 3px 4px;">
@@ -134,7 +134,7 @@ function openPlayerMenu(p, e) {
 
 export default {
     id: 'party-quick-invite',
-    name: 'Party Quick Invite',
+    name: 'Quick Party',
     description: 'Szybkie tworzenie grupy z listy graczy na mapie.',
     dev: true,
 
@@ -216,7 +216,7 @@ export default {
             if (!force && signature === lastSignature) return;
             lastSignature = signature;
 
-            headerText.textContent = `Nowa grupa (${selected.size})`;
+            headerText.textContent = `Quick Party (${selected.size})`;
             if (!players.length) {
                 listEl.innerHTML = '<div class="pqi-empty">Brak przyjaciół, klanowiczów i sojuszników na mapie.</div>';
                 return;
