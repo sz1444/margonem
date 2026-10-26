@@ -12,41 +12,37 @@ const OPACITY_KEY = 'pqi_widget_opacity';
 const COLLAPSED_KEY = 'pqi_widget_collapsed';
 
 const CSS = `
-    #pqiPanel .pqi-list { max-height: 240px; overflow-y: auto; overflow-x: hidden; }
-    #pqiPanel .pqi-list::-webkit-scrollbar { width: 4px; }
+    #pqiPanel .pqi-list { max-height: 360px; overflow-y: auto; overflow-x: hidden; }
+    #pqiPanel .pqi-list::-webkit-scrollbar { width: 3px; }
     #pqiPanel .pqi-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.4); }
     #pqiPanel .pqi-list::-webkit-scrollbar-thumb { background: #5a4734; }
+    #pqiPanel .pqi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 3px; }
     #pqiPanel .pqi-row {
-        display: flex !important; align-items: center; gap: 6px;
-        height: 20px !important; min-height: 0 !important; max-height: 20px !important;
-        padding: 0 4px !important; margin: 0 0 2px !important; box-sizing: border-box;
-        position: relative !important; flex: none !important;
-        cursor: pointer; background: rgba(0,0,0,0.35); border-radius: 2px;
+        display: flex !important; align-items: center; gap: 3px;
+        height: 14px !important; min-height: 0 !important; max-height: 14px !important;
+        padding: 0 3px !important; margin: 0 !important; box-sizing: border-box;
+        position: relative !important; min-width: 0;
+        cursor: pointer; border-left: 2px solid transparent; border-radius: 1px;
     }
-    #pqiPanel .pqi-row:hover { background: rgba(90,71,52,0.35); }
-    #pqiPanel .pqi-row.away { opacity: 0.45; }
-    #pqiPanel .pqi-check {
-        flex: none; width: 11px; height: 11px; box-sizing: border-box;
-        border: 1px solid #5a4734; background: #111; border-radius: 2px;
-        display: flex; align-items: center; justify-content: center;
-        color: #ffd76a; font-size: 9px; line-height: 1;
-    }
-    #pqiPanel .pqi-row.checked .pqi-check { border-color: #c9a35b; background: #3a2c1c; }
-    #pqiPanel .pqi-row.checked .pqi-check::after { content: '✓'; }
+    #pqiPanel .pqi-row:hover { background: rgba(90,71,52,0.3); }
+    #pqiPanel .pqi-row.checked { background: rgba(201,163,91,0.22); border-left-color: #c9a35b; }
+    #pqiPanel .pqi-row.away { opacity: 0.4; }
     #pqiPanel .pqi-nick {
         display: block !important; visibility: visible !important;
         flex: 1 1 auto; min-width: 0; color: #eaeaea !important;
-        font: 600 11px/20px Verdana, sans-serif !important;
+        font: 10px/14px Verdana, sans-serif !important;
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     #pqiPanel .pqi-nick.pqi-kind-friend { color: #6fd36f !important; }
     #pqiPanel .pqi-nick.pqi-kind-clan { color: #6fb7ff !important; }
-    #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #aaa !important; font: 10px/20px Verdana, sans-serif !important; }
-    #pqiPanel .pqi-btn { display: block; width: 100%; margin-top: 4px; padding: 4px; background: #222; color: #eee; border: 1px solid #444; border-radius: 3px; font: bold 9px Verdana, sans-serif; cursor: pointer; }
+    #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #888 !important; font: 9px/14px Verdana, sans-serif !important; }
+    #pqiPanel .pqi-group { color: #c9a35b !important; font: bold 8px/12px Verdana, sans-serif !important; text-transform: uppercase; letter-spacing: 0.5px; margin: 3px 0 1px; opacity: 0.8; }
+    #pqiPanel .pqi-group:first-child { margin-top: 0; }
+    #pqiPanel .pqi-actions { display: flex; gap: 3px; margin-top: 4px; }
+    #pqiPanel .pqi-btn { flex: 1; padding: 3px; background: #222; color: #ddd; border: 1px solid #444; border-radius: 2px; font: bold 9px Verdana, sans-serif; cursor: pointer; }
     #pqiPanel .pqi-btn:hover { border-color: #8a6d3b; }
-    #pqiPanel .pqi-btn.on { background: linear-gradient(180deg, #7a1a1a 0%, #4a0e0e 100%); border-color: #8b0000; color: #fff; box-shadow: 0 0 5px #e74c3c; }
-    #pqiPanel .pqi-group { color: #c9a35b !important; font: bold 9px/16px Verdana, sans-serif !important; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 2px 0; border-bottom: 1px solid #3a2c1c; margin: 2px 0; }
-    #pqiPanel .pqi-empty { color: #eaeaea; font-style: italic; font-size: 11px; padding: 4px; text-align: center; }
+    #pqiPanel .pqi-btn.on { background: linear-gradient(180deg, #7a1a1a 0%, #4a0e0e 100%); border-color: #8b0000; color: #fff; box-shadow: 0 0 4px #e74c3c; }
+    #pqiPanel .pqi-empty { color: #aaa; font-style: italic; font-size: 10px; padding: 4px; text-align: center; }
 `;
 
 const PANEL_HTML = `
@@ -58,10 +54,12 @@ const PANEL_HTML = `
             <div class="text" id="pqiHeaderText">Nowa grupa</div>
         </div>
     </div>
-    <div class="content" id="pqiContent" style="padding: 4px 6px;">
+    <div class="content" id="pqiContent" style="padding: 3px 4px;">
         <div class="pqi-list" id="pqiList"></div>
-        <button type="button" class="pqi-btn" id="pqiCreate">Utwórz grupę teraz</button>
-        <button type="button" class="pqi-btn" id="pqiArm">Utwórz nową grupę po walce</button>
+        <div class="pqi-actions">
+            <button type="button" class="pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz">Teraz</button>
+            <button type="button" class="pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce">Po walce</button>
+        </div>
     </div>
     <div class="c-window__bottom-bar">
         <div class="interface-element-bottom-bar-background-stretch"></div>
@@ -121,7 +119,7 @@ export default {
             z-index: 100 !important;
             left: ${savedPos.left};
             top: ${savedPos.top};
-            width: 200px !important;
+            width: 260px !important;
         `;
         panel.innerHTML = PANEL_HTML;
         document.body.appendChild(panel);
@@ -167,8 +165,7 @@ export default {
         }
 
         const rowHtml = p => `
-            <div class="pqi-row${p.away ? ' away' : ''}${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${p.away ? 'Poza mapą' : ''}">
-                <span class="pqi-check"></span>
+            <div class="pqi-row${p.away ? ' away' : ''}${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.away ? ' — poza mapą' : ''}">
                 <div class="pqi-nick pqi-kind-${p.kind}">${escapeHtml(p.nick)}</div>
                 <div class="pqi-lvl">${p.lvl ?? ''}${p.prof ?? ''}</div>
             </div>
@@ -192,7 +189,7 @@ export default {
             }));
             listEl.innerHTML = groups
                 .filter(g => g.players.length)
-                .map(g => `<div class="pqi-group">${g.name} (${g.players.length})</div>${g.players.map(rowHtml).join('')}`)
+                .map(g => `<div class="pqi-group">${g.name} · ${g.players.length}</div><div class="pqi-grid">${g.players.map(rowHtml).join('')}</div>`)
                 .join('');
         }
 
