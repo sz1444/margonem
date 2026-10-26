@@ -20,7 +20,7 @@ async function runModule(module) {
 
 (async function main() {
     reportUnknownUser();
-    renderHub(modules, { modal: __HUB_DEV__ });
+    renderHub(modules, { modal: true });
 
     await waitFor(isGameReady, { timeout: GAME_READY_TIMEOUT });
     modules.filter(module => isEnabled(module)).forEach(runModule);
