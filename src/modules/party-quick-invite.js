@@ -1,7 +1,7 @@
-import { injectStyle, isolateWheel, waitFor } from '../core/dom.js';
+import { injectStyle, isolateWheel } from '../core/dom.js';
 import { loadJSON, loadFlag, saveFlag } from '../core/storage.js';
 import {
-    getHeroId, getClanId, getMapPlayers, getPartyMembers, inviteToParty,
+    getHeroId, getClanId, getMapPlayers, inviteToParty,
     isInParty, isPartyLeader, isInBattle, disbandParty, leaveParty,
 } from '../core/game.js';
 import { makeDraggable } from '../core/drag.js';
@@ -10,14 +10,6 @@ import { setupOpacityButton } from '../core/ui.js';
 const POS_KEY = 'pqi_widget_pos';
 const OPACITY_KEY = 'pqi_widget_opacity';
 const COLLAPSED_KEY = 'pqi_widget_collapsed';
-
-const INVITE_DELAY = 400;
-const TICK = 200;
-const LIST_REFRESH = 1000;
-const LEAVE_TIMEOUT = 3000;
-
-const FRIEND = 'friend';
-const CLAN = 'clan';
 
 const CSS = `
     #pqiPanel .pqi-list { max-height: 240px; overflow-y: auto; overflow-x: hidden; }
@@ -31,11 +23,6 @@ const CSS = `
     #pqiPanel .pqi-nick.friend { color: #6fd36f; }
     #pqiPanel .pqi-nick.clan { color: #6fb7ff; }
     #pqiPanel .pqi-lvl { color: #aaa; font-size: 10px; }
-    #pqiPanel .pqi-actions { display: flex; gap: 4px; margin-top: 4px; }
-    #pqiPanel .pqi-btn { flex: 1; background: #222; color: #eee; border: 1px solid #444; border-radius: 3px; font: bold 9px Verdana, sans-serif; padding: 4px; cursor: pointer; }
-    #pqiPanel .pqi-btn:hover { border-color: #8a6d3b; }
-    #pqiPanel .pqi-btn.on { background: linear-gradient(180deg, #7a1a1a 0%, #4a0e0e 100%); border-color: #8b0000; color: #fff; box-shadow: 0 0 5px #e74c3c; }
-    #pqiPanel .pqi-status { color: #ffd76a; font-size: 10px; text-align: center; min-height: 12px; margin-top: 3px; }
     #pqiPanel .pqi-empty { color: #eaeaea; font-style: italic; font-size: 11px; padding: 4px; text-align: center; }
 `;
 
@@ -50,10 +37,6 @@ const PANEL_HTML = `
     </div>
     <div class="content" id="pqiContent" style="padding: 4px 6px;">
         <div class="pqi-list" id="pqiList"></div>
-        <div class="pqi-actions">
-            <button type="button" class="pqi-btn" id="pqiArm" title="Po najbliższej walce rozwiąż starą grupę i zaproś zaznaczonych">⚡ Nowa grupa po walce</button>
-        </div>
-        <div class="pqi-status" id="pqiStatus"></div>
     </div>
     <div class="c-window__bottom-bar">
         <div class="interface-element-bottom-bar-background-stretch"></div>
@@ -69,19 +52,18 @@ const PANEL_HTML = `
 `;
 
 const escapeHtml = s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
-const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-/** Przyjaciel / klanowicz / null (pozostałych nie pokazujemy). */
+/** 'clan' / 'friend' / null (pozostałych nie pokazujemy). */
 function playerKind(p, myClanId) {
-    if (p.relation === 'cl' || (myClanId && p.clanId === myClanId)) return CLAN;
-    if (p.relation === 'fr') return FRIEND;
+    if (p.relation === 'cl' || (myClanId && p.clanId === myClanId)) return 'clan';
+    if (p.relation === 'fr') return 'friend';
     return null;
 }
 
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Wybierz przyjaciół i klanowiczów z mapy do nowej grupy. ⚡ = po najbliższej walce rozwiązuje starą grupę i jednorazowo zaprasza wybranych.',
+    description: 'Zaznacz przyjaciół i klanowiczów z mapy — po walce rozwiązuje grupę i tworzy nową z zaznaczonych.',
     dev: true,
 
     run() {
@@ -89,8 +71,6 @@ export default {
 
         const savedPos = loadJSON(POS_KEY, { top: '200px', left: '20px' });
         let isCollapsed = loadFlag(COLLAPSED_KEY);
-        let inviting = false;
-        let armed = false;
         let inBattle = isInBattle();
         // Zaznaczeni gracze: id → { id, nick, lvl, kind }. Zostają, nawet gdy zejdą z mapy.
         const selected = new Map();
@@ -111,21 +91,12 @@ export default {
 
         const listEl = panel.querySelector('#pqiList');
         const contentEl = panel.querySelector('#pqiContent');
-        const statusEl = panel.querySelector('#pqiStatus');
         const headerText = panel.querySelector('#pqiHeaderText');
-        const armBtn = panel.querySelector('#pqiArm');
         const iconEl = panel.querySelector('#pqiToggle .ie-icon');
 
         isolateWheel(listEl);
         setupOpacityButton(panel, panel.querySelector('#pqiOpacityBtn'), OPACITY_KEY, 3);
         makeDraggable(panel, { handle: panel.querySelector('#pqiHeader'), storageKey: POS_KEY, threshold: 0 });
-
-        let statusTimer = null;
-        function setStatus(text, ttl = 3000) {
-            statusEl.textContent = text;
-            clearTimeout(statusTimer);
-            if (ttl) statusTimer = setTimeout(() => statusEl.textContent = '', ttl);
-        }
 
         iconEl.style.transition = 'transform 0.3s ease';
         function applyCollapseState() {
@@ -141,11 +112,6 @@ export default {
             applyCollapseState();
         };
 
-        function setArmed(value) {
-            armed = value;
-            armBtn.classList.toggle('on', armed);
-        }
-
         /** Przyjaciele i klanowicze z mapy + zaznaczeni, którzy z niej zeszli. */
         function collectPlayers() {
             const myId = getHeroId();
@@ -159,7 +125,7 @@ export default {
             for (const p of selected.values()) if (!onMap.has(p.id)) players.push({ ...p, away: true });
 
             return players.sort((a, b) =>
-                (a.kind === b.kind ? 0 : a.kind === CLAN ? -1 : 1) || a.nick.localeCompare(b.nick));
+                (a.kind === b.kind ? 0 : a.kind === 'clan' ? -1 : 1) || a.nick.localeCompare(b.nick));
         }
 
         function render(force = false) {
@@ -195,56 +161,23 @@ export default {
             render(true);
         });
 
-        async function inviteSelected() {
-            if (inviting) return;
-            if (isInParty() && !isPartyLeader()) return setStatus('Tylko lider może zapraszać.');
-
-            const inParty = new Set(getPartyMembers().map(m => m.id));
-            const toInvite = [...selected.values()].filter(m => !inParty.has(m.id));
-            if (!toInvite.length) return setStatus(selected.size ? 'Wszyscy już są w grupie.' : 'Nikogo nie zaznaczono.');
-
-            inviting = true;
-            try {
-                for (const [i, m] of toInvite.entries()) {
-                    setStatus(`Zapraszam ${m.nick} (${i + 1}/${toInvite.length})…`, 0);
-                    inviteToParty(m.id);
-                    if (i < toInvite.length - 1) await sleep(INVITE_DELAY);
-                }
-                setStatus(`Wysłano ${toInvite.length} zaproszeń.`);
-            } finally {
-                inviting = false;
-            }
-        }
-
-        /** Rozwiązuje (lider) lub opuszcza starą grupę, czeka aż zniknie i zaprasza zaznaczonych. */
-        async function swapParty() {
+        /** Po walce: rozwiązuje (lider) lub opuszcza starą grupę i zaprasza zaznaczonych. */
+        function newPartyAfterBattle() {
+            if (!selected.size) return;
             if (isInParty()) {
-                setStatus('Rozwiązuję starą grupę…', 0);
                 if (isPartyLeader()) disbandParty();
                 else leaveParty();
-                const left = await waitFor(() => !isInParty(), { interval: 100, timeout: LEAVE_TIMEOUT });
-                if (!left) return setStatus('Nie udało się wyjść z grupy.');
             }
-            await inviteSelected();
+            for (const m of selected.values()) inviteToParty(m.id);
         }
-
-        armBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            if (!armed && !selected.size) return setStatus('Najpierw zaznacz graczy.');
-            setArmed(!armed);
-            setStatus(armed ? 'Nowa grupa po walce.' : 'Rozbrojono.');
-        });
 
         setInterval(() => {
             const nowInBattle = isInBattle();
-            if (inBattle && !nowInBattle && armed) {
-                setArmed(false);
-                swapParty();
-            }
+            if (inBattle && !nowInBattle) newPartyAfterBattle();
             inBattle = nowInBattle;
-        }, TICK);
+            if (!isCollapsed) render();
+        }, 500);
 
-        setInterval(() => { if (!isCollapsed) render(); }, LIST_REFRESH);
         render(true);
     },
 };
