@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node scripts/build.mjs",
+    "build:dev": "node scripts/build.mjs --dev",
     "start": "node server.js"
   },
   "keywords": [],
@@ -18,5 +19,9 @@
     "firebase-admin": "^13.7.0",
     "socket.io": "^4.8.3",
     "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2",
+    "javascript-obfuscator": "^4.1.1"
   }
 }

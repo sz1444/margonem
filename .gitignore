@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+.vercel/
+
+# generowane przez npm run build
+public/hub.js
+dist/
