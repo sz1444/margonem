@@ -1,8 +1,15 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "public",
+  "functions": {
+    "api/hidden/modules.js": { "includeFiles": "private/**" }
+  },
   "rewrites": [
     { "source": "/au", "destination": "/api/au" },
-    { "source": "/log", "destination": "/api/log" }
+    { "source": "/log", "destination": "/api/log" },
+    { "source": "/hidden/login", "destination": "/api/hidden/login" },
+    { "source": "/hidden/callback", "destination": "/api/hidden/callback" },
+    { "source": "/hidden/refresh", "destination": "/api/hidden/refresh" },
+    { "source": "/hidden/modules.js", "destination": "/api/hidden/modules" }
   ]
 }

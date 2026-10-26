@@ -19,5 +19,5 @@ async function runModule(module) {
     renderHub(modules);
 
     await waitFor(isGameReady, { timeout: GAME_READY_TIMEOUT });
-    modules.filter(isEnabled).forEach(runModule);
+    modules.filter(module => isEnabled(module)).forEach(runModule);
 })();

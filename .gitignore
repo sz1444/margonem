@@ -4,4 +4,6 @@ node_modules/
 
 # generowane przez npm run build
 public/hub.js
+public/hidden.js
 dist/
+private/

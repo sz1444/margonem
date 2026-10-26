@@ -1,5 +1,8 @@
-// Buduje public/hub.js: panel + wszystkie dodatki w jednym pliku, zaciemnione.
-// Ładuje go loader public/hub.user.js (eval w kontekście Tampermonkeya).
+// Buduje bundle hubów, zaciemnione:
+//   public/hub.js               ← loader public/hub.user.js: panel + wszystkie dodatki
+//   public/hidden.js            ← loader public/hidden.user.js: panel ukrytych dodatków z logowaniem Discord
+//   private/hidden-modules.js   ← same ukryte dodatki, wydawane przez api/hidden/modules.js po zalogowaniu
+// Ładowane przez eval w kontekście Tampermonkeya.
 //   npm run build      → produkcyjny (obfuskacja)
 //   npm run build:dev  → bez obfuskacji, czytelny (do debugowania)
 import { build } from 'esbuild';
@@ -34,40 +37,66 @@ const OBFUSCATOR_OPTIONS = {
     unicodeEscapeSequence: false,
 };
 
+const TARGETS = [
+    { entry: 'src/main.js', out: 'public/hub.js' },
+    { entry: 'src/hidden/main.js', out: 'public/hidden.js' },
+    // globalName: src/hidden/auth.js odczytuje `hiddenModules.default` po wykonaniu bundla.
+    { entry: 'src/hidden/modules/index.js', out: 'private/hidden-modules.js', globalName: 'hiddenModules' },
+];
+
 // Duże pliki danych (*.json) nie idą przez obfuscator — zaciemnianie setek KB współrzędnych
 // trwa wieki i nic nie daje. W bundlu zostaje placeholder, a dane wstawiamy po obfuskacji.
-const jsonData = new Map();
-const extractJsonPlugin = {
-    name: 'extract-json',
-    setup(b) {
-        b.onLoad({ filter: /\.json$/ }, async args => {
-            const placeholder = `__JSON_DATA_${jsonData.size}__`;
-            jsonData.set(placeholder, JSON.stringify(JSON.parse(await readFile(args.path, 'utf8'))));
-            return { contents: `export default JSON.parse(${placeholder});`, loader: 'js' };
-        });
-    },
-};
-
-const result = await build({
-    entryPoints: [path.join(root, 'src/main.js')],
-    bundle: true,
-    format: 'iife',
-    target: 'es2020',
-    charset: 'utf8',
-    legalComments: 'none',
-    write: false,
-    plugins: [extractJsonPlugin],
-});
-
-let code = result.outputFiles[0].text;
-if (!isDev) code = JavaScriptObfuscator.obfuscate(code, OBFUSCATOR_OPTIONS).getObfuscatedCode();
-for (const [placeholder, json] of jsonData) {
-    if (!code.includes(placeholder)) throw new Error(`Brak ${placeholder} w bundlu`);
-    code = code.replace(placeholder, () => JSON.stringify(json));
+// Tak samo skrypty importowane jako tekst (import '...?raw', eval w oknie strony) — te zaciemniamy osobno.
+function createExtractPlugin(extracted) {
+    const placeholder = () => `__EXTRACTED_${extracted.size}__`;
+    return {
+        name: 'extract-data',
+        setup(b) {
+            b.onResolve({ filter: /\?raw$/ }, args => ({
+                path: path.resolve(args.resolveDir, args.path.slice(0, -'?raw'.length)),
+                namespace: 'raw',
+            }));
+            b.onLoad({ filter: /.*/, namespace: 'raw' }, async args => {
+                const key = placeholder();
+                const source = await readFile(args.path, 'utf8');
+                extracted.set(key, isDev ? source : JavaScriptObfuscator.obfuscate(source, OBFUSCATOR_OPTIONS).getObfuscatedCode());
+                return { contents: `export default ${key};`, loader: 'js' };
+            });
+            b.onLoad({ filter: /\.json$/ }, async args => {
+                const key = placeholder();
+                extracted.set(key, JSON.stringify(JSON.parse(await readFile(args.path, 'utf8'))));
+                return { contents: `export default JSON.parse(${key});`, loader: 'js' };
+            });
+        },
+    };
 }
 
-const outDir = path.join(root, 'public');
-await mkdir(outDir, { recursive: true });
-await writeFile(path.join(outDir, 'hub.js'), code);
+async function buildTarget({ entry, out, globalName }) {
+    const extracted = new Map();
+    const result = await build({
+        entryPoints: [path.join(root, entry)],
+        bundle: true,
+        format: 'iife',
+        globalName,
+        target: 'es2020',
+        charset: 'utf8',
+        legalComments: 'none',
+        write: false,
+        plugins: [createExtractPlugin(extracted)],
+    });
 
-console.log(`hub.js${isDev ? ' (dev, bez obfuskacji)' : ''} — ${(code.length / 1024).toFixed(0)} KB`);
+    let code = result.outputFiles[0].text;
+    if (!isDev) code = JavaScriptObfuscator.obfuscate(code, OBFUSCATOR_OPTIONS).getObfuscatedCode();
+    for (const [key, text] of extracted) {
+        if (!code.includes(key)) throw new Error(`Brak ${key} w bundlu ${out}`);
+        code = code.replace(key, () => JSON.stringify(text));
+    }
+
+    const outPath = path.join(root, out);
+    await mkdir(path.dirname(outPath), { recursive: true });
+    await writeFile(outPath, code);
+
+    console.log(`${out}${isDev ? ' (dev, bez obfuskacji)' : ''} — ${(code.length / 1024).toFixed(0)} KB`);
+}
+
+for (const target of TARGETS) await buildTarget(target);
