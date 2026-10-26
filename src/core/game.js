@@ -89,6 +89,43 @@ export function isPartyLeader() {
     return false;
 }
 
+/** Członkowie grupy jako [{ id, nick }] (z bohaterem włącznie). */
+export function getPartyMembers() {
+    try {
+        if (win.Engine?.party) {
+            const members = win.Engine.party.getMembers();
+            return members ? [...members.values()].map(m => ({ id: +m.id, nick: m.nick ?? m.name ?? String(m.id) })) : [];
+        }
+        if (win.g?.party) return Object.entries(win.g.party).map(([id, m]) => ({ id: +id, nick: m.nick ?? String(id) }));
+    } catch {}
+    return [];
+}
+
+/**
+ * Inni gracze na mapie jako [{ id, nick, lvl, relation, clanId }].
+ * relation z serwera: '' | 'fr' (przyjaciel) | 'en' (wróg) | 'cl' (klan) | 'cl-fr' (sojusz) | 'cl-en'.
+ */
+export function getMapPlayers() {
+    try {
+        const list = win.Engine?.others ? win.Engine.others.check() : win.g?.other;
+        return Object.values(list ?? {}).map(o => {
+            const d = o?.d ?? o;
+            return {
+                id: +d.id,
+                nick: d.nick,
+                lvl: d.lvl,
+                relation: d.relation ?? '',
+                clanId: d.clan?.id ?? d.clan ?? null,
+            };
+        }).filter(p => p.id && p.nick);
+    } catch {}
+    return [];
+}
+
+export function inviteToParty(id) {
+    sendRequest(`party&a=inv&id=${id}`);
+}
+
 export function disbandParty() {
     sendRequest('party&a=disband');
 }
