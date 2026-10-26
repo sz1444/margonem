@@ -141,7 +141,7 @@ function openPlayerMenu(p, e) {
 export default {
     id: 'party-quick-invite',
     name: 'Party Quick Invite',
-    description: 'Lista klanowiczów, sojuszników i przyjaciół z mapy, pogrupowana po profesjach, ze statusem AFK i walki. Zaznacz, kogo chcesz, i jednym kliknięciem zrób z nich nową grupę — od razu albo zaraz po walce.',
+    description: 'Zmieniasz ekipę po bossie? Zaznacz ludzi z listy, kliknij „Zrób grupę po walce” i walcz dalej — jak tylko walka się skończy, dodatek sam rozwiąże starą grupę i wyśle zaproszenia nowej. Na liście widzisz klan, sojuszników i znajomych z mapy według profesji, z levelem i info, kto jest AFK albo w walce.',
     dev: true,
 
     run() {
