@@ -116,20 +116,26 @@ function playerKind(p, myClanId) {
     return null;
 }
 
-/** PPM na graczu: „Pokaż ekwipunek” — to samo, co robi menu gracza w grze. */
+/** PPM na graczu: „Pokaż ekwipunek” i „Zaproś do grupy” — te same akcje, co w menu gracza w grze. */
 function openPlayerMenu(p, e) {
     const engine = win.Engine;
-    if (!engine?.interface?.showPopupMenu || !engine.showEqManager) return;
-    const label = typeof win._t === 'function' ? win._t('show_eq') : 'Pokaż ekwipunek';
-    engine.interface.showPopupMenu([[label, () => engine.showEqManager.update({
-        id: p.id,
-        account: p.account,
-        lvl: p.lvl,
-        nick: p.nick,
-        prof: p.prof,
-        icon: '',
-        world: getWorldName(),
-    })]], e, { header: escapeHtml(p.nick) });
+    if (!engine?.interface?.showPopupMenu) return;
+    const t = (key, fallback, category) => (typeof win._t === 'function' ? win._t(key, null, category) : fallback);
+
+    const items = [];
+    if (engine.showEqManager) {
+        items.push([t('show_eq', 'Pokaż ekwipunek'), () => engine.showEqManager.update({
+            id: p.id,
+            account: p.account,
+            lvl: p.lvl,
+            nick: p.nick,
+            prof: p.prof,
+            icon: '',
+            world: getWorldName(),
+        })]);
+    }
+    items.push([t('team_invite', 'Zaproś do grupy', 'menu'), () => inviteToParty(p.id)]);
+    engine.interface.showPopupMenu(items, e, { header: escapeHtml(p.nick) });
 }
 
 export default {
