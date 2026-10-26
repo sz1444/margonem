@@ -17,8 +17,8 @@
             --dc-green: #1f9d55;
             --dc-yellow: #d99a1e;
             --dc-red: #e0393e;
-            --dc-blurple: #2ecc71;
-            --dc-accent-text: #0b2a17;
+            --dc-blurple: #5865f2;
+            --dc-accent-text: #ffffff;
             --dc-bg-main: #ffffff;
             --dc-bg-side: #f3f4f6;
             --dc-bg-header: #eceef1;
@@ -29,14 +29,14 @@
             --dc-chip-bg: #eef0f3;
             --dc-separator: rgba(0, 0, 0, 0.08);
             --shadow-main: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
-            --page-glow: radial-gradient(1200px 500px at 50% -200px, rgba(46, 204, 113, 0.10), transparent 70%);
+            --page-glow: radial-gradient(1200px 500px at 50% -200px, rgba(88, 101, 242, 0.10), transparent 70%);
         }
         body.light-theme {
             --dc-green: #2ecc71;
             --dc-yellow: #f0b232;
             --dc-red: #f2545b;
-            --dc-blurple: #2ecc71;
-            --dc-accent-text: #06170d;
+            --dc-blurple: #5865f2;
+            --dc-accent-text: #ffffff;
             --dc-bg-main: #131519;
             --dc-bg-side: #0e1013;
             --dc-bg-header: #0a0b0d;
@@ -47,7 +47,7 @@
             --dc-chip-bg: #1b1e23;
             --dc-separator: rgba(255, 255, 255, 0.06);
             --shadow-main: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px rgba(0, 0, 0, 0.45);
-            --page-glow: radial-gradient(1200px 500px at 50% -200px, rgba(46, 204, 113, 0.12), transparent 70%);
+            --page-glow: radial-gradient(1200px 500px at 50% -200px, rgba(88, 101, 242, 0.14), transparent 70%);
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -81,9 +81,9 @@
         .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
         .brand-mark {
             width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
-            background: linear-gradient(135deg, #2ecc71, #1a8f4c);
+            background: linear-gradient(135deg, #5865f2, #3c45a5);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 14px rgba(46, 204, 113, 0.35);
+            box-shadow: 0 4px 14px rgba(88, 101, 242, 0.35);
         }
         .brand-mark .material-icons { color: #fff; font-size: 17px; }
         #header-title { font-size: 13px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -101,7 +101,7 @@
         .slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--dc-border); transition: .2s; border-radius: 20px; }
         body:not(.light-theme) .slider { background-color: #cfd3d9; }
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .2s; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
-        input:checked + .slider { background-color: var(--dc-blurple) !important; }
+        input:checked + .slider { background-color: #23a559 !important; }
         input:checked + .slider:before { transform: translateX(12px); }
 
         .net-status {
@@ -202,7 +202,7 @@
             background-color: var(--dc-blurple);
             color: var(--dc-accent-text);
             border-color: transparent;
-            box-shadow: 0 0 10px rgba(46, 204, 113, 0.35);
+            box-shadow: 0 0 10px rgba(88, 101, 242, 0.4);
         }
 
         .group-separator {
@@ -214,7 +214,7 @@
         .hide-row { display: none !important; }
 
         /* --- logowanie --- */
-        #login-screen { background: radial-gradient(800px 400px at 50% 30%, rgba(46, 204, 113, 0.15), transparent 70%), #08090b; }
+        #login-screen { background: radial-gradient(800px 400px at 50% 30%, rgba(88, 101, 242, 0.18), transparent 70%), #08090b; }
         .login-card {
             background: #131519; border: 1px solid rgba(255,255,255,0.07);
             border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
@@ -244,7 +244,7 @@
 <body class="h-screen flex flex-col">
     <div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
         <div class="login-card p-10 max-w-sm w-full mx-4 text-center">
-            <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6" style="background: linear-gradient(135deg, #2ecc71, #1a8f4c); box-shadow: 0 8px 24px rgba(46,204,113,.35);">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6" style="background: #5865f2; box-shadow: 0 8px 24px rgba(88,101,242,.35);">
                 <span class="material-icons text-white text-3xl">shield</span>
             </div>
             <h1 class="text-xl font-bold text-white mb-2">Zaloguj się</h1>
