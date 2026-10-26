@@ -102,7 +102,7 @@ export function getPartyMembers() {
 }
 
 /**
- * Inni gracze na mapie jako [{ id, nick, lvl, prof, relation, clanId }].
+ * Inni gracze na mapie jako [{ id, nick, lvl, prof, account, relation, clanId }].
  * prof: 'w' woj, 'p' pal, 'b' tanc, 'h' łowca, 'm' mag, 't' trop.
  * relation z serwera: '' | 'fr' (przyjaciel) | 'en' (wróg) | 'cl' (klan) | 'cl-fr' (sojusz) | 'cl-en'.
  */
@@ -116,6 +116,7 @@ export function getMapPlayers() {
                 nick: d.nick,
                 lvl: d.lvl,
                 prof: d.prof,
+                account: d.account,
                 relation: d.relation ?? '',
                 clanId: d.clan?.id ?? d.clan ?? null,
             };
