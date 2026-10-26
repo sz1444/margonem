@@ -29,14 +29,12 @@ const CSS = `
     #pqiPanel .pqi-row.away { opacity: 0.4; }
     #pqiPanel .pqi-nick {
         display: block !important; visibility: visible !important;
-        flex: 1 1 auto; min-width: 0; color: #eaeaea !important;
+        flex: 1 1 auto; min-width: 0; color: #fff !important;
         font: 10px/14px Verdana, sans-serif !important;
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    #pqiPanel .pqi-nick.pqi-kind-friend { color: #6fd36f !important; }
-    #pqiPanel .pqi-nick.pqi-kind-clan { color: #6fb7ff !important; }
-    #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #888 !important; font: 9px/14px Verdana, sans-serif !important; }
-    #pqiPanel .pqi-group { color: #c9a35b !important; font: bold 8px/12px Verdana, sans-serif !important; text-transform: uppercase; letter-spacing: 0.5px; margin: 3px 0 1px; opacity: 0.8; }
+    #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #ddd !important; font: 9px/14px Verdana, sans-serif !important; }
+    #pqiPanel .pqi-group { color: #c9a35b !important; font: bold 8px/12px Verdana, sans-serif !important; letter-spacing: 0.5px; margin: 3px 0 1px; opacity: 0.8; }
     #pqiPanel .pqi-group:first-child { margin-top: 0; }
     #pqiPanel .pqi-actions { display: flex; gap: 3px; margin-top: 4px; }
     #pqiPanel .pqi-btn { flex: 1; padding: 3px; background: #222; color: #ddd; border: 1px solid #444; border-radius: 2px; font: bold 9px Verdana, sans-serif; cursor: pointer; }
@@ -76,12 +74,12 @@ const PANEL_HTML = `
 
 // Kolejność grup na liście.
 const PROFS = [
-    { code: 'w', name: 'Wojownicy' },
-    { code: 'p', name: 'Paladyni' },
-    { code: 'b', name: 'Tancerze ostrzy' },
-    { code: 'h', name: 'Łowcy' },
-    { code: 'm', name: 'Magowie' },
-    { code: 't', name: 'Tropiciele' },
+    { code: 'w', name: 'w' },
+    { code: 'p', name: 'p' },
+    { code: 'b', name: 'b' },
+    { code: 'h', name: 'h' },
+    { code: 'm', name: 'm' },
+    { code: 't', name: 't' },
 ];
 
 const escapeHtml =s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
@@ -166,7 +164,7 @@ export default {
 
         const rowHtml = p => `
             <div class="pqi-row${p.away ? ' away' : ''}${selected.has(p.id) ? ' checked' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.away ? ' — poza mapą' : ''}">
-                <div class="pqi-nick pqi-kind-${p.kind}">${escapeHtml(p.nick)}</div>
+                <div class="pqi-nick">${escapeHtml(p.nick)}</div>
                 <div class="pqi-lvl">${p.lvl ?? ''}${p.prof ?? ''}</div>
             </div>
         `;
@@ -183,7 +181,7 @@ export default {
                 return;
             }
 
-            const groups = [...PROFS, { code: null, name: 'Inne' }].map(prof => ({
+            const groups = [...PROFS, { code: null, name: '?' }].map(prof => ({
                 name: prof.name,
                 players: players.filter(p => prof.code ? p.prof === prof.code : !PROFS.some(x => x.code === p.prof)),
             }));
