@@ -70,8 +70,8 @@ const PANEL_HTML = `
     <div class="content" id="pqiContent" style="padding: 3px 4px;">
         <div id="pqiList"></div>
         <div class="pqi-actions">
-            <button type="button" class="pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz">Teraz</button>
-            <button type="button" class="pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce">Po walce</button>
+            <button type="button" class="pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz">Zrób grupę</button>
+            <button type="button" class="pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce">Zrób grupę po walce</button>
         </div>
     </div>
     <div class="c-window__bottom-bar">
