@@ -9,6 +9,8 @@ import { makeDraggable } from '../core/drag.js';
 import { setupOpacityButton } from '../core/ui.js';
 
 const POS_KEY = 'pqi_widget_pos';
+// Grupa ma 10 miejsc: bohater + 9 zaproszonych.
+const MAX_SELECTED = 9;
 const OPACITY_KEY = 'pqi_widget_opacity';
 const COLLAPSED_KEY = 'pqi_widget_collapsed';
 
@@ -216,7 +218,7 @@ export default {
             if (!force && signature === lastSignature) return;
             lastSignature = signature;
 
-            headerText.textContent = `Quick Party (${selected.size})`;
+            headerText.textContent = `Quick Party (${selected.size}/${MAX_SELECTED})`;
             if (!players.length) {
                 listEl.innerHTML = '<div class="pqi-empty">Brak przyjaciół, klanowiczów i sojuszników na mapie.</div>';
                 return;
@@ -238,6 +240,7 @@ export default {
             if (selected.has(id)) {
                 selected.delete(id);
             } else {
+                if (selected.size >= MAX_SELECTED) return;
                 const p = collectPlayers().find(x => x.id === id);
                 if (p) selected.set(id, p);
             }
