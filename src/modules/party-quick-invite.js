@@ -64,7 +64,6 @@ const CSS = `
     #pqiPanel .pqi-status.battle { color: #fc3e40; }
     #pqiPanel .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
     #pqiPanel .pqi-dash { color: #666; font-size: 10px; line-height: 14px; text-align: center; }
-    #pqiPanel .pqi-empty { color: #eaeaea; text-align: center; padding: 6px 0; font-size: 11px; }
     /* Stopka: dwa przyciski gry, każdy na pół szerokości. */
     #pqiPanel .pqi-actions { padding: 2px 2px 0; margin-top: 2px; }
     #pqiPanel .pqi-btns { display: flex; gap: 2px; width: 100%; }
@@ -274,10 +273,6 @@ export default {
             lastSignature = signature;
 
             headerText.textContent = `Quick Party (${selected.size}/${MAX_SELECTED})`;
-            if (!players.length) {
-                listEl.innerHTML = '<div class="pqi-empty">Brak przyjaciół, klanowiczów i sojuszników na mapie.</div>';
-                return;
-            }
 
             // Nieznana profesja ląduje w pierwszej kolumnie, żeby nikt nie zniknął.
             const columns = PROFS.map(prof => players.filter(p => p.prof === prof.code));
