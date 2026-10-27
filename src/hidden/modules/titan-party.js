@@ -90,15 +90,26 @@ function totalHours(p) {
 /** Kolor progu: 30h+ zielony, 20h+ żółty, poniżej czerwony. */
 const levelClass = h => (h >= 30 ? 'high' : h >= 20 ? 'mid' : '');
 
-/** „2h │ 1h” przy nicku: godziny w tym i poprzednim miesiącu. */
+const MONTH_NAMES = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec',
+    'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'];
+
+/** „2026-10” → „październik 2026”. */
+function monthLabel(month) {
+    const [year, m] = String(month ?? '').split('-').map(Number);
+    return MONTH_NAMES[m - 1] ? `${MONTH_NAMES[m - 1]} ${year}` : '?';
+}
+
+/** „2h │ 1h” przed poziomem: godziny w tym i poprzednim miesiącu; po najechaniu — którego miesiąca dotyczą. */
 function hoursHtml(p) {
     if (!hoursByAccount) return '';
     const entry = hoursByAccount.get(Number(p.account));
     const current = fullHours(entry?.current?.hours);
     const previous = fullHours(entry?.previous?.hours);
-    const title = `Tytani — ten miesiąc (${months.current}): ${current}h, poprzedni (${months.previous}): ${previous}h`;
-    return `<div class="tpq-hours" title="${title}">`
-        + `<span class="cur ${levelClass(current)}">${current}h</span><span class="sep">│</span><span class="prev ${levelClass(previous)}">${previous}h</span></div>`;
+    const currentTitle = `Godziny na tytanach — ${monthLabel(months.current)} (ten miesiąc): ${current}h`;
+    const previousTitle = `Godziny na tytanach — ${monthLabel(months.previous)} (poprzedni miesiąc): ${previous}h`;
+    return `<div class="tpq-hours" title="${currentTitle}\n${previousTitle}">`
+        + `<span class="cur ${levelClass(current)}" title="${currentTitle}">${current}h</span><span class="sep">│</span>`
+        + `<span class="prev ${levelClass(previous)}" title="${previousTitle}">${previous}h</span></div>`;
 }
 
 export default createQuickParty({
