@@ -28,7 +28,7 @@ const CSS = `
     /* Wygląd 1:1 jak kolumny klanów w Online List (.clan-columns / .clan-column / .clan-cell). */
     #pqiPanel .pqi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 3px; box-sizing: border-box; width: 100%; }
     #pqiPanel .pqi-section { display: flex; flex-direction: column; gap: 0; min-width: 0; }
-    #pqiPanel .pqi-section-head { border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; padding-bottom: 2px; font-size: 11px; text-align: center; font-weight: bold; }
+    #pqiPanel .pqi-section-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; padding: 0 3px 2px; font-size: 11px; font-weight: bold; }
     #pqiPanel .pqi-section-head .pqi-title { color: #aaaaaa; font-weight: 300; }
     #pqiPanel .pqi-section-head .pqi-count { color: #eaeaea; }
     .popup-menu-layer { z-index: 1000 !important; }
