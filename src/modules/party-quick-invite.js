@@ -59,7 +59,6 @@ const CSS = `
         border: 1px solid rgba(255,255,255,0.3); border-radius: 2px; background: rgba(0,0,0,0.3);
     }
     #pqiPanel .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
-    #pqiPanel .pqi-add.sent { color: #2ecc71; border-color: #2ecc71; }
     #pqiPanel .pqi-check { color: #2ecc71; font-size: 10px; font-weight: 700; flex-shrink: 0; }
     #pqiPanel .pqi-status { font-size: 10px; flex-shrink: 0; }
     #pqiPanel .pqi-status.battle { color: #fc3e40; }
@@ -305,12 +304,7 @@ export default {
 
             // „+” = zaproś tylko tę osobę do obecnej grupy, bez zaznaczania.
             const addBtn = e.target.closest('.pqi-add');
-            if (addBtn) {
-                inviteToParty(+row.dataset.id);
-                addBtn.classList.add('sent');
-                addBtn.textContent = '✓';
-                return;
-            }
+            if (addBtn) return inviteToParty(+row.dataset.id);
             toggleSelected(+row.dataset.id);
         });
 
