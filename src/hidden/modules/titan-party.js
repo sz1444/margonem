@@ -7,16 +7,11 @@ import { BASE_URL, getSession } from '../auth.js';
 const REFRESH_INTERVAL = 60 * 60 * 1000;
 
 const CSS = `
-    /* Każdy gracz w ramce; godziny jako etykieta na środku górnej krawędzi, do połowy nad ramką. */
-    #tpqPanel .pqi-row {
-        position: relative; margin-top: 6px; padding: 2px 2px 1px;
-        border: 1px solid rgba(255,255,255,0.18); border-radius: 3px;
-    }
+    /* Godziny jako mała plakietka przed nickiem. */
     #tpqPanel .tpq-hours {
-        position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%);
-        display: flex; align-items: center; gap: 3px;
-        padding: 0 4px; border-radius: 6px; line-height: 11px;
-        background: #1b1b1b; border: 1px solid rgba(255,255,255,0.25);
+        display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+        padding: 0 3px; border-radius: 3px; line-height: 12px;
+        background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.15);
         font-size: 10px; font-weight: 700; white-space: nowrap; color: #aaa;
     }
     #tpqPanel .tpq-hours .prev { opacity: 0.75; }
@@ -24,6 +19,7 @@ const CSS = `
     #tpqPanel .tpq-hours .high { color: #2ecc71; }
     #tpqPanel .tpq-hours .mid { color: #f1c40f; }
     #tpqPanel .tpq-hours.empty { color: #666; }
+    #tpqPanel .pqi-row { padding: 1px 2px; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
