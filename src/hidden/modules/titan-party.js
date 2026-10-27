@@ -91,6 +91,8 @@ export default createQuickParty({
     title: 'Quick Party T',
     panelId: 'tpqPanel',
     storagePrefix: 'tpq',
+    // Plakietka z godzinami poszerza wiersz — więcej kolumn dopiero w szerszym oknie.
+    columnBreakpoints: [400, 620, 1200],
     extension: {
         setup(rerender) {
             injectStyle(CSS);

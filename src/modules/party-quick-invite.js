@@ -12,11 +12,14 @@ import { setupOpacityButton } from '../core/ui.js';
 const MAX_SELECTED = 9;
 const MIN_WIDTH = 242;
 
-/** Ile kolumn profesji przy danej szerokości okna (6 profesji → 1, 2, 3 albo 6). */
-function columnsForWidth(width) {
-    if (width < 300) return 1;
-    if (width < 450) return 2;
-    if (width < 720) return 3;
+// Od jakiej szerokości okna 2, 3 i 6 kolumn profesji (6 profesji → 1, 2, 3 albo 6).
+const COLUMN_BREAKPOINTS = [300, 450, 720];
+
+/** Ile kolumn profesji przy danej szerokości okna. */
+function columnsForWidth(width, [two, three, six]) {
+    if (width < two) return 1;
+    if (width < three) return 2;
+    if (width < six) return 3;
     return 6;
 }
 
@@ -167,7 +170,7 @@ function openPlayerMenu(p, e) {
 
 /**
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
- * żeby nie kolidować z oryginałem. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b) } —
+ * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b) } —
  * dodatkowa treść przed poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  */
 export function createQuickParty({
@@ -177,6 +180,7 @@ export function createQuickParty({
     title = 'Quick Party',
     panelId = 'pqiPanel',
     storagePrefix = 'pqi',
+    columnBreakpoints = COLUMN_BREAKPOINTS,
     extension = {},
 } = {}) {
     const POS_KEY = `${storagePrefix}_widget_pos`;
@@ -219,7 +223,7 @@ export function createQuickParty({
             // Szerokość okna (przeciągany róg) → liczba kolumn profesji; zapamiętywana.
             new ResizeObserver(() => {
                 const width = panel.offsetWidth;
-                panel.style.setProperty('--pqi-cols', columnsForWidth(width));
+                panel.style.setProperty('--pqi-cols', columnsForWidth(width, columnBreakpoints));
                 if (width >= MIN_WIDTH) saveJSON(WIDTH_KEY, width);
             }).observe(panel);
 
