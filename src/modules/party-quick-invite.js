@@ -1,6 +1,6 @@
 import { injectStyle, isolateWheel } from '../core/dom.js';
 import { win } from '../core/env.js';
-import { loadJSON, loadFlag, saveFlag } from '../core/storage.js';
+import { loadJSON, saveJSON, loadFlag, saveFlag } from '../core/storage.js';
 import {
     getHeroId, getClanId, getWorldName, getMapPlayers, inviteToParty,
     isInParty, isPartyLeader, disbandParty, leaveParty,
@@ -13,6 +13,16 @@ const POS_KEY = 'pqi_widget_pos';
 const MAX_SELECTED = 9;
 const OPACITY_KEY = 'pqi_widget_opacity';
 const COLLAPSED_KEY = 'pqi_widget_collapsed';
+const WIDTH_KEY = 'pqi_widget_width';
+const MIN_WIDTH = 242;
+
+/** Ile kolumn profesji przy danej szerokości okna (6 profesji → 1, 2, 3 albo 6). */
+function columnsForWidth(width) {
+    if (width < 300) return 1;
+    if (width < 450) return 2;
+    if (width < 720) return 3;
+    return 6;
+}
 
 // Kolumny tabeli, w tej kolejności.
 const PROFS = [
@@ -26,7 +36,7 @@ const PROFS = [
 
 const CSS = `
     /* Wygląd 1:1 jak kolumny klanów w Online List (.clan-columns / .clan-column / .clan-cell). */
-    #pqiPanel .pqi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 3px; box-sizing: border-box; width: 100%; }
+    #pqiPanel .pqi-grid { display: grid; grid-template-columns: repeat(var(--pqi-cols, 2), minmax(0, 1fr)); gap: 6px 3px; box-sizing: border-box; width: 100%; }
     #pqiPanel .pqi-section {
         display: flex; flex-direction: column; gap: 0; min-width: 0;
         padding: 3px; box-sizing: border-box; border-radius: 3px;
@@ -175,10 +185,20 @@ export default {
             z-index: 100 !important;
             left: ${savedPos.left};
             top: ${savedPos.top};
-            width: 300px !important;
+            width: ${loadJSON(WIDTH_KEY, 300)}px;
+            min-width: ${MIN_WIDTH}px !important;
+            resize: horizontal;
+            overflow: hidden;
         `;
         panel.innerHTML = PANEL_HTML;
         document.body.appendChild(panel);
+
+        // Szerokość okna (przeciągany róg) → liczba kolumn profesji; zapamiętywana.
+        new ResizeObserver(() => {
+            const width = panel.offsetWidth;
+            panel.style.setProperty('--pqi-cols', columnsForWidth(width));
+            if (width >= MIN_WIDTH) saveJSON(WIDTH_KEY, width);
+        }).observe(panel);
 
         const listEl = panel.querySelector('#pqiList');
         const contentEl = panel.querySelector('#pqiContent');
