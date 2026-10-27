@@ -18,6 +18,8 @@ const CSS = `
     #tpqPanel .tpq-hours .high { color: #2ecc71; }
     #tpqPanel .tpq-hours .mid { color: #f1c40f; }
     #tpqPanel .tpq-hours.empty { color: #666; }
+    /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
+    #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
 
 // accountId → { current, previous } z /hidden/titan-hour; null, dopóki nie przyjdą dane.
