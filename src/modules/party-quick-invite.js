@@ -43,7 +43,7 @@ const CSS = `
         background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.22);
     }
     #pqiPanel .pqi-section-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1px; padding: 0 2px; font-size: 10px; line-height: 14px; font-weight: bold; }
-    #pqiPanel .pqi-section-head .pqi-title { color: #aaaaaa; font-weight: 300; }
+    #pqiPanel .pqi-section-head .pqi-title { color: #fff; font-weight: 300; }
     #pqiPanel .pqi-section-head .pqi-count { color: #eaeaea; }
     .popup-menu-layer { z-index: 1000 !important; }
     #pqiPanel .pqi-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 2px; margin: 0; }
