@@ -36,17 +36,17 @@ const PROFS = [
 
 const CSS = `
     /* Wygląd 1:1 jak kolumny klanów w Online List (.clan-columns / .clan-column / .clan-cell). */
-    #pqiPanel .pqi-grid { display: grid; grid-template-columns: repeat(var(--pqi-cols, 2), minmax(0, 1fr)); gap: 6px 3px; box-sizing: border-box; width: 100%; }
+    #pqiPanel .pqi-grid { display: grid; grid-template-columns: repeat(var(--pqi-cols, 2), minmax(0, 1fr)); gap: 2px; box-sizing: border-box; width: 100%; }
     #pqiPanel .pqi-section {
         display: flex; flex-direction: column; gap: 0; min-width: 0;
-        padding: 3px; box-sizing: border-box; border-radius: 3px;
+        padding: 1px 2px; box-sizing: border-box; border-radius: 2px;
         background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.22);
     }
-    #pqiPanel .pqi-section-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; padding: 0 3px 2px; font-size: 11px; font-weight: bold; }
+    #pqiPanel .pqi-section-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1px; padding: 0 2px; font-size: 10px; line-height: 14px; font-weight: bold; }
     #pqiPanel .pqi-section-head .pqi-title { color: #aaaaaa; font-weight: 300; }
     #pqiPanel .pqi-section-head .pqi-count { color: #eaeaea; }
     .popup-menu-layer { z-index: 1000 !important; }
-    #pqiPanel .pqi-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0px 3px; }
+    #pqiPanel .pqi-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 2px; margin: 0; }
     #pqiPanel .pqi-row:hover { filter: brightness(1.2); }
     #pqiPanel .pqi-row.checked { box-shadow: inset 0 0 0 20px rgba(46,204,113,0.22); }
     #pqiPanel .pqi-row-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; overflow: hidden; gap: 3px; }
@@ -56,11 +56,11 @@ const CSS = `
     #pqiPanel .pqi-status { font-size: 10px; flex-shrink: 0; }
     #pqiPanel .pqi-status.battle { color: #fc3e40; }
     #pqiPanel .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
-    #pqiPanel .pqi-dash { color: #666; font-size: 11px; text-align: center; }
-    #pqiPanel .pqi-empty { color: #eaeaea; text-align: center; padding-top: 15px; font-size: 11px; }
+    #pqiPanel .pqi-dash { color: #666; font-size: 10px; line-height: 14px; text-align: center; }
+    #pqiPanel .pqi-empty { color: #eaeaea; text-align: center; padding: 6px 0; font-size: 11px; }
     /* Stopka: dwa przyciski gry, każdy na pół szerokości. */
-    #pqiPanel .pqi-actions { padding: 4px 4px 2px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4px; }
-    #pqiPanel .pqi-btns { display: flex; gap: 4px; width: 100%; }
+    #pqiPanel .pqi-actions { padding: 2px 2px 0; margin-top: 2px; }
+    #pqiPanel .pqi-btns { display: flex; gap: 2px; width: 100%; }
     #pqiPanel .pqi-btn { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0; pointer-events: auto; cursor: pointer; }
     #pqiPanel .pqi-btn { display: flex !important; align-items: center; justify-content: center; }
     #pqiPanel .pqi-btn .label { width: 100%; text-align: center; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -81,7 +81,7 @@ const PANEL_HTML = `
     <div class="content" id="pqiContent">
         <div class="inner-content">
             <div class="who-is-here">
-                <div class="player-list" id="pqiList" style="padding: 4px;"></div>
+                <div class="player-list" id="pqiList" style="padding: 2px;"></div>
                 <div class="pqi-actions">
                     <div class="pqi-btns">
                         <div class="button green small pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
