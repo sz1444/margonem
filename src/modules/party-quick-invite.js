@@ -29,22 +29,22 @@ const CSS = `
     #pqiPanel .pqi-section { min-width: 0; background: rgba(0,0,0,0.25); border: 1px solid rgba(90,71,52,0.5); border-radius: 2px; }
     #pqiPanel .pqi-section-head {
         display: flex; justify-content: space-between;
-        color: #c9a35b !important; font: bold 10px/18px Verdana, sans-serif !important;
+        color: #fff !important; font: 10px/18px Verdana, sans-serif !important;
         padding: 0 4px; border-bottom: 1px solid #5a4734; background: rgba(0,0,0,0.35);
     }
-    #pqiPanel .pqi-section-head .pqi-count { color: #ddd; font-weight: normal; }
-    #pqiPanel .pqi-section-body { padding: 2px; }
+    #pqiPanel .pqi-section-head .pqi-count { color: #bbb; font-weight: normal; }
+    #pqiPanel .pqi-section-body { padding: 3px; display: flex; flex-direction: column; gap: 2px; }
     .popup-menu-layer { z-index: 1000 !important; }
     #pqiPanel .pqi-row {
         display: flex !important; align-items: center; gap: 3px;
         height: 17px !important; min-height: 0 !important; max-height: 17px !important;
-        padding: 0 3px !important; margin: 0 !important; box-sizing: border-box;
+        padding: 0 4px !important; margin: 0 !important; box-sizing: border-box;
         position: relative !important; min-width: 0;
-        cursor: pointer; border-left: 2px solid transparent; border-radius: 1px;
+        cursor: pointer; border-radius: 2px;
+        background: rgba(0,0,0,0.4); border: 1px solid rgba(201,163,91,0.35);
     }
-    #pqiPanel .pqi-row + .pqi-row { border-top: 1px solid rgba(201,163,91,0.25); }
-    #pqiPanel .pqi-row:hover { background: rgba(90,71,52,0.3); }
-    #pqiPanel .pqi-row.checked { background: rgba(46,204,113,0.22); border-left-color: #2ecc71; }
+    #pqiPanel .pqi-row:hover { background: rgba(90,71,52,0.35); border-color: rgba(201,163,91,0.6); }
+    #pqiPanel .pqi-row.checked { background: rgba(46,204,113,0.18); border-color: #2ecc71; }
     #pqiPanel .pqi-nick {
         display: block !important; visibility: visible !important;
         flex: 1 1 auto; min-width: 0; color: #fff !important;
