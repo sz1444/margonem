@@ -6,7 +6,7 @@ import { BASE_URL, getSession } from '../auth.js';
 // Serwer trzyma odpowiedź godzinę (api/hidden/titan-hour.js) — częściej nie ma sensu pytać.
 const REFRESH_INTERVAL = 60 * 60 * 1000;
 // Ostatnia odpowiedź w GM storage (wspólna dla kart): po odświeżeniu gry godziny są od razu.
-const CACHE_KEY = 'hidden_titan_hours';
+const CACHE_KEY = 'hidden_titan_hours_v2';
 const STALE_CHECK_INTERVAL = 5 * 60 * 1000;
 
 const CSS = `
