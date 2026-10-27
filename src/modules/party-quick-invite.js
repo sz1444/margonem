@@ -25,26 +25,25 @@ const PROFS = [
 ];
 
 const CSS = `
-    #pqiPanel .pqi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-    #pqiPanel .pqi-section { min-width: 0; background: rgba(0,0,0,0.25); border: 1px solid rgba(90,71,52,0.5); border-radius: 2px; }
+    #pqiPanel .pqi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 3px; padding: 4px; box-sizing: border-box; }
+    /* Wygląd jak w Online List: nagłówek kolumny bez ramki, wiersze to natywne .one-other.tw-list-item z gry. */
+    #pqiPanel .pqi-section { min-width: 0; }
     #pqiPanel .pqi-section-head {
-        display: flex; justify-content: space-between;
-        color: #fff !important; font: 10px/18px Verdana, sans-serif !important;
-        padding: 0 4px; border-bottom: 1px solid #5a4734; background: rgba(0,0,0,0.35);
+        border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; padding-bottom: 2px;
+        font-size: 11px; text-align: center; font-weight: bold;
     }
-    #pqiPanel .pqi-section-head .pqi-count { color: #bbb; font-weight: normal; }
-    #pqiPanel .pqi-section-body { padding: 3px; display: flex; flex-direction: column; gap: 2px; }
+    #pqiPanel .pqi-section-head .pqi-title { color: #aaaaaa; font-weight: 300; }
+    #pqiPanel .pqi-section-head .pqi-count { color: #eaeaea; }
+    #pqiPanel .pqi-section-body { display: flex; flex-direction: column; }
     .popup-menu-layer { z-index: 1000 !important; }
     #pqiPanel .pqi-row {
         display: flex !important; align-items: center; gap: 3px;
         height: 17px !important; min-height: 0 !important; max-height: 17px !important;
-        padding: 0 4px !important; margin: 0 !important; box-sizing: border-box;
-        position: relative !important; min-width: 0;
-        cursor: pointer; border-radius: 2px;
-        background: rgba(0,0,0,0.4); border: 1px solid rgba(201,163,91,0.35);
+        width: 100%; padding: 0 3px !important; margin: 0 0 2px !important; box-sizing: border-box;
+        position: relative !important; min-width: 0; cursor: pointer;
     }
-    #pqiPanel .pqi-row:hover { background: rgba(90,71,52,0.35); border-color: rgba(201,163,91,0.6); }
-    #pqiPanel .pqi-row.checked { background: rgba(46,204,113,0.18); border-color: #2ecc71; }
+    #pqiPanel .pqi-row:hover { filter: brightness(1.2); }
+    #pqiPanel .pqi-row.checked { box-shadow: inset 0 0 0 20px rgba(46,204,113,0.22); }
     #pqiPanel .pqi-nick {
         display: block !important; visibility: visible !important;
         flex: 1 1 auto; min-width: 0; color: #fff !important;
@@ -58,10 +57,14 @@ const CSS = `
     #pqiPanel .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic !important; }
     #pqiPanel .pqi-lvl { display: block !important; visibility: visible !important; flex: none; color: #ddd !important; font: 10px/16px Verdana, sans-serif !important; }
     #pqiPanel .pqi-dash { color: #666; font: 10px/16px Verdana, sans-serif; padding-left: 4px; }
-    #pqiPanel .pqi-actions { display: flex; gap: 3px; margin-top: 4px; }
-    #pqiPanel .pqi-btn { flex: 1; padding: 3px; background: #222; color: #ddd; border: 1px solid #444; border-radius: 2px; font: bold 10px Verdana, sans-serif; cursor: pointer; }
-    #pqiPanel .pqi-btn:hover { border-color: #8a6d3b; }
-    #pqiPanel .pqi-btn.on { background: linear-gradient(180deg, #7a1a1a 0%, #4a0e0e 100%); border-color: #8b0000; color: #fff; box-shadow: 0 0 4px #e74c3c; }
+    #pqiPanel .pqi-actions {
+        display: flex; gap: 3px; padding: 2px 0 0; margin-top: 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    #pqiPanel .pqi-btn { flex: 1; margin: 0; cursor: pointer; }
+    #pqiPanel .pqi-btn:hover { filter: brightness(1.2); }
+    /* Uzbrojone „po walce”: przycisk gry przefarbowany na czerwono. */
+    #pqiPanel .pqi-btn.on { filter: hue-rotate(-110deg) saturate(1.6); }
     #pqiPanel .pqi-empty { color: #aaa; font-style: italic; font-size: 10px; padding: 4px; text-align: center; }
 `;
 
@@ -74,11 +77,11 @@ const PANEL_HTML = `
             <div class="text" id="pqiHeaderText">Quick Party</div>
         </div>
     </div>
-    <div class="content" id="pqiContent" style="padding: 3px 4px;">
-        <div id="pqiList"></div>
+    <div class="content" id="pqiContent">
+        <div class="inner-content who-is-here"><div id="pqiList"></div></div>
         <div class="pqi-actions">
-            <button type="button" class="pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz">Zrób grupę</button>
-            <button type="button" class="pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce">Zrób grupę po walce</button>
+            <div class="button green small pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
+            <div class="button green small pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
         </div>
     </div>
     <div class="c-window__bottom-bar">
@@ -220,7 +223,7 @@ export default {
         }
 
         const rowHtml = p => `
-            <div class="pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
+            <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
                 ${selected.has(p.id) ? '<div class="pqi-check">✓</div>' : ''}
                 <div class="pqi-nick" style="color: ${kindColor(p.kind)} !important;">${escapeHtml(p.nick)}</div>
                 ${p.afk ? '<div class="pqi-status afk" title="AFK (duch)">👻</div>' : ''}
@@ -247,7 +250,7 @@ export default {
 
             listEl.innerHTML = `<div class="pqi-grid">${PROFS.map((prof, i) => `
                 <div class="pqi-section">
-                    <div class="pqi-section-head">${prof.name}<span class="pqi-count">${columns[i].length}</span></div>
+                    <div class="pqi-section-head"><span class="pqi-title">${prof.name}</span> <span class="pqi-count">${columns[i].length}</span></div>
                     <div class="pqi-section-body">${columns[i].length ? columns[i].map(rowHtml).join('') : '<div class="pqi-dash">–</div>'}</div>
                 </div>
             `).join('')}</div>`;
