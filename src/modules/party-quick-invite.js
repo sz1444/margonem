@@ -52,7 +52,8 @@ const CSS = `
     #pqiPanel .pqi-actions { padding: 4px 4px 2px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4px; }
     #pqiPanel .pqi-btns { display: flex; gap: 4px; width: 100%; }
     #pqiPanel .pqi-btn { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0; pointer-events: auto; cursor: pointer; }
-    #pqiPanel .pqi-btn .label { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #pqiPanel .pqi-btn { display: flex !important; align-items: center; justify-content: center; }
+    #pqiPanel .pqi-btn .label { width: 100%; text-align: center; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #pqiPanel .pqi-btn:hover { filter: brightness(1.2); }
     /* Uzbrojone „po walce”: przycisk gry przefarbowany na czerwono. */
     #pqiPanel .pqi-btn.on { filter: hue-rotate(-110deg) saturate(1.6); }
