@@ -12,13 +12,13 @@ const CSS = `
         display: flex; align-items: center; gap: 2px; flex-shrink: 0;
         padding: 0 3px; border-radius: 3px; line-height: 12px;
         background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.15);
-        font-size: 10px; font-weight: 700; white-space: nowrap; color: #aaa;
+        font-size: 10px; font-weight: 700; white-space: nowrap; color: #fff;
     }
-    #tpqPanel .tpq-hours .prev { opacity: 0.75; }
+    /* Stała szerokość liczb — plakietki w każdym wierszu równe (do „999h”). */
+    #tpqPanel .tpq-hours .cur, #tpqPanel .tpq-hours .prev { width: 24px; text-align: center; font-variant-numeric: tabular-nums; }
     #tpqPanel .tpq-hours .sep { color: rgba(255,255,255,0.3); font-weight: 400; }
-    #tpqPanel .tpq-hours .high { color: #2ecc71; }
-    #tpqPanel .tpq-hours .mid { color: #f1c40f; }
-    #tpqPanel .tpq-hours.empty { color: #666; }
+    #tpqPanel .tpq-hours .high { color: #4dff8f; }
+    #tpqPanel .tpq-hours .mid { color: #ffe23d; }
     #tpqPanel .pqi-row { padding: 1px 2px; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
@@ -70,7 +70,7 @@ function totalHours(p) {
     return fullHours(entry?.current?.hours) + fullHours(entry?.previous?.hours);
 }
 
-/** Kolor progu: 30h+ zielony, 20h+ żółty, poniżej domyślny szary. */
+/** Kolor progu: 30h+ zielony, 20h+ żółty, poniżej biały. */
 const levelClass = h => (h >= 30 ? 'high' : h >= 20 ? 'mid' : '');
 
 /** „2h │ 1h” przy nicku: godziny w tym i poprzednim miesiącu. */
@@ -80,7 +80,7 @@ function hoursHtml(p) {
     const current = fullHours(entry?.current?.hours);
     const previous = fullHours(entry?.previous?.hours);
     const title = `Tytani — ten miesiąc (${months.current}): ${current}h, poprzedni (${months.previous}): ${previous}h`;
-    return `<div class="tpq-hours${current || previous ? '' : ' empty'}" title="${title}">`
+    return `<div class="tpq-hours" title="${title}">`
         + `<span class="cur ${levelClass(current)}">${current}h</span><span class="sep">│</span><span class="prev ${levelClass(previous)}">${previous}h</span></div>`;
 }
 
