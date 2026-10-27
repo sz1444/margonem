@@ -18,7 +18,6 @@ const CSS = `
         padding: 0 5px; border-radius: 6px; line-height: 11px;
         background: #1b1b1b; border: 1px solid rgba(255,255,255,0.25);
         font-size: 9px; font-weight: 700; white-space: nowrap; color: #aaa;
-        pointer-events: none;
     }
     #tpqPanel .tpq-hours .prev { opacity: 0.75; }
     #tpqPanel .tpq-hours .sep { color: rgba(255,255,255,0.3); font-weight: 400; }
