@@ -11,6 +11,7 @@
     { "source": "/hidden/login", "destination": "/api/hidden/login" },
     { "source": "/hidden/callback", "destination": "/api/hidden/callback" },
     { "source": "/hidden/refresh", "destination": "/api/hidden/refresh" },
-    { "source": "/hidden/modules.js", "destination": "/api/hidden/modules" }
+    { "source": "/hidden/modules.js", "destination": "/api/hidden/modules" },
+    { "source": "/hidden/titan-hour", "destination": "/api/hidden/titan-hour" }
   ]
 }

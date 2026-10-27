@@ -8,3 +8,5 @@ public/hub-builds/
 public/hidden.js
 dist/
 private/
+
+.env*
