@@ -239,17 +239,20 @@ export default {
                 KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.nick.localeCompare(b.nick));
         }
 
-        const rowHtml = p => `
+        const rowHtml = p => {
+            const color = kindColor(p.kind);
+            return `
             <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
                 <div class="pqi-row-inner">
                     ${selected.has(p.id) ? '<div class="pqi-check">✓</div>' : ''}
-                    <div class="pqi-nick" style="color: ${kindColor(p.kind)};">${escapeHtml(p.nick)}</div>
+                    <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}</div>
                     ${p.afk ? '<div class="pqi-status" title="AFK (duch)">👻</div>' : ''}
                     ${p.inBattle ? '<div class="pqi-status battle" title="W walce">⚔</div>' : ''}
-                    <div class="pqi-lvl">${p.lvl ?? ''}${p.prof ?? ''}</div>
+                    <div class="pqi-lvl" style="color: ${color};">${p.lvl ?? ''}${p.prof ?? ''}</div>
                 </div>
             </div>
         `;
+        };
 
         function render(force = false) {
             const players = collectPlayers();
