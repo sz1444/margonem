@@ -51,7 +51,7 @@ const CSS = `
         font: 11px/16px Verdana, sans-serif !important;
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    #pqiPanel .pqi-row.checked .pqi-nick { color: #4cfa4f !important; }
+    #pqiPanel .pqi-check { flex: none; color: #2ecc71 !important; font: bold 10px/16px Verdana, sans-serif !important; }
     #pqiPanel .pqi-status { flex: none; font: bold 9px/16px Verdana, sans-serif !important; padding: 0 2px; border-radius: 2px; }
     #pqiPanel .pqi-status.afk { color: #c7b8ff !important; }
     #pqiPanel .pqi-status.battle { color: #ff6b6b !important; }
@@ -103,6 +103,23 @@ const RELATION_CLAN_ALLY = [5, 'cl-fr'];
 
 // Kolejność na liście: klan, sojusz, przyjaciele.
 const KIND_ORDER = ['clan', 'ally', 'friend'];
+
+// Domyślne kolory gry (HandHeldMiniMapData) — te same co w „Kto tu jest”; klucz = rodzaj na minimapie.
+const KIND_COLORS = {
+    clan: { key: 'cl', color: '#4cfa4f' },
+    ally: { key: 'cl-fr', color: '#ffba37' },
+    friend: { key: 'fr', color: '#46a31d' },
+};
+
+/** Kolor relacji z ustawień minimapy gracza, a gdy się nie da — domyślny z gry. */
+function kindColor(kind) {
+    const { key, color } = KIND_COLORS[kind];
+    try {
+        const custom = win.Engine?.miniMapController?.handHeldMiniMapController?.getColorByKind?.(key);
+        if (typeof custom === 'string' && custom.startsWith('#')) return custom;
+    } catch {}
+    return color;
+}
 
 /** 'clan' / 'ally' / 'friend' / null (pozostałych nie pokazujemy). */
 function playerKind(p, myClanId) {
@@ -204,7 +221,8 @@ export default {
 
         const rowHtml = p => `
             <div class="pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
-                <div class="pqi-nick">${escapeHtml(p.nick)}</div>
+                ${selected.has(p.id) ? '<div class="pqi-check">✓</div>' : ''}
+                <div class="pqi-nick" style="color: ${kindColor(p.kind)} !important;">${escapeHtml(p.nick)}</div>
                 ${p.afk ? '<div class="pqi-status afk" title="AFK (duch)">👻</div>' : ''}
                 ${p.inBattle ? '<div class="pqi-status battle" title="W walce">⚔</div>' : ''}
                 <div class="pqi-lvl">${p.lvl ?? ''}${p.prof ?? ''}</div>
