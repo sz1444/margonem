@@ -168,7 +168,7 @@ function openPlayerMenu(p, e) {
 /**
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
  * żeby nie kolidować z oryginałem. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b) } —
- * dodatkowa treść przed nickiem i własna kolejność (przy remisie: rodzaj relacji, nick).
+ * dodatkowa treść przed poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -272,10 +272,10 @@ export function createQuickParty({
                 <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
                     <div class="pqi-row-inner">
                         ${selected.has(p.id) ? '<div class="pqi-check">✓</div>' : ''}
-                        ${extension.rowExtraHtml?.(p) ?? ''}
                         <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}</div>
                         ${p.afk ? '<div class="pqi-status" title="AFK (duch)">👻</div>' : ''}
                         ${p.inBattle ? '<div class="pqi-status battle" title="W walce">⚔</div>' : ''}
+                        ${extension.rowExtraHtml?.(p) ?? ''}
                         <div class="pqi-lvl" style="color: ${color};">${p.lvl ?? ''}${p.prof ?? ''}</div>
                         <div class="pqi-add" title="Zaproś do grupy">+</div>
                     </div>

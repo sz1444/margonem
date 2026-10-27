@@ -7,12 +7,12 @@ import { BASE_URL, getSession } from '../auth.js';
 const REFRESH_INTERVAL = 60 * 60 * 1000;
 
 const CSS = `
-    /* Godziny jako mała plakietka przed nickiem. */
+    /* Godziny jako mała plakietka przed poziomem. */
     #tpqPanel .tpq-hours {
         display: flex; align-items: center; gap: 2px; flex-shrink: 0;
         padding: 0 3px; border-radius: 3px; line-height: 12px;
         background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.15);
-        font-size: 10px; font-weight: 700; white-space: nowrap; color: #fff;
+        font-size: 10px; font-weight: 700; white-space: nowrap; color: #ff4d4d;
     }
     /* Stała szerokość liczb — plakietki w każdym wierszu równe (do „999h”). */
     #tpqPanel .tpq-hours .cur, #tpqPanel .tpq-hours .prev { width: 24px; text-align: center; font-variant-numeric: tabular-nums; }
@@ -70,7 +70,7 @@ function totalHours(p) {
     return fullHours(entry?.current?.hours) + fullHours(entry?.previous?.hours);
 }
 
-/** Kolor progu: 30h+ zielony, 20h+ żółty, poniżej biały. */
+/** Kolor progu: 30h+ zielony, 20h+ żółty, poniżej czerwony. */
 const levelClass = h => (h >= 30 ? 'high' : h >= 20 ? 'mid' : '');
 
 /** „2h │ 1h” przy nicku: godziny w tym i poprzednim miesiącu. */
