@@ -9,15 +9,15 @@ const REFRESH_INTERVAL = 60 * 60 * 1000;
 const CSS = `
     /* Każdy gracz w ramce; godziny jako etykieta na środku górnej krawędzi, do połowy nad ramką. */
     #tpqPanel .pqi-row {
-        position: relative; margin-top: 11px; padding: 6px 2px;
+        position: relative; margin-top: 9px; padding: 4px 2px;
         border: 1px solid rgba(255,255,255,0.18); border-radius: 3px;
     }
     #tpqPanel .tpq-hours {
         position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%);
-        display: flex; align-items: center; gap: 4px;
-        padding: 1px 7px; border-radius: 8px; line-height: 13px;
+        display: flex; align-items: center; gap: 3px;
+        padding: 0 5px; border-radius: 7px; line-height: 13px;
         background: #1b1b1b; border: 1px solid rgba(255,255,255,0.25);
-        font-size: 12px; font-weight: 700; white-space: nowrap; color: #aaa;
+        font-size: 11px; font-weight: 700; white-space: nowrap; color: #aaa;
     }
     #tpqPanel .tpq-hours .prev { opacity: 0.75; }
     #tpqPanel .tpq-hours .sep { color: rgba(255,255,255,0.3); font-weight: 400; }
