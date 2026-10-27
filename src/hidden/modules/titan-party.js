@@ -10,7 +10,7 @@ const CACHE_KEY = 'hidden_titan_hours';
 const STALE_CHECK_INTERVAL = 5 * 60 * 1000;
 
 const CSS = `
-    /* Godziny jako mała plakietka przed poziomem. */
+    /* Godziny jako mała plakietka za poziomem. */
     #tpqPanel .tpq-hours {
         display: flex; align-items: center; gap: 2px; flex-shrink: 0;
         padding: 0 3px; border-radius: 3px; line-height: 12px;
@@ -101,7 +101,7 @@ function monthLabel(month) {
     return MONTH_NAMES[m - 1] ? `${MONTH_NAMES[m - 1]} ${year}` : '?';
 }
 
-/** „1h │ 2h” przed poziomem: godziny w poprzednim i tym miesiącu; po najechaniu — którego miesiąca dotyczą. */
+/** „1h │ 2h” za poziomem: godziny w poprzednim i tym miesiącu; po najechaniu — którego miesiąca dotyczą. */
 function hoursHtml(p) {
     if (!hoursByAccount) return '';
     const entry = hoursByAccount.get(Number(p.account));
