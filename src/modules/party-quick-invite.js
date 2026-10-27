@@ -52,6 +52,14 @@ const CSS = `
     #pqiPanel .pqi-row-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; overflow: hidden; gap: 3px; }
     #pqiPanel .pqi-nick { font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; flex: 1; margin-right: 4px; }
     #pqiPanel .pqi-lvl { color: #eaeaea; font-size: 11px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+    #pqiPanel .pqi-add {
+        flex-shrink: 0; width: 12px; height: 12px; margin-left: 2px;
+        display: flex; align-items: center; justify-content: center;
+        color: #eaeaea; font-size: 11px; font-weight: 700; line-height: 1;
+        border: 1px solid rgba(255,255,255,0.3); border-radius: 2px; background: rgba(0,0,0,0.3);
+    }
+    #pqiPanel .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
+    #pqiPanel .pqi-add.sent { color: #2ecc71; border-color: #2ecc71; }
     #pqiPanel .pqi-check { color: #2ecc71; font-size: 10px; font-weight: 700; flex-shrink: 0; }
     #pqiPanel .pqi-status { font-size: 10px; flex-shrink: 0; }
     #pqiPanel .pqi-status.battle { color: #fc3e40; }
@@ -249,6 +257,7 @@ export default {
                     ${p.afk ? '<div class="pqi-status" title="AFK (duch)">👻</div>' : ''}
                     ${p.inBattle ? '<div class="pqi-status battle" title="W walce">⚔</div>' : ''}
                     <div class="pqi-lvl" style="color: ${color};">${p.lvl ?? ''}${p.prof ?? ''}</div>
+                    <div class="pqi-add" title="Zaproś do grupy">+</div>
                 </div>
             </div>
         `;
@@ -293,6 +302,15 @@ export default {
             const row = e.target.closest('.pqi-row');
             if (!row) return;
             e.stopPropagation();
+
+            // „+” = zaproś tylko tę osobę do obecnej grupy, bez zaznaczania.
+            const addBtn = e.target.closest('.pqi-add');
+            if (addBtn) {
+                inviteToParty(+row.dataset.id);
+                addBtn.classList.add('sent');
+                addBtn.textContent = '✓';
+                return;
+            }
             toggleSelected(+row.dataset.id);
         });
 
