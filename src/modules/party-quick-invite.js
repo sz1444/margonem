@@ -2,7 +2,7 @@ import { injectStyle, isolateWheel } from '../core/dom.js';
 import { win } from '../core/env.js';
 import { loadJSON, saveJSON, loadFlag, saveFlag } from '../core/storage.js';
 import {
-    getHeroId, getClanId, getWorldName, getMapPlayers, inviteToParty,
+    getHeroId, getClanId, getWorldName, getMapPlayers, getPartyMembers, inviteToParty,
     isInParty, isPartyLeader, disbandParty, leaveParty,
 } from '../core/game.js';
 import { makeDraggable } from '../core/drag.js';
@@ -118,14 +118,16 @@ const RELATION_FRIEND = [2, 'fr'];
 const RELATION_CLAN = [4, 'cl'];
 const RELATION_CLAN_ALLY = [5, 'cl-fr'];
 
-// Kolejność na liście: klan, sojusz, przyjaciele.
-const KIND_ORDER = ['clan', 'ally', 'friend'];
+// Kolejność na liście: klan, sojusz, przyjaciele, reszta obecnej grupy.
+const KIND_ORDER = ['clan', 'ally', 'friend', 'group'];
 
 // Domyślne kolory gry (HandHeldMiniMapData) — te same co w „Kto tu jest”; klucz = rodzaj na minimapie.
+// Członek obecnej grupy ma w grze kolor grupy niezależnie od relacji.
 const KIND_COLORS = {
     clan: { key: 'cl', color: '#4cfa4f' },
     ally: { key: 'cl-fr', color: '#ffba37' },
     friend: { key: 'fr', color: '#46a31d' },
+    group: { key: 'group', color: '#b554ff' },
 };
 
 /** Kolor relacji z ustawień minimapy gracza, a gdy się nie da — domyślny z gry. */
@@ -235,10 +237,13 @@ export default {
         function collectPlayers() {
             const myId = getHeroId();
             const myClanId = getClanId();
+            const partyIds = new Set(getPartyMembers().map(m => m.id));
             const players = [];
             for (const p of getMapPlayers()) {
-                const kind = p.id !== myId && playerKind(p, myClanId);
-                if (kind) players.push({ ...p, kind });
+                if (p.id === myId) continue;
+                const inParty = partyIds.has(p.id);
+                const kind = playerKind(p, myClanId) || (inParty && 'group');
+                if (kind) players.push({ ...p, kind, inParty });
             }
             for (const id of selected.keys()) if (!players.some(p => p.id === id)) selected.delete(id);
 
@@ -247,7 +252,7 @@ export default {
         }
 
         const rowHtml = p => {
-            const color = kindColor(p.kind);
+            const color = kindColor(p.inParty ? 'group' : p.kind);
             return `
             <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
                 <div class="pqi-row-inner">
@@ -264,7 +269,7 @@ export default {
 
         function render(force = false) {
             const players = collectPlayers();
-            const signature = players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}`).join('|');
+            const signature = players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
             if (!force && signature === lastSignature) return;
             lastSignature = signature;
 
