@@ -167,7 +167,8 @@ function openPlayerMenu(p, e) {
 
 /**
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
- * żeby nie kolidować z oryginałem. extension: { setup(rerender), rowExtraHtml(p) } — dodatkowa treść przy nicku.
+ * żeby nie kolidować z oryginałem. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b) } —
+ * dodatkowa treść przy nicku i własna kolejność (przy remisie: rodzaj relacji, nick).
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -261,7 +262,8 @@ export function createQuickParty({
                 for (const id of selected.keys()) if (!players.some(p => p.id === id)) selected.delete(id);
 
                 return players.sort((a, b) =>
-                    KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.nick.localeCompare(b.nick));
+                    (extension.comparePlayers?.(a, b) || 0)
+                    || KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.nick.localeCompare(b.nick));
             }
 
             const rowHtml = p => {
