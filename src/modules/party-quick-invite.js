@@ -30,7 +30,7 @@ const CSS = `
     #pqiPanel .pqi-section {
         display: flex; flex-direction: column; gap: 0; min-width: 0;
         padding: 3px; box-sizing: border-box; border-radius: 3px;
-        background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.22);
     }
     #pqiPanel .pqi-section-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; padding: 0 3px 2px; font-size: 11px; font-weight: bold; }
     #pqiPanel .pqi-section-head .pqi-title { color: #aaaaaa; font-weight: 300; }
@@ -48,10 +48,11 @@ const CSS = `
     #pqiPanel .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
     #pqiPanel .pqi-dash { color: #666; font-size: 11px; text-align: center; }
     #pqiPanel .pqi-empty { color: #eaeaea; text-align: center; padding-top: 15px; font-size: 11px; }
-    /* Stopka jak w Online List: przyciski gry pomniejszone do 85%. */
-    #pqiPanel .pqi-actions { display: flex; justify-content: flex-end; align-items: center; padding: 0 4px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4px; }
-    #pqiPanel .pqi-btns { display: flex; gap: 4px; transform: scale(0.85); transform-origin: right center; }
-    #pqiPanel .pqi-btn { margin: 0; pointer-events: auto; cursor: pointer; }
+    /* Stopka: dwa przyciski gry, każdy na pół szerokości. */
+    #pqiPanel .pqi-actions { padding: 4px 4px 2px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4px; }
+    #pqiPanel .pqi-btns { display: flex; gap: 4px; width: 100%; }
+    #pqiPanel .pqi-btn { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0; pointer-events: auto; cursor: pointer; }
+    #pqiPanel .pqi-btn .label { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #pqiPanel .pqi-btn:hover { filter: brightness(1.2); }
     /* Uzbrojone „po walce”: przycisk gry przefarbowany na czerwono. */
     #pqiPanel .pqi-btn.on { filter: hue-rotate(-110deg) saturate(1.6); }
