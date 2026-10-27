@@ -10,14 +10,14 @@ const CSS = `
     #tpqPanel .tpq-hours {
         display: flex; align-items: center; gap: 3px; flex-shrink: 0;
         padding: 0 4px; border-radius: 6px; line-height: 12px;
-        background: rgba(241,196,15,0.12); border: 1px solid rgba(241,196,15,0.35);
-        font-size: 10px; font-weight: 700; white-space: nowrap;
+        background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.18);
+        font-size: 10px; font-weight: 700; white-space: nowrap; color: #aaa;
     }
-    #tpqPanel .tpq-hours .cur { color: #f1c40f; }
-    #tpqPanel .tpq-hours .prev { color: #b8a35a; font-weight: 400; }
+    #tpqPanel .tpq-hours .prev { opacity: 0.75; }
     #tpqPanel .tpq-hours .sep { color: rgba(255,255,255,0.3); font-weight: 400; }
-    #tpqPanel .tpq-hours.empty { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); }
-    #tpqPanel .tpq-hours.empty span { color: #777; }
+    #tpqPanel .tpq-hours .high { color: #2ecc71; }
+    #tpqPanel .tpq-hours .mid { color: #f1c40f; }
+    #tpqPanel .tpq-hours.empty { color: #666; }
 `;
 
 // accountId → { current, previous } z /hidden/titan-hour; null, dopóki nie przyjdą dane.
@@ -60,6 +60,9 @@ async function loadHours() {
 /** Tylko pełne godziny. */
 const fullHours = h => Math.max(0, Math.floor(Number(h) || 0));
 
+/** Kolor progu: 30h+ zielony, 20h+ żółty, poniżej domyślny szary. */
+const levelClass = h => (h >= 30 ? 'high' : h >= 20 ? 'mid' : '');
+
 /** „2h │ 1h” przy nicku: godziny w tym i poprzednim miesiącu. */
 function hoursHtml(p) {
     if (!hoursByAccount) return '';
@@ -68,7 +71,7 @@ function hoursHtml(p) {
     const previous = fullHours(entry?.previous?.hours);
     const title = `Tytani — ten miesiąc (${months.current}): ${current}h, poprzedni (${months.previous}): ${previous}h`;
     return `<div class="tpq-hours${current || previous ? '' : ' empty'}" title="${title}">`
-        + `<span class="cur">${current}h</span><span class="sep">│</span><span class="prev">${previous}h</span></div>`;
+        + `<span class="cur ${levelClass(current)}">${current}h</span><span class="sep">│</span><span class="prev ${levelClass(previous)}">${previous}h</span></div>`;
 }
 
 export default createQuickParty({
