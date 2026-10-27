@@ -117,7 +117,7 @@ function hoursHtml(p) {
 export default createQuickParty({
     id: 'titan-party',
     name: 'Gracze na mapie',
-    description: 'Klan, sojusz i przyjaciele z mapy z godzinami na tytanach. Zaznacz graczy i zrób z nich grupę jednym kliknięciem.',
+    description: 'Gracze na mapie z godzinami na tytanach.',
     title: 'Gracze na mapie',
     panelId: 'tpqPanel',
     storagePrefix: 'tpq',
