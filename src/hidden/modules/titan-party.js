@@ -116,9 +116,9 @@ function hoursHtml(p) {
 
 export default createQuickParty({
     id: 'titan-party',
-    name: 'Quick Party (tytani)',
-    description: 'Quick Party z godzinami na tytanach (ten / poprzedni miesiąc) przy nicku.',
-    title: 'Quick Party T',
+    name: 'Gracze na mapie',
+    description: 'Klan, sojusz i przyjaciele z mapy z godzinami na tytanach. Zaznacz graczy i zrób z nich grupę jednym kliknięciem.',
+    title: 'Gracze na mapie',
     panelId: 'tpqPanel',
     storagePrefix: 'tpq',
     // Plakietka z godzinami poszerza wiersz — więcej kolumn dopiero w szerszym oknie.
