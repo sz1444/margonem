@@ -18,6 +18,10 @@ const CSS = `
     #tpqPanel .tpq-hours .high { color: #2ecc71; }
     #tpqPanel .tpq-hours .mid { color: #f1c40f; }
     #tpqPanel .tpq-hours.empty { color: #666; }
+    /* Plakietka z godzinami w osobnej linii pod nickiem, żeby nick miał całą szerokość. */
+    #tpqPanel .pqi-row-inner { flex-wrap: wrap; row-gap: 1px; padding: 1px 0; }
+    #tpqPanel .tpq-hours { order: 10; margin-right: auto; }
+    #tpqPanel .tpq-break { order: 9; flex-basis: 100%; height: 0; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
@@ -72,7 +76,7 @@ function hoursHtml(p) {
     const current = fullHours(entry?.current?.hours);
     const previous = fullHours(entry?.previous?.hours);
     const title = `Tytani — ten miesiąc (${months.current}): ${current}h, poprzedni (${months.previous}): ${previous}h`;
-    return `<div class="tpq-hours${current || previous ? '' : ' empty'}" title="${title}">`
+    return `<div class="tpq-break"></div><div class="tpq-hours${current || previous ? '' : ' empty'}" title="${title}">`
         + `<span class="cur ${levelClass(current)}">${current}h</span><span class="sep">│</span><span class="prev ${levelClass(previous)}">${previous}h</span></div>`;
 }
 
