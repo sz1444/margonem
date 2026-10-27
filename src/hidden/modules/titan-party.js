@@ -23,6 +23,8 @@ const CSS = `
     #tpqPanel .tpq-hours .high { color: #4dff8f; }
     #tpqPanel .tpq-hours .mid { color: #ffe23d; }
     #tpqPanel .pqi-row { padding: 1px 2px; }
+    /* Poziom cienki i biały, żeby nie mylił się z godzinami (kolor relacji ma inline style). */
+    #tpqPanel .pqi-lvl { color: #fff !important; font-weight: 400; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
