@@ -5,6 +5,9 @@ import { BASE_URL, getSession } from '../auth.js';
 
 // Serwer trzyma odpowiedź godzinę (api/hidden/titan-hour.js) — częściej nie ma sensu pytać.
 const REFRESH_INTERVAL = 60 * 60 * 1000;
+// Ostatnia odpowiedź w GM storage (wspólna dla kart): po odświeżeniu gry godziny są od razu.
+const CACHE_KEY = 'hidden_titan_hours';
+const STALE_CHECK_INTERVAL = 5 * 60 * 1000;
 
 const CSS = `
     /* Godziny jako mała plakietka przed poziomem. */
@@ -53,13 +56,27 @@ async function fetchTitanHours(retried = false) {
     }
 }
 
-async function loadHours() {
-    const data = await fetchTitanHours();
+function applyHours(data) {
     if (!data?.accounts) return false;
     hoursByAccount = new Map(data.accounts.map(a => [a.accountId, a]));
     months = { current: data.currentMonth, previous: data.previousMonth };
     return true;
 }
+
+/** Dane z GM storage: { data, fetchedAt } albo null. */
+function loadCached() {
+    const cached = GM_getValue(CACHE_KEY);
+    return cached?.data ? cached : null;
+}
+
+async function loadHours() {
+    const data = await fetchTitanHours();
+    if (!applyHours(data)) return false;
+    GM_setValue(CACHE_KEY, { data, fetchedAt: Date.now() });
+    return true;
+}
+
+const isStale = () => Date.now() - (loadCached()?.fetchedAt ?? 0) > REFRESH_INTERVAL;
 
 /** Tylko pełne godziny. */
 const fullHours = h => Math.max(0, Math.floor(Number(h) || 0));
@@ -96,9 +113,17 @@ export default createQuickParty({
     extension: {
         setup(rerender) {
             injectStyle(CSS);
-            const refresh = async () => { if (await loadHours()) rerender(); };
+            if (applyHours(loadCached()?.data)) rerender();
+            // Pobieramy tylko, gdy zapis jest starszy niż godzina (inna karta mogła już go odświeżyć).
+            const refresh = async () => {
+                if (!isStale()) {
+                    if (applyHours(loadCached().data)) rerender();
+                    return;
+                }
+                if (await loadHours()) rerender();
+            };
             refresh();
-            setInterval(refresh, REFRESH_INTERVAL);
+            setInterval(refresh, STALE_CHECK_INTERVAL);
         },
         rowExtraHtml: hoursHtml,
         // Najwięcej godzin (ten + poprzedni miesiąc) na górze.
