@@ -7,8 +7,17 @@ import { BASE_URL, getSession } from '../auth.js';
 const REFRESH_INTERVAL = 60 * 60 * 1000;
 
 const CSS = `
-    #tpqPanel .tpq-hours { color: #f1c40f; font-size: 10px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
-    #tpqPanel .tpq-hours.empty { color: #777; }
+    #tpqPanel .tpq-hours {
+        display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+        padding: 0 4px; border-radius: 6px; line-height: 12px;
+        background: rgba(241,196,15,0.12); border: 1px solid rgba(241,196,15,0.35);
+        font-size: 10px; font-weight: 700; white-space: nowrap;
+    }
+    #tpqPanel .tpq-hours .cur { color: #f1c40f; }
+    #tpqPanel .tpq-hours .prev { color: #b8a35a; font-weight: 400; }
+    #tpqPanel .tpq-hours .sep { color: rgba(255,255,255,0.3); font-weight: 400; }
+    #tpqPanel .tpq-hours.empty { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); }
+    #tpqPanel .tpq-hours.empty span { color: #777; }
 `;
 
 // accountId → { current, previous } z /hidden/titan-hour; null, dopóki nie przyjdą dane.
@@ -48,14 +57,18 @@ async function loadHours() {
     return true;
 }
 
-/** „2/1” przy nicku: godziny w tym i poprzednim miesiącu. */
+/** Tylko pełne godziny. */
+const fullHours = h => Math.max(0, Math.floor(Number(h) || 0));
+
+/** „2h │ 1h” przy nicku: godziny w tym i poprzednim miesiącu. */
 function hoursHtml(p) {
     if (!hoursByAccount) return '';
     const entry = hoursByAccount.get(Number(p.account));
-    const current = entry?.current?.hours ?? 0;
-    const previous = entry?.previous?.hours ?? 0;
-    const title = `Godziny: ${months.current} — ${current}h, ${months.previous} — ${previous}h`;
-    return `<div class="tpq-hours${entry ? '' : ' empty'}" title="${title}">${current}/${previous}h</div>`;
+    const current = fullHours(entry?.current?.hours);
+    const previous = fullHours(entry?.previous?.hours);
+    const title = `Tytani — ten miesiąc (${months.current}): ${current}h, poprzedni (${months.previous}): ${previous}h`;
+    return `<div class="tpq-hours${current || previous ? '' : ' empty'}" title="${title}">`
+        + `<span class="cur">${current}h</span><span class="sep">│</span><span class="prev">${previous}h</span></div>`;
 }
 
 export default createQuickParty({
