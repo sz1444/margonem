@@ -16,6 +16,7 @@ import onlineList from './online-list.js';
 import fleeGuard from './flee-guard.js';
 import classicPartyUi from './classic-party-ui.js';
 import partyQuickInvite from './party-quick-invite.js';
+import themeSi from './theme-si.js';
 
 export default [
     quickSale,
@@ -34,4 +35,5 @@ export default [
     fleeGuard,
     classicPartyUi,
     partyQuickInvite,
+    themeSi,
 ];
