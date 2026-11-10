@@ -3,6 +3,7 @@
 //   public/hub-builds/hub-dev.js ← /hub.js?mode=dev: to samo + dodatki z `dev: true`
 //   public/hidden.js            ← loader public/hidden.user.js: panel ukrytych dodatków z logowaniem Discord
 //   private/hidden-modules.js   ← same ukryte dodatki, wydawane przez api/hidden/modules.js po zalogowaniu
+//   public/thema-si.user.js     ← samodzielny skrypt Tampermonkeya (źródło: src/userscripts/), bez ładowania z serwera
 // Ładowane przez eval w kontekście Tampermonkeya.
 //   npm run build      → produkcyjny (obfuskacja)
 //   npm run build:dev  → bez obfuskacji, czytelny (do debugowania)
@@ -51,7 +52,10 @@ const TARGETS = [
 // trwa wieki i nic nie daje. W bundlu zostaje placeholder, a dane wstawiamy po obfuskacji.
 // Tak samo skrypty importowane jako tekst (import '...?raw', eval w oknie strony) — te zaciemniamy osobno.
 function createExtractPlugin(extracted) {
-    const placeholder = () => `__EXTRACTED_${extracted.size}__`;
+    // Licznik, a nie extracted.size: esbuild wczytuje pliki równolegle, a wpis trafia do mapy dopiero po await,
+    // więc dwa pliki naraz dostałyby ten sam klucz i jeden placeholder zostałby w bundlu.
+    let next = 0;
+    const placeholder = () => `__EXTRACTED_${next++}__`;
     return {
         name: 'extract-data',
         setup(b) {
@@ -104,3 +108,21 @@ async function buildTarget({ entry, out, globalName, define }) {
 }
 
 for (const target of TARGETS) await buildTarget(target);
+
+// Samodzielne skrypty do Tampermonkeya (bez ładowania z serwera, więc bez opóźnienia): kod zaciemniony,
+// nagłówek ==UserScript== zostaje jawny, bo czyta go Tampermonkey.
+const USERSCRIPTS = [
+    { entry: 'src/userscripts/thema-si.user.js', out: 'public/thema-si.user.js' },
+];
+
+async function buildUserscript({ entry, out }) {
+    const source = await readFile(path.join(root, entry), 'utf8');
+    const header = source.match(/^\/\/ ==UserScript==[\s\S]*?\/\/ ==\/UserScript==\n/);
+    if (!header) throw new Error(`Brak nagłówka ==UserScript== w ${entry}`);
+    const body = source.slice(header[0].length);
+    const code = isDev ? body : JavaScriptObfuscator.obfuscate(body, OBFUSCATOR_OPTIONS).getObfuscatedCode();
+    await writeFile(path.join(root, out), `${header[0]}\n${code}\n`);
+    console.log(`${out}${isDev ? ' (dev, bez obfuskacji)' : ''} — ${(code.length / 1024).toFixed(0)} KB`);
+}
+
+for (const script of USERSCRIPTS) await buildUserscript(script);

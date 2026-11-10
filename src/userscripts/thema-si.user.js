@@ -1,8 +1,10 @@
 // ==UserScript==
-// @name         Modern UI
+// @name         Thema SI (beta)
 // @namespace    http://tampermonkey.net/
-// @version      4.84
-// @description  Wygląd i układ w stylu starego interfejsu Margonem. Alt+U włącza/wyłącza, Alt+Shift+U zmienia kolor akcentu.
+// @version      4.85
+// @description  Motyw w stylu SI. Alt+U włącza/wyłącza, Alt+Shift+U zmienia kolor akcentu.
+// @updateURL    https://margonem.vercel.app/thema-si.user.js
+// @downloadURL  https://margonem.vercel.app/thema-si.user.js
 // @author       Groli
 // @match        *://nubes.margonem.pl/*
 // @run-at       document-start
