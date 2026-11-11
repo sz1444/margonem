@@ -8,7 +8,7 @@ import { makeDraggable, makeResizable } from '../core/drag.js';
 import { setupOpacityButton, showTooltip, hideTooltip, tooltipList } from '../core/ui.js';
 import { getDiscordToken, clearDiscordToken, redirectToDiscordLogin, openSyncSocket, sendJSON } from '../core/sync.js';
 
-const BACKEND_URL = 'https://margone-api-5s7f.onrender.com';
+const BACKEND_URL = 'https://margone-api-1-0lt8.onrender.com';
 const DATA_URL = 'https://margonem.vercel.app/data.json';
 const DEFAULT_HEIGHT = '380px';
 const MIN_HEIGHT = '28px';
