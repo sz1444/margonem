@@ -113,9 +113,9 @@ function currentMapTitan() {
     return MAP_CONFIG.find(m => m.name.toLowerCase() === mapName)?.monster ?? null;
 }
 
-/** Czy pokazujemy kolumnę „dziś” (dev, mapa tytana, dane z dzisiaj) — tytan albo null. */
+/** Czy pokazujemy kolumnę „dziś” (mapa tytana, dane z dzisiaj) — tytan albo null. */
 function todayTitan() {
-    if (!__HIDDEN_DEV__ || hoursDay !== localDay()) return null;
+    if (hoursDay !== localDay()) return null;
     return currentMapTitan();
 }
 
@@ -128,7 +128,6 @@ const cellHtml = (cls, hours, period, title) =>
     `<span class="tpq-cell ${cls}" title="${title}"><b>${hours}h</b><i>${period}</i></span>`;
 
 /** „1.5h” — dzisiejsze godziny na tytanie z bieżącej mapy; poza mapą tytana (albo gdy dane są z innego dnia) nic. */
-// Na razie tylko w wersji dev (/hidden.js?dev=true).
 function todayHtml(entry, titan) {
     if (!titan) return '';
     const hours = Number(entry?.today?.byTitan?.find(t => t.name === titan)?.hours) || 0;
@@ -159,8 +158,6 @@ export default createQuickParty({
     storagePrefix: 'tpq',
     // Plakietka z godzinami poszerza wiersz — więcej kolumn dopiero w szerszym oknie.
     columnBreakpoints: [400, 620, 1200],
-    // Nowe składanie grupy na razie tylko w /hidden.js?dev=true.
-    keepParty: __HIDDEN_DEV__,
     extension: {
         setup(rerender) {
             injectStyle(CSS);

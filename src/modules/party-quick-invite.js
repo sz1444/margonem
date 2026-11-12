@@ -3,7 +3,7 @@ import { win } from '../core/env.js';
 import { loadJSON, saveJSON, loadFlag, saveFlag } from '../core/storage.js';
 import {
     getHeroId, getClanId, getWorldName, getMapPlayers, getPartyMembers, inviteToParty,
-    isInParty, isPartyLeader, disbandParty, kickFromParty, leaveParty,
+    isInParty, isPartyLeader, kickFromParty, leaveParty,
 } from '../core/game.js';
 import { makeDraggable } from '../core/drag.js';
 import { setupOpacityButton } from '../core/ui.js';
@@ -102,8 +102,8 @@ const PANEL_HTML = `
                 <div class="player-list" id="pqiList" style="padding: 2px;"></div>
                 <div class="pqi-actions">
                     <div class="pqi-btns">
-                        <div class="button green small pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
-                        <div class="button green small pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
+                        <div class="button green small pqi-btn" id="pqiCreate" title="Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
+                        <div class="button green small pqi-btn" id="pqiArm" title="Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
                     </div>
                 </div>
             </div>
@@ -186,7 +186,6 @@ function openPlayerMenu(p, e) {
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
- * keepParty: lider nie rozwiązuje grupy, tylko wyrzuca niezaznaczonych i zaprasza brakujących (na razie tylko w dev).
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -197,7 +196,6 @@ export function createQuickParty({
     storagePrefix = 'pqi',
     columnBreakpoints = COLUMN_BREAKPOINTS,
     extension = {},
-    keepParty = false,
 } = {}) {
     const POS_KEY = `${storagePrefix}_widget_pos`;
     const OPACITY_KEY = `${storagePrefix}_widget_opacity`;
@@ -244,10 +242,6 @@ export function createQuickParty({
             }).observe(panel);
 
             const listEl = panel.querySelector('#pqiList');
-            if (keepParty) {
-                panel.querySelector('#pqiCreate').title = 'Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych teraz';
-                panel.querySelector('#pqiArm').title = 'Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych po najbliższej walce';
-            }
             const contentEl = panel.querySelector('#pqiContent');
             const headerText = panel.querySelector('#pqiHeaderText');
             const iconEl = panel.querySelector('#pqiToggle .ie-icon');
@@ -356,23 +350,19 @@ export function createQuickParty({
             });
 
             /**
-             * Składa grupę z zaznaczonych — z przycisku albo po walce. Z keepParty lider nie rozwiązuje grupy: wyrzuca
-             * niezaznaczonych i zaprasza tylko brakujących. Bez keepParty (albo gdy nie jest liderem) stara grupa jest
-             * rozwiązywana / opuszczana i wszyscy zaznaczeni dostają zaproszenie od nowa.
+             * Składa grupę z zaznaczonych — z przycisku albo po walce. Lider nie rozwiązuje grupy: wyrzuca niezaznaczonych
+             * i zaprasza tylko brakujących. Kto nie jest liderem, nie może wyrzucać — opuszcza grupę i zaprasza od nowa.
              */
             function newParty() {
                 if (!selected.size) return;
-                if (keepParty && isInParty() && isPartyLeader()) {
+                if (isInParty() && isPartyLeader()) {
                     const myId = getHeroId();
                     const memberIds = new Set(getPartyMembers().map(m => m.id));
                     for (const id of memberIds) if (id !== myId && !selected.has(id)) kickFromParty(id);
                     for (const m of selected.values()) if (!memberIds.has(m.id)) inviteToParty(m.id);
                     return;
                 }
-                if (isInParty()) {
-                    if (isPartyLeader()) disbandParty();
-                    else leaveParty();
-                }
+                if (isInParty()) leaveParty();
                 for (const m of selected.values()) inviteToParty(m.id);
             }
 
@@ -381,10 +371,8 @@ export function createQuickParty({
                 armBtn.classList.toggle('on', armed);
             }
 
-            // „Zaznacz grupę” — dokłada do zaznaczonych członków obecnej grupy z mapy (do limitu). Na razie tylko z keepParty (dev).
-            const selectPartyBtn = panel.querySelector('#pqiSelectParty');
-            if (!keepParty) selectPartyBtn.remove();
-            selectPartyBtn.addEventListener('click', e => {
+            // „Zaznacz grupę” — dokłada do zaznaczonych członków obecnej grupy z mapy (do limitu).
+            panel.querySelector('#pqiSelectParty').addEventListener('click', e => {
                 e.stopPropagation();
                 for (const p of collectPlayers()) {
                     if (selected.size >= MAX_SELECTED) break;
@@ -417,5 +405,4 @@ export function createQuickParty({
     };
 }
 
-// Nowe składanie grupy (keepParty) na razie tylko w /hub.js?mode=dev.
-export default createQuickParty({ keepParty: __HUB_DEV__ });
+export default createQuickParty();
