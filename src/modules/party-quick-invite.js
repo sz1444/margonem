@@ -47,7 +47,8 @@ const css = panelId => `
     .popup-menu-layer { z-index: 1000 !important; }
     #${panelId} .pqi-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 2px; margin: 0; }
     #${panelId} .pqi-row:hover { filter: brightness(1.2); }
-    #${panelId} .pqi-row.checked { box-shadow: inset 0 0 0 20px rgba(46,204,113,0.22); }
+    /* Zaznaczenie bez zmiany układu: tło + zielony pasek z lewej (bez dodatkowego elementu, który poszerzałby wiersz). */
+    #${panelId} .pqi-row.checked { background: rgba(46,204,113,0.22); box-shadow: inset 2px 0 0 #2ecc71; }
     #${panelId} .pqi-row-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; overflow: hidden; gap: 3px; }
     #${panelId} .pqi-nick { font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; flex: 1; margin-right: 4px; }
     /* Poziom w nawiasie zaraz za nickiem, przygaszony. */
@@ -61,7 +62,6 @@ const css = panelId => `
     /* „+” widoczny dopiero po najechaniu na wiersz — przy wielu graczach lista zostaje czysta. */
     #${panelId} .pqi-row:not(:hover) .pqi-add { opacity: 0; }
     #${panelId} .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
-    #${panelId} .pqi-check { color: #2ecc71; font-size: 10px; font-weight: 700; flex-shrink: 0; }
     #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
     #${panelId} .pqi-status.battle { color: #fc3e40; }
     #${panelId} .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
@@ -289,7 +289,6 @@ export function createQuickParty({
                 return `
                 <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
                     <div class="pqi-row-inner">
-                        ${selected.has(p.id) ? '<div class="pqi-check">✓</div>' : ''}
                         <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
                         ${extension.rowExtraHtml?.(p) ?? ''}
                         <div class="pqi-add" title="Zaproś do grupy">+</div>
