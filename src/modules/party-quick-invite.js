@@ -57,12 +57,16 @@ const css = panelId => `
         color: #eaeaea; font-size: 11px; font-weight: 700; line-height: 1;
         border: 1px solid rgba(255,255,255,0.3); border-radius: 2px; background: rgba(0,0,0,0.3);
     }
+    /* „+” widoczny dopiero po najechaniu na wiersz — przy wielu graczach lista zostaje czysta. */
+    #${panelId} .pqi-row:not(:hover) .pqi-add { opacity: 0; }
     #${panelId} .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
     #${panelId} .pqi-check { color: #2ecc71; font-size: 10px; font-weight: 700; flex-shrink: 0; }
     #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
     #${panelId} .pqi-status.battle { color: #fc3e40; }
     #${panelId} .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
-    #${panelId} .pqi-dash { color: #666; font-size: 10px; line-height: 14px; text-align: center; }
+    /* Pusta profesja: sam przygaszony nagłówek, bez wiersza z kreską. */
+    #${panelId} .pqi-section.empty { opacity: 0.45; }
+    #${panelId} .pqi-section.empty .pqi-section-head { border-bottom: none; margin-bottom: 0; }
     /* Stopka: dwa przyciski gry, każdy na pół szerokości. */
     #${panelId} .pqi-actions { padding: 2px 2px 0; margin-top: 2px; }
     #${panelId} .pqi-btns { display: flex; gap: 2px; width: 100%; }
@@ -311,9 +315,9 @@ export function createQuickParty({
                 columns[0].push(...players.filter(p => !PROFS.some(x => x.code === p.prof)));
 
                 listEl.innerHTML = `<div class="pqi-grid">${PROFS.map((prof, i) => `
-                    <div class="pqi-section">
+                    <div class="pqi-section${columns[i].length ? '' : ' empty'}">
                         <div class="pqi-section-head"><span class="pqi-title">${prof.name}</span> <span class="pqi-count">${columns[i].length}</span></div>
-                        ${columns[i].length ? columns[i].map(rowHtml).join('') : '<div class="pqi-dash">–</div>'}
+                        ${columns[i].map(rowHtml).join('')}
                     </div>
                 `).join('')}</div>`;
             }
