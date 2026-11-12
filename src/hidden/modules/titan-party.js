@@ -12,13 +12,13 @@ const CACHE_KEY = 'hidden_titan_hours_v2';
 const STALE_CHECK_INTERVAL = 5 * 60 * 1000;
 
 const CSS = `
-    /* Godziny za poziomem: same liczby w równych kolumnach (poprzedni · ten miesiąc · dziś), bez ramek i jednostek. */
+    /* Godziny za poziomem: godziny w równych kolumnach (poprzedni · ten miesiąc · dziś), bez ramek. */
     #tpqPanel .tpq-hours {
         display: flex; align-items: center; flex-shrink: 0;
         font-size: 10px; font-weight: 600; line-height: 13px; white-space: nowrap;
         font-variant-numeric: tabular-nums; color: #e06c6c;
     }
-    #tpqPanel .tpq-hours > span { width: 22px; text-align: right; }
+    #tpqPanel .tpq-hours > span { width: 27px; text-align: right; }
     #tpqPanel .tpq-hours .prev { opacity: 0.6; }
     #tpqPanel .tpq-hours .high { color: #5fd88a; }
     #tpqPanel .tpq-hours .mid { color: #e8d25a; }
@@ -114,17 +114,31 @@ function currentMapTitan() {
     return MAP_CONFIG.find(m => m.name.toLowerCase() === mapName)?.monster ?? null;
 }
 
-/** „1.5” — dzisiejsze godziny na tytanie z bieżącej mapy; poza mapą tytana (albo gdy dane są z innego dnia) nic. */
+/** Czy pokazujemy kolumnę „dziś” (dev, mapa tytana, dane z dzisiaj) — tytan albo null. */
+function todayTitan() {
+    if (!__HIDDEN_DEV__ || hoursDay !== localDay()) return null;
+    return currentMapTitan();
+}
+
+/** Drobna notka pod listą: których okresów dotyczą kolumny godzin, np. „Godziny: październik · listopad · dziś (Tanroth)”. */
+function footerHtml() {
+    if (!hoursByAccount) return '';
+    const titan = todayTitan();
+    const short = month => monthLabel(month).split(' ')[0];
+    return `Godziny: ${short(months.previous)} · ${short(months.current)}${titan ? ` · dziś (${titan})` : ''}`;
+}
+
+/** „1.5h” — dzisiejsze godziny na tytanie z bieżącej mapy; poza mapą tytana (albo gdy dane są z innego dnia) nic. */
 // Na razie tylko w wersji dev (/hidden.js?dev=true).
 function todayHtml(entry, titan) {
-    if (!__HIDDEN_DEV__ || !titan || hoursDay !== localDay()) return '';
+    if (!titan) return '';
     const hours = Number(entry?.today?.byTitan?.find(t => t.name === titan)?.hours) || 0;
     const label = `${Math.round(hours * 10) / 10}h`;
     const title = `Godziny na tytanie ${titan} — dziś: ${label}`;
-    return `<span class="today" title="${title}">${Math.round(hours * 10) / 10}</span>`;
+    return `<span class="today" title="${title}">${label}</span>`;
 }
 
-/** „1  2” za poziomem: godziny w poprzednim i tym miesiącu; po najechaniu — którego miesiąca dotyczą. Na mapie tytana dochodzi „│ dziś”. */
+/** „1h  2h” za poziomem: godziny w poprzednim i tym miesiącu; po najechaniu — którego miesiąca dotyczą. Na mapie tytana dochodzi „│ dziś”. */
 function hoursHtml(p) {
     if (!hoursByAccount) return '';
     const entry = hoursByAccount.get(Number(p.account));
@@ -133,9 +147,9 @@ function hoursHtml(p) {
     const currentTitle = `Godziny na tytanach — ${monthLabel(months.current)} (ten miesiąc): ${current}h`;
     const previousTitle = `Godziny na tytanach — ${monthLabel(months.previous)} (poprzedni miesiąc): ${previous}h`;
     return `<div class="tpq-hours" title="${previousTitle}\n${currentTitle}">`
-        + `<span class="prev ${levelClass(previous)}" title="${previousTitle}">${previous}</span>`
-        + `<span class="cur ${levelClass(current)}" title="${currentTitle}">${current}</span>`
-        + `${todayHtml(entry, currentMapTitan())}</div>`;
+        + `<span class="prev ${levelClass(previous)}" title="${previousTitle}">${previous}h</span>`
+        + `<span class="cur ${levelClass(current)}" title="${currentTitle}">${current}h</span>`
+        + `${todayHtml(entry, todayTitan())}</div>`;
 }
 
 export default createQuickParty({
@@ -165,6 +179,7 @@ export default createQuickParty({
             setInterval(refresh, STALE_CHECK_INTERVAL);
         },
         rowExtraHtml: hoursHtml,
+        footerHtml,
         // Najwięcej godzin (ten + poprzedni miesiąc) na górze.
         comparePlayers: (a, b) => totalHours(b) - totalHours(a),
     },
