@@ -112,7 +112,7 @@ const PANEL_HTML = `
     <div class="c-window__bottom-bar">
         <div class="interface-element-bottom-bar-background-stretch"></div>
     </div>
-    <div class="pqi-select-party" id="pqiSelectParty" title="Zaznacz graczy z obecnej grupy">✓</div>
+    <div class="pqi-select-party" id="pqiSelectParty" title="Zaznacz / odznacz graczy z obecnej grupy">✓</div>
     <div class="close-button-corner-decor">
         <button type="button" class="close-button" id="pqiToggle"><div class="ie-icon ie-icon-close"></div></button>
     </div>
@@ -371,12 +371,18 @@ export function createQuickParty({
                 armBtn.classList.toggle('on', armed);
             }
 
-            // „Zaznacz grupę” — dokłada do zaznaczonych członków obecnej grupy z mapy (do limitu).
+            // „Zaznacz grupę” — przełącznik: dokłada członków obecnej grupy z mapy (do limitu),
+            // a gdy wszyscy już są zaznaczeni, odznacza ich.
             panel.querySelector('#pqiSelectParty').addEventListener('click', e => {
                 e.stopPropagation();
-                for (const p of collectPlayers()) {
-                    if (selected.size >= MAX_SELECTED) break;
-                    if (p.inParty) selected.set(p.id, p);
+                const members = collectPlayers().filter(p => p.inParty);
+                if (members.length && members.every(p => selected.has(p.id))) {
+                    for (const p of members) selected.delete(p.id);
+                } else {
+                    for (const p of members) {
+                        if (selected.size >= MAX_SELECTED) break;
+                        selected.set(p.id, p);
+                    }
                 }
                 render(true);
             });

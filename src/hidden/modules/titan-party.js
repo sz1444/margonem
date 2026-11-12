@@ -13,18 +13,18 @@ const STALE_CHECK_INTERVAL = 5 * 60 * 1000;
 
 const CSS = `
     /* Godziny po prawej: każdy okres w ramce — na górze liczba, pod nią okres (wrz / paź / dziś). */
-    #tpqPanel .tpq-hours { display: flex; align-items: stretch; gap: 2px; flex-shrink: 0; }
+    #tpqPanel .tpq-hours { display: flex; align-items: stretch; gap: 1px; flex-shrink: 0; }
     #tpqPanel .tpq-cell {
-        display: flex; flex-direction: column; align-items: center; width: 28px; padding: 1px 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; width: 26px; padding: 0;
         border: 1px solid rgba(255,255,255,0.18); border-radius: 2px; background: rgba(0,0,0,0.3);
-        color: #e06c6c; line-height: 11px; white-space: nowrap;
+        color: #e06c6c; white-space: nowrap;
     }
-    #tpqPanel .tpq-cell b { font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
-    #tpqPanel .tpq-cell i { font-size: 8px; font-style: normal; color: rgba(255,255,255,0.5); }
+    #tpqPanel .tpq-cell b { font-size: 10px; line-height: 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    #tpqPanel .tpq-cell i { font-size: 7px; line-height: 7px; font-style: normal; color: rgba(255,255,255,0.45); }
     #tpqPanel .tpq-cell.high { color: #5fd88a; }
     #tpqPanel .tpq-cell.mid { color: #e8d25a; }
     #tpqPanel .tpq-cell.today { color: #7fc8f0; }
-    #tpqPanel .pqi-row { padding: 1px 2px; }
+    #tpqPanel .pqi-row { padding: 0 2px; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
