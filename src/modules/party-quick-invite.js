@@ -89,6 +89,7 @@ const PANEL_HTML = `
                 <div class="player-list" id="pqiList" style="padding: 2px;"></div>
                 <div class="pqi-actions">
                     <div class="pqi-btns">
+                        <div class="button green small pqi-btn" id="pqiSelectParty" title="Zaznacz graczy z obecnej grupy"><div class="background"></div><div class="label">Zaznacz grupę</div></div>
                         <div class="button green small pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
                         <div class="button green small pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
                     </div>
@@ -365,6 +366,18 @@ export function createQuickParty({
                 armed = value;
                 armBtn.classList.toggle('on', armed);
             }
+
+            // „Zaznacz grupę” — dokłada do zaznaczonych członków obecnej grupy z mapy (do limitu). Na razie tylko z keepParty (dev).
+            const selectPartyBtn = panel.querySelector('#pqiSelectParty');
+            if (!keepParty) selectPartyBtn.remove();
+            selectPartyBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                for (const p of collectPlayers()) {
+                    if (selected.size >= MAX_SELECTED) break;
+                    if (p.inParty) selected.set(p.id, p);
+                }
+                render(true);
+            });
 
             panel.querySelector('#pqiCreate').addEventListener('click', e => {
                 e.stopPropagation();
