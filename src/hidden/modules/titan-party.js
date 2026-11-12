@@ -12,21 +12,18 @@ const CACHE_KEY = 'hidden_titan_hours_v2';
 const STALE_CHECK_INTERVAL = 5 * 60 * 1000;
 
 const CSS = `
-    /* Godziny za poziomem: godziny w równych kolumnach (poprzedni · ten miesiąc · dziś), bez ramek. */
-    #tpqPanel .tpq-hours {
-        display: flex; align-items: center; flex-shrink: 0;
-        font-size: 10px; font-weight: 600; line-height: 13px; white-space: nowrap;
-        font-variant-numeric: tabular-nums; color: #e06c6c;
+    /* Godziny po prawej: każdy okres w ramce — na górze liczba, pod nią okres (wrz / paź / dziś). */
+    #tpqPanel .tpq-hours { display: flex; align-items: stretch; gap: 2px; flex-shrink: 0; }
+    #tpqPanel .tpq-cell {
+        display: flex; flex-direction: column; align-items: center; width: 28px; padding: 1px 0;
+        border: 1px solid rgba(255,255,255,0.18); border-radius: 2px; background: rgba(0,0,0,0.3);
+        color: #e06c6c; line-height: 11px; white-space: nowrap;
     }
-    #tpqPanel .tpq-hours > span { width: 27px; text-align: right; }
-    #tpqPanel .tpq-hours .prev { opacity: 0.6; }
-    #tpqPanel .tpq-hours .high { color: #5fd88a; }
-    #tpqPanel .tpq-hours .mid { color: #e8d25a; }
-    #tpqPanel .tpq-hours .today { color: #7fc8f0; }
-    /* Legenda kolorów w stopce — te same kolory co liczby. */
-    #tpqPanel .tpq-legend .high { color: #5fd88a; }
-    #tpqPanel .tpq-legend .mid { color: #e8d25a; }
-    #tpqPanel .tpq-legend .low { color: #e06c6c; }
+    #tpqPanel .tpq-cell b { font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    #tpqPanel .tpq-cell i { font-size: 8px; font-style: normal; color: rgba(255,255,255,0.5); }
+    #tpqPanel .tpq-cell.high { color: #5fd88a; }
+    #tpqPanel .tpq-cell.mid { color: #e8d25a; }
+    #tpqPanel .tpq-cell.today { color: #7fc8f0; }
     #tpqPanel .pqi-row { padding: 1px 2px; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
@@ -122,26 +119,24 @@ function todayTitan() {
     return currentMapTitan();
 }
 
-/** Legenda godzin pod listą: których okresów dotyczą kolumny i co znaczą kolory. */
-function footerHtml() {
-    if (!hoursByAccount) return '';
-    const titan = todayTitan();
-    const short = month => monthLabel(month).split(' ')[0];
-    return `<div>Godziny na tytanach: <b>${short(months.previous)}</b> · <b>${short(months.current)}</b>${titan ? ` · <b>dziś</b> na ${titan}` : ''}</div>`
-        + '<div class="tpq-legend">Kolor: <span class="high">30h+</span> · <span class="mid">20–29h</span> · <span class="low">poniżej 20h</span></div>';
-}
+/** „2026-10” → „paź”. */
+const MONTH_SHORT = ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'];
+const monthShort = month => MONTH_SHORT[Number(String(month ?? '').split('-')[1]) - 1] ?? '?';
+
+/** Ramka: liczba godzin na górze, okres pod nią. */
+const cellHtml = (cls, hours, period, title) =>
+    `<span class="tpq-cell ${cls}" title="${title}"><b>${hours}h</b><i>${period}</i></span>`;
 
 /** „1.5h” — dzisiejsze godziny na tytanie z bieżącej mapy; poza mapą tytana (albo gdy dane są z innego dnia) nic. */
 // Na razie tylko w wersji dev (/hidden.js?dev=true).
 function todayHtml(entry, titan) {
     if (!titan) return '';
     const hours = Number(entry?.today?.byTitan?.find(t => t.name === titan)?.hours) || 0;
-    const label = `${Math.round(hours * 10) / 10}h`;
-    const title = `Godziny na tytanie ${titan} — dziś: ${label}`;
-    return `<span class="today" title="${title}">${label}</span>`;
+    const title = `Godziny na tytanie ${titan} — dziś: ${Math.round(hours * 10) / 10}h`;
+    return cellHtml('today', Math.round(hours * 10) / 10, 'dziś', title);
 }
 
-/** „1h  2h” za poziomem: godziny w poprzednim i tym miesiącu; po najechaniu — którego miesiąca dotyczą. Na mapie tytana dochodzi „│ dziś”. */
+/** Ramki po prawej: godziny w poprzednim i tym miesiącu (na mapie tytana także dziś); po najechaniu — pełny opis. */
 function hoursHtml(p) {
     if (!hoursByAccount) return '';
     const entry = hoursByAccount.get(Number(p.account));
@@ -149,9 +144,9 @@ function hoursHtml(p) {
     const previous = fullHours(entry?.previous?.hours);
     const currentTitle = `Godziny na tytanach — ${monthLabel(months.current)} (ten miesiąc): ${current}h`;
     const previousTitle = `Godziny na tytanach — ${monthLabel(months.previous)} (poprzedni miesiąc): ${previous}h`;
-    return `<div class="tpq-hours" title="${previousTitle}\n${currentTitle}">`
-        + `<span class="prev ${levelClass(previous)}" title="${previousTitle}">${previous}h</span>`
-        + `<span class="cur ${levelClass(current)}" title="${currentTitle}">${current}h</span>`
+    return '<div class="tpq-hours">'
+        + cellHtml(levelClass(previous), previous, monthShort(months.previous), previousTitle)
+        + cellHtml(levelClass(current), current, monthShort(months.current), currentTitle)
         + `${todayHtml(entry, todayTitan())}</div>`;
 }
 
@@ -182,7 +177,6 @@ export default createQuickParty({
             setInterval(refresh, STALE_CHECK_INTERVAL);
         },
         rowExtraHtml: hoursHtml,
-        footerHtml,
         // Najwięcej godzin (ten + poprzedni miesiąc) na górze.
         comparePlayers: (a, b) => totalHours(b) - totalHours(a),
     },

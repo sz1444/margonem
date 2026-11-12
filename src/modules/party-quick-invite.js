@@ -69,10 +69,6 @@ const css = panelId => `
     #${panelId} .pqi-section.empty { opacity: 0.45; }
     #${panelId} .pqi-section.empty .pqi-section-head { border-bottom: none; margin-bottom: 0; }
     /* Stopka: dwa przyciski gry, każdy na pół szerokości. */
-    /* Opcjonalna notka pod listą (extension.footerHtml), drobnym drukiem. */
-    /* Legenda nad przyciskami, drobnym drukiem: obsługa listy + opcjonalnie extension.footerHtml. */
-    #${panelId} .pqi-footer { display: block; padding: 0 4px 3px; font-size: 9px; line-height: 12px; color: rgba(255,255,255,0.55); }
-    #${panelId} .pqi-footer b { color: rgba(255,255,255,0.85); font-weight: 600; }
     #${panelId} .pqi-actions { padding: 2px 2px 0; margin-top: 2px; }
     #${panelId} .pqi-btns { display: flex; gap: 2px; width: 100%; }
     #${panelId} .pqi-btn { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0; pointer-events: auto; cursor: pointer; }
@@ -105,7 +101,6 @@ const PANEL_HTML = `
             <div class="who-is-here">
                 <div class="player-list" id="pqiList" style="padding: 2px;"></div>
                 <div class="pqi-actions">
-                    <div class="pqi-footer" id="pqiFooter"></div>
                     <div class="pqi-btns">
                         <div class="button green small pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
                         <div class="button green small pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
@@ -189,7 +184,7 @@ function openPlayerMenu(p, e) {
 
 /**
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
- * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b), footerHtml() } —
+ * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  * keepParty: lider nie rozwiązuje grupy, tylko wyrzuca niezaznaczonych i zaprasza brakujących (na razie tylko w dev).
  */
@@ -249,10 +244,6 @@ export function createQuickParty({
             }).observe(panel);
 
             const listEl = panel.querySelector('#pqiList');
-            const footerEl = panel.querySelector('#pqiFooter');
-            // Legenda dla nowych: jak zaznaczać i co robią przyciski.
-            const helpHtml = `<div>Kliknij gracza, by go zaznaczyć · <b>+</b> zaprasza od razu${keepParty ? ' · <b>✓</b> w rogu zaznacza obecną grupę' : ''}</div>`
-                + `<div><b>Zrób grupę</b> — ${keepParty ? 'wyrzuca niezaznaczonych i zaprasza zaznaczonych' : 'rozwiązuje grupę i zaprasza zaznaczonych'}</div>`;
             if (keepParty) {
                 panel.querySelector('#pqiCreate').title = 'Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych teraz';
                 panel.querySelector('#pqiArm').title = 'Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych po najbliższej walce';
@@ -314,8 +305,6 @@ export function createQuickParty({
             };
 
             function render(force = false) {
-                const footer = helpHtml + (extension.footerHtml?.() ?? '');
-                if (footerEl.innerHTML !== footer) footerEl.innerHTML = footer;
                 const players = collectPlayers();
                 const signature = players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
                 if (!force && signature === lastSignature) return;
