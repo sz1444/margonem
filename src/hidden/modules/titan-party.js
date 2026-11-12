@@ -23,9 +23,11 @@ const CSS = `
     #tpqPanel .tpq-hours .high { color: #5fd88a; }
     #tpqPanel .tpq-hours .mid { color: #e8d25a; }
     #tpqPanel .tpq-hours .today { color: #7fc8f0; }
+    /* Legenda kolorów w stopce — te same kolory co liczby. */
+    #tpqPanel .tpq-legend .high { color: #5fd88a; }
+    #tpqPanel .tpq-legend .mid { color: #e8d25a; }
+    #tpqPanel .tpq-legend .low { color: #e06c6c; }
     #tpqPanel .pqi-row { padding: 1px 2px; }
-    /* Poziom cienki i biały, żeby nie mylił się z godzinami (kolor relacji ma inline style). */
-    #tpqPanel .pqi-lvl { color: #fff !important; font-weight: 400; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
@@ -120,12 +122,13 @@ function todayTitan() {
     return currentMapTitan();
 }
 
-/** Drobna notka pod listą: których okresów dotyczą kolumny godzin, np. „Godziny: październik · listopad · dziś (Tanroth)”. */
+/** Legenda godzin pod listą: których okresów dotyczą kolumny i co znaczą kolory. */
 function footerHtml() {
     if (!hoursByAccount) return '';
     const titan = todayTitan();
     const short = month => monthLabel(month).split(' ')[0];
-    return `Godziny: ${short(months.previous)} · ${short(months.current)}${titan ? ` · dziś (${titan})` : ''}`;
+    return `<div>Godziny na tytanach: <b>${short(months.previous)}</b> · <b>${short(months.current)}</b>${titan ? ` · <b>dziś</b> na ${titan}` : ''}</div>`
+        + '<div class="tpq-legend">Kolor: <span class="high">30h+</span> · <span class="mid">20–29h</span> · <span class="low">poniżej 20h</span></div>';
 }
 
 /** „1.5h” — dzisiejsze godziny na tytanie z bieżącej mapy; poza mapą tytana (albo gdy dane są z innego dnia) nic. */

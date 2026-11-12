@@ -50,7 +50,8 @@ const css = panelId => `
     #${panelId} .pqi-row.checked { box-shadow: inset 0 0 0 20px rgba(46,204,113,0.22); }
     #${panelId} .pqi-row-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; overflow: hidden; gap: 3px; }
     #${panelId} .pqi-nick { font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; flex: 1; margin-right: 4px; }
-    #${panelId} .pqi-lvl { color: #eaeaea; font-size: 11px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+    /* Poziom w nawiasie zaraz za nickiem, przygaszony. */
+    #${panelId} .pqi-lvl { color: rgba(255,255,255,0.55); font-size: 10px; font-weight: 400; white-space: nowrap; }
     #${panelId} .pqi-add {
         flex-shrink: 0; width: 12px; height: 12px; margin-left: 2px;
         display: flex; align-items: center; justify-content: center;
@@ -69,8 +70,9 @@ const css = panelId => `
     #${panelId} .pqi-section.empty .pqi-section-head { border-bottom: none; margin-bottom: 0; }
     /* Stopka: dwa przyciski gry, każdy na pół szerokości. */
     /* Opcjonalna notka pod listą (extension.footerHtml), drobnym drukiem. */
-    #${panelId} .pqi-footer { padding: 0 4px; font-size: 9px; line-height: 11px; color: rgba(255,255,255,0.5); text-align: right; }
-    #${panelId} .pqi-footer:empty { display: none; }
+    /* Legenda nad przyciskami, drobnym drukiem: obsługa listy + opcjonalnie extension.footerHtml. */
+    #${panelId} .pqi-footer { display: block; padding: 0 4px 3px; font-size: 9px; line-height: 12px; color: rgba(255,255,255,0.55); }
+    #${panelId} .pqi-footer b { color: rgba(255,255,255,0.85); font-weight: 600; }
     #${panelId} .pqi-actions { padding: 2px 2px 0; margin-top: 2px; }
     #${panelId} .pqi-btns { display: flex; gap: 2px; width: 100%; }
     #${panelId} .pqi-btn { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0; pointer-events: auto; cursor: pointer; }
@@ -102,8 +104,8 @@ const PANEL_HTML = `
         <div class="inner-content">
             <div class="who-is-here">
                 <div class="player-list" id="pqiList" style="padding: 2px;"></div>
-                <div class="pqi-footer" id="pqiFooter"></div>
                 <div class="pqi-actions">
+                    <div class="pqi-footer" id="pqiFooter"></div>
                     <div class="pqi-btns">
                         <div class="button green small pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
                         <div class="button green small pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
@@ -248,6 +250,13 @@ export function createQuickParty({
 
             const listEl = panel.querySelector('#pqiList');
             const footerEl = panel.querySelector('#pqiFooter');
+            // Legenda dla nowych: jak zaznaczać i co robią przyciski.
+            const helpHtml = `<div>Kliknij gracza, by go zaznaczyć · <b>+</b> zaprasza od razu${keepParty ? ' · <b>✓</b> w rogu zaznacza obecną grupę' : ''}</div>`
+                + `<div><b>Zrób grupę</b> — ${keepParty ? 'wyrzuca niezaznaczonych i zaprasza zaznaczonych' : 'rozwiązuje grupę i zaprasza zaznaczonych'}</div>`;
+            if (keepParty) {
+                panel.querySelector('#pqiCreate').title = 'Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych teraz';
+                panel.querySelector('#pqiArm').title = 'Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych po najbliższej walce';
+            }
             const contentEl = panel.querySelector('#pqiContent');
             const headerText = panel.querySelector('#pqiHeaderText');
             const iconEl = panel.querySelector('#pqiToggle .ie-icon');
@@ -296,10 +305,7 @@ export function createQuickParty({
                 <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
                     <div class="pqi-row-inner">
                         ${selected.has(p.id) ? '<div class="pqi-check">✓</div>' : ''}
-                        <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}</div>
-                        ${p.afk ? '<div class="pqi-status" title="AFK (duch)">👻</div>' : ''}
-                        ${p.inBattle ? '<div class="pqi-status battle" title="W walce">⚔</div>' : ''}
-                        <div class="pqi-lvl" style="color: ${color};">${p.lvl ?? ''}${p.prof ?? ''}</div>
+                        <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
                         ${extension.rowExtraHtml?.(p) ?? ''}
                         <div class="pqi-add" title="Zaproś do grupy">+</div>
                     </div>
@@ -308,7 +314,7 @@ export function createQuickParty({
             };
 
             function render(force = false) {
-                const footer = extension.footerHtml?.() ?? '';
+                const footer = helpHtml + (extension.footerHtml?.() ?? '');
                 if (footerEl.innerHTML !== footer) footerEl.innerHTML = footer;
                 const players = collectPlayers();
                 const signature = players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
