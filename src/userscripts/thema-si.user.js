@@ -188,6 +188,11 @@ ${P} .game-window-positioner.classic-interface :is(.game-layer, .echh-layer),
 ${L} .mini-map { top: var(--mui-top) !important; bottom: var(--mui-bar) !important; }
 /* Mapa świata leży nad pionowymi belkami kolumn, więc mieści się między nimi (szerokości kolumn z belkami). */
 ${L} .mini-map { left: var(--mui-lw) !important; right: var(--mui-rw) !important; width: auto !important; }
+/* Panel z przyciskami i listą map oddziela od mapy ta sama pionowa belka co kolumny (cienie w kolorach jej listew, więc bez dodatkowych elementów). */
+${P} .mini-map :is(.mini-map-panel, .mini-map-content) { box-shadow: -1px 0 0 #322b16, -2px 0 0 #573319, -3px 0 0 #332c09, -4px 0 0 #241e0a, -5px 0 0 #332c09, -6px 0 0 #492411, -7px 0 0 #433919 !important; }
+/* Lista map: szary tekst gry na zieleni jest nieczytelny, więc kolory jak na listach w oknach. */
+${P} .mini-map .one-location-on-list { color: var(--mui-muted) !important; }
+${P} .mini-map .one-location-on-list:hover { color: var(--mui-title) !important; }
 /* Belki: tło gry (.bg) na szerokość mapy, zielona faktura kolumn i listwa w kolorach pionowych belek ramki. */
 ${L} .positioner:is(.top, .bottom) .bg {
     position: absolute !important;
@@ -267,26 +272,25 @@ ${L} .main-buttons-container.bottom-right-additional:has(.widget-button)::after 
 ${L} .main-column.left-column .new-chat-window { bottom: 0 !important; }
 /* Paski widgetów w belkach w domyślnym rozmiarze gry (gra liczy od niego przeciąganie i puste pola w trybie edycji). */
 ${L} .main-buttons-container:is(.top-left, .top-right) { top: 0 !important; bottom: auto !important; }
-${L} .main-buttons-container:is(.bottom-left, .bottom-right) { bottom: 0 !important; top: auto !important; }
+/* Pasek ma 45 px, a widget 44 px przy jego górze; na dolnej belce przesuwamy pasek o 1 px w dół, żeby widgety dotykały dolnej krawędzi okna. */
+${L} .main-buttons-container:is(.bottom-left, .bottom-right) { bottom: -1px !important; top: auto !important; }
 ${L} .main-buttons-container.top-left { left: calc(var(--mui-lw) + 2px) !important; }
 ${L} .main-buttons-container.bottom-left { left: 2px !important; }
 ${L} .main-buttons-container.top-right { right: calc(var(--mui-rw) + 2px) !important; }
 ${L} .main-buttons-container.bottom-right { right: 2px !important; }
 /* Obwódka jak przyciski motywu: zaokrąglona, z fazą (jasna u góry i po lewej, ciemna u dołu i po prawej) i brązową linią na zewnątrz.
    Tła nie ruszamy, bo dodatki (np. M2) rysują w nim swoje ikony. */
+/* Jak przyciski w prawej kolumnie starego interfejsu: cienka złota ramka z ciemną linią wewnątrz i na zewnątrz. */
 ${L} .main-buttons-container .widget-button {
-    border: 1px solid #2a1a08 !important;
-    border-radius: 6px !important;
+    border: 1px solid #b8903e !important;
+    border-radius: 3px !important;
     box-shadow:
-        inset 0 1px 0 rgba(235, 220, 165, .6),
-        inset 1px 0 0 rgba(235, 220, 165, .45),
-        inset 0 -1px 0 rgba(0, 0, 0, .65),
-        inset -1px 0 0 rgba(0, 0, 0, .65),
-        inset 0 -9px 8px -5px rgba(0, 0, 0, .4),
-        0 0 0 1px rgba(120, 85, 40, .55),
+        inset 0 0 0 1px #0c0703,
+        inset 0 -8px 8px -5px rgba(0, 0, 0, .45),
+        0 0 0 1px #1a1408,
         0 1px 2px rgba(0, 0, 0, .7) !important;
 }
-${L} .main-buttons-container .widget-button::before { box-shadow: none !important; border-radius: 5px !important; }
+${L} .main-buttons-container .widget-button::before { box-shadow: none !important; border-radius: 2px !important; }
 ${L} .main-buttons-container .widget-button:hover { filter: brightness(1.1); }
 /* Dodatkowe dolne paski jak w starym interfejsie: rząd nad dolnym paskiem przy krawędzi okna, na występie dolnej belki.
    Występ i przesunięcie kolumny w górę tylko wtedy, gdy na pasku jest widget. */
@@ -352,8 +356,9 @@ ${P} ${W} {
     border-color: transparent !important;
     background: ${WIN_HEAD}, ${WIN_BODY} !important;
     background-origin: border-box !important;
-    border-radius: var(--mui-radius) !important;
-    box-shadow: var(--mui-shadow), 0 0 0 1px var(--mui-gold-dark), 0 0 0 3px var(--mui-gold), 0 0 0 4px var(--mui-gold-dark) !important;
+    border-radius: 6px !important;
+    /* Ramka jak pole statystyk: jasna złota linia, ciemna i brązowa, a w środku lekkie przyciemnienie przy krawędziach, żeby treść nie zlewała się z tłem. */
+    box-shadow: inset 0 0 0 1px #0c0703, inset 0 0 40px rgba(0, 0, 0, .35), 0 0 0 1px #9c8350, 0 0 0 2px #2a1f0c, 0 0 0 3px #6b5228, 0 0 0 4px #0c0703, var(--mui-shadow) !important;
 }
 
 ${P} ${W} .content {
@@ -395,7 +400,8 @@ ${P} ${W}:not(.tip-window):is(.c-window--with-bottom-bar, :has(:not(.c-window__b
     background: ${WIN_HEAD}, ${WIN_BODY} !important;
     background-origin: border-box !important;
 }
-${P} .bottom-row-panel { background: var(--mui-surface) !important; box-shadow: inset 0 1px 0 var(--mui-line-soft) !important; }
+/* Dolny wiersz list z opisem (Konfiguracja, Rzemiosło) leży tylko pod prawą kolumną, więc bez linii u góry, która urywała się w połowie okna. */
+${P} .bottom-row-panel, ${P} .bottom-row-panel .interface-element-bottom-bar-background-stretch { background: var(--mui-surface) !important; box-shadow: none !important; }
 
 /* --- listy z grupami (Rzemiosło, Konfiguracja...): nagłówek grupy jak belka, wpisy na ciemnym tle ze złotym wyróżnieniem --- */
 ${P} .left-grouped-list-and-right-description-window .left-column .scroll-wrapper { border-color: var(--mui-line-soft) !important; background: rgba(0, 0, 0, .25); box-shadow: 0 0 0 1px var(--mui-gold-dark); }
@@ -550,7 +556,8 @@ ${P} .left-grouped-list-and-right-description-window .left-scroll { border-color
 /* Pionowa belka między kolumnami okna (10 px): ta sama listwa co pionowe belki kolumn interfejsu, wyśrodkowana. */
 ${P} .interface-element-vertical-wood { background: linear-gradient(90deg, transparent 0 1px, #433919 1px 2px, #492411 2px 3px, #332c09 3px 4px, #241e0a 4px 5px, #332c09 5px 6px, #573319 6px 7px, #322b16 7px 8px, transparent 8px) !important; }
 ${P} .interface-element-wood-box-background { background: var(--mui-panel-2) !important; }
-${P} .interface-element-line-1-background { background: var(--mui-line) !important; }
+/* Linie oddzielające (np. nad dolnym paskiem okna) wygaszone na końcach, bo nie zawsze sięgają do krawędzi okna. */
+${P} .interface-element-line-1-background { background: linear-gradient(90deg, transparent, var(--mui-line-soft) 20%, var(--mui-line-soft) 80%, transparent) !important; }
 
 /* --- pola przedmiotów (ikony i rzadkość zostają z gry) --- */
 ${P} .interface-element-grid-border { outline-color: transparent !important; box-shadow: 0 0 0 1px var(--mui-gold-dark), 0 0 0 2px var(--mui-gold), 0 0 0 3px var(--mui-gold-dark) !important; }
@@ -602,37 +609,46 @@ ${P} .tabs-nav .card.active {
 }
 
 /* --- przyciski --- */
-/* Jak w starym interfejsie: zieleń z jaśniejszą plamą u góry, cienka obwódka z fazą (jasna u góry i po lewej, ciemna u dołu i po prawej),
-   złoty napis tym samym krojem co statystyki; po najechaniu napis jaśnieje. */
+/* Jak w starym interfejsie: wypukły przycisk na zielonej fakturze. Kolory obwódki zmierzone ze zrzutu: jasna kremowa u góry,
+   szarooliwkowa po lewej, różowozłota po prawej i brązowa (podwójna) u dołu. W środku jaśniejszy pas pod górną krawędzią
+   i przy lewej, a dół przyciemniony prawie do czerni; napis ze złotym gradientem i czarnym obrysem.
+   Obwódka to cienie, a krój i grubość pisma zostają z gry, żeby przyciski miały rozmiar jak w domyślnym motywie. */
 ${P} .button {
-    --mui-ring: rgba(235, 220, 165, .6);
-    --mui-ring-bottom: rgba(0, 0, 0, .65);
-    --mui-ring-side: rgba(235, 220, 165, .45);
-    --mui-btn: radial-gradient(ellipse 80% 90% at 35% 25%, rgba(120, 205, 75, .55), rgba(45, 120, 30, .25) 55%, rgba(0, 0, 0, .4)), var(--mui-tex);
-    border: 1px solid #2a1a08 !important;
-    border-radius: 6px !important;
-    background-image: var(--mui-btn) !important;
-    background-color: #1f5a16 !important;
+    --mui-btn: linear-gradient(rgba(255, 255, 255, .06), transparent 40%, rgba(0, 0, 0, .25) 75%, rgba(0, 0, 0, .6)), var(--mui-tex) 50% 50%;
+    border-color: transparent !important;
+    border-radius: 5px !important;
+    background: var(--mui-btn) !important;
+    background-color: var(--mui-panel) !important;
     box-shadow:
-        inset 0 1px 0 var(--mui-ring),
-        inset 1px 0 0 var(--mui-ring-side),
-        inset 0 -1px 0 var(--mui-ring-bottom),
-        inset -1px 0 0 var(--mui-ring-bottom),
-        0 0 0 1px rgba(120, 85, 40, .55),
-        0 1px 2px rgba(0, 0, 0, .7) !important;
+        inset 0 1px 0 #e8dbc9,
+        inset -1px 0 0 #b78876,
+        inset 0 -1px 0 #44331b,
+        inset 1px 0 0 #6f7053,
+        inset 0 2px 0 #183309,
+        inset 0 4px 2px -1px rgba(160, 190, 130, .3),
+        inset 3px 0 1px -1px rgba(150, 175, 120, .35),
+        inset 0 -2px 0 #060e02,
+        inset 0 -6px 4px -2px rgba(0, 0, 0, .55),
+        0 1px 0 #5f4620,
+        0 2px 3px rgba(0, 0, 0, .6) !important;
     color: gold !important;
-    font-family: var(--mui-font) !important;
-    font-weight: 300 !important;
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, .55);
 }
 ${P} .button::before { box-shadow: none !important; }
-${P} .button.red { --mui-btn: linear-gradient(#c8302a, #a01c18 55%, #6e0f0c); }
-${P} .button.blue { --mui-btn: linear-gradient(#3f6d9c, #1d4873 55%, #123454); }
-${P} .button.purple, ${P} .button.violet, ${P} .button.blink-violet { --mui-btn: linear-gradient(#7a5496, #4b2a63 55%, #361c48); }
-${P} .button.orange { --mui-btn: linear-gradient(#b0792c, #7e4a00 55%, #5c3600); }
-${P} .button.pressed { --mui-btn: linear-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, .15)), var(--mui-tex); }
+${P} .button .label {
+    background: linear-gradient(#fff9d6, #f5d870 45%, #c8932c 80%, #a06e1c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    text-shadow: none !important;
+    filter: drop-shadow(1px 1px 0 #000) drop-shadow(0 0 1px rgba(0, 0, 0, .8));
+}
+${P} .button.red { --mui-btn: linear-gradient(rgba(200, 48, 42, .75), rgba(110, 15, 12, .85)), var(--mui-tex) 50% 50%; }
+${P} .button.blue { --mui-btn: linear-gradient(rgba(63, 109, 156, .75), rgba(18, 52, 84, .85)), var(--mui-tex) 50% 50%; }
+${P} .button.purple, ${P} .button.violet, ${P} .button.blink-violet { --mui-btn: linear-gradient(rgba(122, 84, 150, .75), rgba(54, 28, 72, .85)), var(--mui-tex) 50% 50%; }
+${P} .button.orange { --mui-btn: linear-gradient(rgba(176, 121, 44, .75), rgba(92, 54, 0, .85)), var(--mui-tex) 50% 50%; }
+${P} .button.pressed { --mui-btn: linear-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, .15)), var(--mui-tex) 50% 50%; }
 
-${P} .button:hover { color: #fff36a !important; filter: brightness(1.1); }
+${P} .button:hover { filter: brightness(1.15); }
 ${P} .button:active { filter: brightness(.88); }
 
 /* --- okno łupów: wybrana decyzja (data-state na opakowaniu przedmiotu) jest wypukła, pozostałe płaskie i przygaszone --- */
@@ -678,7 +694,8 @@ ${L}::before {
     content: "";
     position: absolute;
     inset: -7px;
-    z-index: 9998;
+    /* Nad mapą i kolumnami, ale pod warstwą okien i komunikatów gry (.alerts-layer ma z-index 11). */
+    z-index: 10;
     pointer-events: none;
     background: ${MAP_FRAME};
 }
@@ -728,10 +745,10 @@ ${L} .character_wrapper :is(.stats-wrapper, .equipment-wrapper .equipment-wrappe
 /* Wszystkie bloki panelu kończą się na krawędziach linii wokół przedmiotów. */
 /* Mapa, współrzędne i świat na dole prawej kolumny, równo z krawędziami siatki przedmiotów.
    Kontener panelu ma zerową wysokość, więc rozciągamy go na wysokość kolumny, żeby dało się liczyć od dołu; kliknięcia przechodzą przez puste miejsca. */
-${L} .right-column .character_wrapper { bottom: 0 !important; pointer-events: none; }
+${L} .right-column .character_wrapper { bottom: 0 !important; pointer-events: none; isolation: isolate; }
 ${L} .right-column .character_wrapper > * { pointer-events: auto; }
 /* Obok pasków HP i EXP (163–254 px) sam świat, w polu jak paski: brązowa obwódka i te same ozdoby po bokach; pod paskami złoto i SŁ.
-   Za długą nazwę świata skrypt pomniejsza (fitPanelText). Nazwa mapy, współrzędne i ping są na środku górnej belki (niżej). */
+   Za długą nazwę świata skrypt pomniejsza (fitPanelText). Nazwa mapy, współrzędne i ping są w prawym dolnym rogu mapy (niżej). */
 ${L} .character_wrapper .world-wrapper-light-mode {
     bottom: auto !important;
     z-index: 2;
@@ -771,18 +788,24 @@ ${L} .character_wrapper .world-wrapper-light-mode .world-wrapper-border .world-n
     color: var(--mui-muted) !important;
     text-shadow: 1px 1px 0 #000;
 }
-/* Nazwa mapy, współrzędne i ping na środku górnej belki, między paskami widgetów (31 px wyśrodkowane w 45 px nad listwą).
-   Skrypt przenosi te elementy gry do kontenera .mui-top-loc w górnej belce (moveTopParts), więc gra dalej je aktualizuje.
+/* Nazwa mapy, współrzędne i ping w prawym dolnym rogu mapy.
+   Skrypt przenosi te elementy gry do kontenera .mui-top-loc w warstwie interfejsu (moveTopParts), więc gra dalej je aktualizuje.
    Bez ramki: kropka stanu i nazwa mapy, a za cienkimi kreskami współrzędne i ping. */
+/* Pole leży w prawym dolnym rogu mapy (nad dolną belką, przy pionowej belce panelu bohatera), na delikatnym półprzezroczystym tle.
+   Puste miejsca pola przepuszczają kliknięcia na mapę. */
 ${L} .mui-top-loc {
     position: absolute;
-    top: 7px;
-    left: calc(var(--mui-lw) + (100% - var(--mui-lw) - var(--mui-rw)) / 2);
-    width: 249px;
-    height: 31px;
-    translate: -50% 0;
+    right: calc(var(--mui-rw) + 4px);
+    bottom: calc(var(--mui-bar) + 4px);
+    width: 218px;
+    height: 22px;
     z-index: 5;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, .45);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .25);
+    pointer-events: none;
 }
+${L} .mui-top-loc > * { pointer-events: auto; }
 ${L} .mui-top-loc .location-wrapper-light-mode {
     display: block !important;
     position: absolute !important;
@@ -794,26 +817,26 @@ ${L} .mui-top-loc .location-wrapper-light-mode {
     border: 0 !important;
     box-shadow: none !important;
     background:
-        linear-gradient(rgba(149, 143, 122, .5), rgba(122, 97, 54, .5)) 165px 8px / 1px 14px no-repeat,
-        linear-gradient(rgba(149, 143, 122, .5), rgba(122, 97, 54, .5)) 214px 8px / 1px 14px no-repeat !important;
+        linear-gradient(rgba(149, 143, 122, .5), rgba(122, 97, 54, .5)) 147px 4px / 1px 14px no-repeat,
+        linear-gradient(rgba(149, 143, 122, .5), rgba(122, 97, 54, .5)) 191px 4px / 1px 14px no-repeat !important;
 }
 ${L} .mui-top-loc .location-wrapper-light-mode > div { position: absolute !important; inset: 0 !important; background: transparent !important; box-shadow: none !important; border: 0 !important; }
-${L} .mui-top-loc .location-wrapper-light-mode .map-ball { position: absolute !important; top: 11px !important; left: 22px !important; width: 9px !important; height: 9px !important; border-radius: 50%; box-shadow: 0 0 0 1px #000, 0 0 3px currentColor; }
+${L} .mui-top-loc .location-wrapper-light-mode .map-ball { position: absolute !important; top: 7px !important; left: 6px !important; width: 9px !important; height: 9px !important; border-radius: 50%; box-shadow: 0 0 0 1px #000, 0 0 3px currentColor; }
 ${L} .mui-top-loc .location-wrapper-light-mode .location-name {
     position: absolute !important;
     top: 0 !important;
-    left: 37px !important;
+    left: 19px !important;
     width: 124px !important;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font: 400 11px/31px var(--mui-font) !important;
+    font: 400 11px/22px var(--mui-font) !important;
     color: var(--mui-title) !important;
     text-shadow: 1px 1px 0 #000;
 }
-${L} .mui-top-loc .location-cords-light-mode { display: block !important; position: absolute !important; top: 8px !important; left: 175px !important; bottom: auto !important; right: auto !important; translate: none; z-index: 3; }
+${L} .mui-top-loc .location-cords-light-mode { display: block !important; position: absolute !important; top: 4px !important; left: 153px !important; bottom: auto !important; right: auto !important; translate: none; z-index: 3; }
 /* Ping: te same słupki zasięgu co na dolnej belce, pomniejszone. */
-${L} .mui-top-loc .lagmeter { position: absolute !important; left: 224px !important; top: 10px !important; bottom: auto !important; width: 15px !important; height: 11px !important; z-index: 3; }
+${L} .mui-top-loc .lagmeter { position: absolute !important; left: 197px !important; top: 6px !important; bottom: auto !important; width: 15px !important; height: 11px !important; z-index: 3; }
 ${L} .mui-top-loc .lagmeter .lag {
     --mui-lag: #6fcf4a;
     position: absolute !important;
@@ -879,27 +902,43 @@ ${L} .character_wrapper .progress-bars-light-mode::after {
 ${L} .character_wrapper .progress-bars-light-mode::before { left: 0; background: url("${TEX.barL}") 0 0 / 100% 100% no-repeat; }
 ${L} .character_wrapper .progress-bars-light-mode::after { right: 0; background: url("${TEX.barR}") 0 0 / 100% 100% no-repeat; }
 ${L} .character_wrapper .stats-light-mode {
-    left: 121px !important;
+    left: 117px !important;
     top: 105px !important;
-    width: 133px !important;
+    width: 132px !important;
     height: 104px !important;
     box-shadow: none !important;
     outline: none !important;
+    /* Pod resztą panelu, żeby ramka statystyk nie zasłaniała ikon, które wchodzą na jej krawędź (kontener panelu ma własny kontekst warstw).
+       Ramka złota i SŁ (::before kontenera) leży jeszcze niżej, więc kwoty z listy statystyk dalej są nad nią. */
+    z-index: -1 !important;
 }
-${L} .character_wrapper .stats-light-mode .stats-border { background: var(--mui-panel-2) !important; box-shadow: none !important; }
-${L} .character_wrapper .stats-light-mode .stats-list { top: 8px !important; left: 9px !important; width: 116px !important; display: flex !important; flex-direction: column; }
+/* Pole statystyk jak w starym interfejsie: bez tła, w cienkiej, zaokrąglonej złotobrązowej ramce (jasna linia, ciemna, brązowa).
+   Krawędzie ramki równo z ramką toreb, a między nimi kilkupikselowy odstęp. */
+${L} .character_wrapper .stats-light-mode .stats-border {
+    background: none !important;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px #0c0703, inset 0 0 8px 2px rgba(0, 0, 0, .55), inset 0 2px 4px rgba(0, 0, 0, .5), 0 0 0 1px #9c8350, 0 0 0 2px #2a1f0c, 0 0 0 3px #6b5228 !important;
+}
+${L} .character_wrapper .stats-light-mode .stats-list { top: 6px !important; left: 8px !important; width: 116px !important; display: flex !important; flex-direction: column; }
 ${L} .character_wrapper .stats-light-mode .stats-list-line { display: none !important; }
 /* Statystyki z podpisami jak w starym interfejsie i w jego kolejności: atak, pancerz, SA, odporności. */
 ${L} .character_wrapper .stats-light-mode .stats-list li:is(.attack, .defence, .attack-speed, .resists) {
     display: flex !important;
     justify-content: space-between;
-    height: 17px;
+    height: 15px;
     margin: 0 !important;
-    font: 300 11px/17px var(--mui-font);
+    font: 300 11px/15px var(--mui-font);
 }
 ${L} .character_wrapper .stats-light-mode .stats-list li:is(.attack, .defence, .attack-speed, .resists) .stat-icon { display: none !important; }
-${L} .character_wrapper .stats-light-mode .stats-list li:is(.attack, .defence, .attack-speed, .resists) .value { float: none !important; line-height: 17px !important; font-weight: 300 !important; color: gold !important; }
-${L} .character_wrapper .stats-light-mode .stats-list li:is(.attack, .defence, .attack-speed, .resists)::before { color: var(--mui-muted); }
+${L} .character_wrapper .stats-light-mode .stats-list li:is(.attack, .defence, .attack-speed, .resists) .value { float: none !important; line-height: 15px !important; font: 700 11px/15px Arial, sans-serif !important; color: #e4e4e4 !important; text-shadow: 1px 1px 0 #000; }
+/* Podpisy złotym gradientem jak w starym interfejsie, wartości jasnoszare. */
+${L} .character_wrapper .stats-light-mode .stats-list li:is(.attack, .defence, .attack-speed, .resists)::before {
+    background: linear-gradient(#fff3b0, #e8c860 50%, #b08a30);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(1px 1px 0 #000);
+}
 ${L} .character_wrapper .stats-light-mode .stats-list li.attack { order: 1; }
 ${L} .character_wrapper .stats-light-mode .stats-list li.attack::before { content: "ATAK:"; }
 ${L} .character_wrapper .stats-light-mode .stats-list li.defence { order: 2; }
@@ -908,17 +947,17 @@ ${L} .character_wrapper .stats-light-mode .stats-list li.attack-speed { order: 3
 ${L} .character_wrapper .stats-light-mode .stats-list li.attack-speed::before { content: "SA:"; }
 ${L} .character_wrapper .stats-light-mode .stats-list li.resists { order: 4; }
 ${L} .character_wrapper .stats-light-mode .stats-list li.resists::before { content: "ODP.:"; }
-/* Cztery odporności nie mieściły się w szerokości listy (116 px) i ostatnia wartość była ucinana: węższy krój i bez zawijania. */
-${L} .character_wrapper .stats-light-mode .stats-list li.resists .value { font: 300 10px/17px Arial, sans-serif !important; white-space: nowrap; letter-spacing: -.2px; }
+/* Cztery odporności w jednej linii z podpisem: węższy krój, bez zawijania. */
+${L} .character_wrapper .stats-light-mode .stats-list li.resists .value { font-size: 10px !important; white-space: nowrap; letter-spacing: -.2px; }
 ${L} .character_wrapper .stats-light-mode .stats-button { left: 27px !important; bottom: 4px !important; width: 78px !important; height: 22px !important; margin: 0 !important; transform: none !important; }
 ${L} .character_wrapper .stats-light-mode .stats-button .button { width: 78px !important; height: 22px !important; line-height: 18px !important; }
 ${L} .character_wrapper .stats-light-mode .stats-button .button .label { height: 20px !important; font-size: 12px !important; line-height: 20px !important; }
 /* Złoto i SŁ zostają w liście statystyk gry, ale stoją w jednym rzędzie pod paskami (70–101 px) we wspólnej ramce ze starego interfejsu.
    Jedna siatka: lewa krawędź ramki równo z paskami HP i EXP, prawa z ramką mapy, a linia między złotem a SŁ (119 px)
-   wypada w szczelinie między ekwipunkiem a statystykami. Pozycje liczone od początku listy statystyk (130 px, 113 px), bo to ona jest ich kontenerem. */
+   wypada w szczelinie między ekwipunkiem a statystykami. Pozycje liczone od początku listy statystyk (125 px, 111 px), bo to ona jest ich kontenerem. */
 ${L} .character_wrapper .stats-light-mode .stats-list :is(.gold-currency, .sl-currency) {
     position: absolute !important;
-    top: -43px !important;
+    top: -41px !important;
     height: 31px;
     margin: 0 !important;
     white-space: nowrap;
@@ -929,8 +968,8 @@ ${L} .character_wrapper .stats-light-mode .stats-list :is(.gold-currency, .sl-cu
 }
 /* Ikona przy lewym końcu pola, kwota przy prawym: wewnętrzny kontener gry ma szerokość treści, więc rozciągamy go na całe pole. */
 ${L} .character_wrapper .stats-light-mode .stats-list :is(.gold-currency, .sl-currency) > .cost-component { width: 100% !important; justify-content: space-between !important; }
-${L} .character_wrapper .stats-light-mode .stats-list .gold-currency { left: -124px !important; width: 113px !important; padding: 0 10px 0 22px !important; }
-${L} .character_wrapper .stats-light-mode .stats-list .sl-currency { left: -11px !important; width: 135px !important; padding: 0 22px 0 12px !important; }
+${L} .character_wrapper .stats-light-mode .stats-list .gold-currency { left: -119px !important; width: 113px !important; padding: 0 10px 0 22px !important; }
+${L} .character_wrapper .stats-light-mode .stats-list .sl-currency { left: -6px !important; width: 135px !important; padding: 0 22px 0 12px !important; }
 /* Kwota w jednej linii, bez ucinania przez kontener gry. */
 ${L} .character_wrapper .stats-light-mode .stats-list :is(.gold-currency, .sl-currency) :is(.cost-component, .amount) { white-space: nowrap !important; overflow: visible !important; max-width: none !important; font-weight: 300 !important; color: gold !important; }
 /* Ramkę i linię rysuje kontener panelu, bo element złota przycina to, co z niego wystaje.
@@ -947,6 +986,7 @@ ${L} .right-column .character_wrapper::before {
     border-width: 0 38px;
     border-image: url("${TEX.goldFrame}") 0 38 fill / 0 38px stretch;
     pointer-events: none;
+    z-index: -2;
 }
 ${L} .right-column .character_wrapper::after {
     content: "";
@@ -958,20 +998,12 @@ ${L} .right-column .character_wrapper::after {
     background: linear-gradient(#958f7a, #7a6136);
     box-shadow: 1px 0 0 #0e1206;
     pointer-events: none;
+    z-index: -1;
 }
 /* Dawna wspólna ramka na liście statystyk nie jest już potrzebna. */
 ${L} .character_wrapper .stats-light-mode .stats-border::before { content: none !important; }
-/* Ozdobna ramka: szerokości to wycinki grafiki, a ujemne odsunięcia pozwalają ozdobom wystawać poza pole. */
-${L} .character_wrapper .stats-light-mode .stats-border::after {
-    content: "";
-    position: absolute;
-    inset: -4px -2px -3px -3px;
-    z-index: 5;
-    border-style: solid;
-    border-width: 21px 36px 20px 12px;
-    border-image: var(--mui-frame) 21 36 20 12;
-    pointer-events: none;
-}
+/* Bez ozdobnej ramki: stary interfejs ma tu tylko cienką zaokrągloną obwódkę (cienie na .stats-border). */
+${L} .character_wrapper .stats-light-mode .stats-border::after { content: none !important; }
 /* Faktura siatki ma linię tylko po prawej i na dole komórki; górną i lewą linię pierwszego rzędu i kolumny dorysowuje przesunięty cień w kolorze tej linii. */
 ${L} .inventory_wrapper .inventory-grid-bg { border-radius: 1px; box-shadow: -1px -1px 0 0 #5a5435, 0 0 0 6px rgba(0, 0, 0, .5) !important; outline: none !important; border-color: transparent !important; }
 /* Faktura siatki ma linię tylko po prawej i na dole komórki, więc górną i lewą linię pierwszego rzędu rysuje 1-pikselowe obramowanie pod siatką. */
@@ -996,10 +1028,10 @@ ${L} .main-column.right-column { width: 257px !important; }
 ${L} .right-main-column-wrapper { left: 8px !important; }
 
 /* Ekwipunek pod złotem i SŁ, z górną krawędzią równo ze statystykami. */
-${L} .character_wrapper .equipment-wrapper { top: 105px !important; left: 5px !important; }
+${L} .character_wrapper .equipment-wrapper { top: 105px !important; left: 5px !important; outline: none !important; }
 ${L} .character_wrapper .builds-interface { top: 110px !important; left: 76px !important; }
 ${L} .character_wrapper .pvp-btn { top: 209px !important; left: 77px !important; }
-/* Ikona berserka z Gargonem w pasie między ekwipunkiem a statystykami. */
+/* Ikona berserka z Gargonem w pasie między ekwipunkiem a statystykami (tylko pozycja, bo panel jest tu ułożony inaczej niż w grze). */
 ${L} .gargonem-pocket-berserk-icon { top: 113px !important; left: 104px !important; }
 ${L} .inventory_wrapper { top: 268px !important; }
 /* Torby pod statystykami z kilkupikselowym odstępem; prawa krawędź ich ramki równo z ramką siatki i statystyk. */
@@ -1058,6 +1090,22 @@ ${P} .ni-input textarea.default {
 }
 ${P} .ni-input input.default:focus,
 ${P} .ni-input textarea.default:focus { border-color: var(--mui-accent) !important; }
+/* Wyszukiwarki (listy w oknach, mapa świata, Kto tu jest...): w grze ramka z lupą to obrazek na obramowaniu (search.png).
+   Grubość obramowania zostaje, bo od niej liczy się układ; zamiast obrazka ciemne pole w złotej linii z lupą po lewej. Pole tekstowe w środku bez własnej ramki.
+   Okna przezroczyste mają własny, płaski wygląd wyszukiwarki z gry, więc ich nie ruszamy. */
+${P} .search-component:not(.border-window.transparent .search-component) {
+    border-image: none !important;
+    border-color: transparent !important;
+    background:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='10' cy='10' r='6' fill='none' stroke='%23c9a94f' stroke-width='2.5'/><path d='M14.5 14.5L20 20' stroke='%23c9a94f' stroke-width='3' stroke-linecap='round'/></svg>") 9px 50% / 16px 16px no-repeat,
+        rgba(0, 0, 0, .55) !important;
+    background-origin: border-box !important;
+    background-clip: border-box !important;
+    border-radius: var(--mui-radius);
+    box-shadow: inset 0 0 0 1px var(--mui-line-soft), inset 0 1px 3px rgba(0, 0, 0, .7), 0 0 0 1px var(--mui-gold-dark) !important;
+}
+${P} .search-component:not(.border-window.transparent .search-component) .search { background: transparent !important; border: 0 !important; box-shadow: none !important; color: var(--mui-text) !important; }
+${P} .search-component:not(.border-window.transparent .search-component) .search::placeholder { color: var(--mui-muted); }
 `;
 
     const style = document.createElement('style');
@@ -1121,13 +1169,13 @@ ${P} .ni-input textarea.default:focus { border-color: var(--mui-accent) !importa
     };
     // Mapa ma inny rozmiar, niż przewiduje gra (bez belek), więc po starcie prosimy grę
     // o przeliczenie rozmiaru jak przy zmianie okna.
-    // Nazwę mapy, współrzędne (oba z panelu bohatera) i ping (z dolnej belki) przenosimy do kontenera na środku górnej belki.
+    // Nazwę mapy, współrzędne (oba z panelu bohatera) i ping (z dolnej belki) przenosimy do kontenera w prawym dolnym rogu mapy.
     // To te same elementy gry, więc gra dalej je aktualizuje. Po wyłączeniu motywu lub w lekkim trybie gry wracają na swoje miejsca.
     const TOP_PARTS = ['.location-wrapper-light-mode', '.location-cords-light-mode', '.lagmeter'];
     const homes = new Map();
     let topBox = null;
     const moveTopParts = () => {
-        const bar = document.querySelector('.game-window-positioner.classic-interface .interface-layer .positioner.top');
+        const bar = document.querySelector('.game-window-positioner.classic-interface .interface-layer');
         const active = root.hasAttribute('data-mui') && bar;
         if (active && (!topBox || topBox.parentNode !== bar)) {
             topBox = topBox || Object.assign(document.createElement('div'), { className: 'mui-top-loc' });
