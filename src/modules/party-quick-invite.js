@@ -48,7 +48,11 @@ const css = panelId => `
     #${panelId} .pqi-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 2px; margin: 0; }
     #${panelId} .pqi-row:hover { filter: brightness(1.2); }
     /* Zaznaczenie zmienia tylko tło — bez dodatkowych elementów i ramek, więc układ wiersza zostaje ten sam. */
-    #${panelId} .pqi-row.checked { background: rgba(46,204,113,0.22); box-shadow: inset 0 0 6px rgba(46,204,113,0.55); }
+    /* Jaskrawa zieleń: tło, ramka (inset — nie zmienia rozmiaru) i lekka poświata. */
+    #${panelId} .pqi-row.checked {
+        background: rgba(57,255,120,0.28); border-color: #39ff78;
+        box-shadow: inset 0 0 0 1px #39ff78, inset 0 0 6px rgba(57,255,120,0.7);
+    }
     #${panelId} .pqi-row-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; overflow: hidden; gap: 3px; }
     #${panelId} .pqi-nick { font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; flex: 1; margin-right: 4px; }
     /* Poziom w nawiasie zaraz za nickiem, przygaszony. */
