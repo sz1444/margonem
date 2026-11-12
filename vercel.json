@@ -7,6 +7,8 @@
   "rewrites": [
     { "source": "/hub.js", "has": [{ "type": "query", "key": "mode", "value": "dev(.*)" }], "destination": "/hub-builds/hub-dev.js" },
     { "source": "/hub.js", "destination": "/hub-builds/hub.js" },
+    { "source": "/hidden.js", "has": [{ "type": "query", "key": "dev", "value": "true(.*)" }], "destination": "/hidden-builds/hidden-dev.js" },
+    { "source": "/hidden.js", "destination": "/hidden-builds/hidden.js" },
     { "source": "/log", "destination": "/api/log" },
     { "source": "/hidden/login", "destination": "/api/hidden/login" },
     { "source": "/hidden/callback", "destination": "/api/hidden/callback" },

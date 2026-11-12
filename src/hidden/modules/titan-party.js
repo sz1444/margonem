@@ -1,6 +1,8 @@
 import { createQuickParty } from '../../modules/party-quick-invite.js';
+import { MAP_CONFIG } from '../../modules/tytan-helper.js';
 import { injectStyle } from '../../core/dom.js';
 import { gmRequest } from '../../core/env.js';
+import { getMapName } from '../../core/game.js';
 import { BASE_URL, getSession } from '../auth.js';
 
 // Serwer trzyma odpowiedź godzinę (api/hidden/titan-hour.js) — częściej nie ma sensu pytać.
@@ -18,10 +20,11 @@ const CSS = `
         font-size: 10px; font-weight: 700; white-space: nowrap; color: #ff4d4d;
     }
     /* Stała szerokość liczb — plakietki w każdym wierszu równe (do „999h”). */
-    #tpqPanel .tpq-hours .cur, #tpqPanel .tpq-hours .prev { width: 24px; text-align: center; font-variant-numeric: tabular-nums; }
+    #tpqPanel .tpq-hours .cur, #tpqPanel .tpq-hours .prev, #tpqPanel .tpq-hours .today { width: 24px; text-align: center; font-variant-numeric: tabular-nums; }
     #tpqPanel .tpq-hours .sep { color: rgba(255,255,255,0.3); font-weight: 400; }
     #tpqPanel .tpq-hours .high { color: #4dff8f; }
     #tpqPanel .tpq-hours .mid { color: #ffe23d; }
+    #tpqPanel .tpq-hours .today { color: #7fd4ff; }
     #tpqPanel .pqi-row { padding: 1px 2px; }
     /* Poziom cienki i biały, żeby nie mylił się z godzinami (kolor relacji ma inline style). */
     #tpqPanel .pqi-lvl { color: #fff !important; font-weight: 400; }
@@ -32,6 +35,8 @@ const CSS = `
 // accountId → { current, previous } z /hidden/titan-hour; null, dopóki nie przyjdą dane.
 let hoursByAccount = null;
 let months = {};
+// Dzień, którego dotyczy `today` w odpowiedzi („2026-10-20”).
+let hoursDay = null;
 
 /** Odpowiedź /hidden/titan-hour albo null. Przy 401 raz odświeża sesję i ponawia. */
 async function fetchTitanHours(retried = false) {
@@ -62,6 +67,7 @@ function applyHours(data) {
     if (!data?.accounts) return false;
     hoursByAccount = new Map(data.accounts.map(a => [a.accountId, a]));
     months = { current: data.currentMonth, previous: data.previousMonth };
+    hoursDay = data.today ?? null;
     return true;
 }
 
@@ -101,7 +107,26 @@ function monthLabel(month) {
     return MONTH_NAMES[m - 1] ? `${MONTH_NAMES[m - 1]} ${year}` : '?';
 }
 
-/** „1h │ 2h” za poziomem: godziny w poprzednim i tym miesiącu; po najechaniu — którego miesiąca dotyczą. */
+/** Dzisiejsza data lokalnie, w formacie API („2026-10-20”). */
+const localDay = () => new Date().toLocaleDateString('sv-SE');
+
+/** Tytan z mapy, na której stoi gracz (wg MAP_CONFIG), albo null. */
+function currentMapTitan() {
+    const mapName = getMapName('').toLowerCase();
+    return MAP_CONFIG.find(m => m.name.toLowerCase() === mapName)?.monster ?? null;
+}
+
+/** „1.5h” — dzisiejsze godziny na tytanie z bieżącej mapy; poza mapą tytana (albo gdy dane są z innego dnia) nic. */
+// Na razie tylko w wersji dev (/hidden.js?dev=true).
+function todayHtml(entry, titan) {
+    if (!__HIDDEN_DEV__ || !titan || hoursDay !== localDay()) return '';
+    const hours = Number(entry?.today?.byTitan?.find(t => t.name === titan)?.hours) || 0;
+    const label = `${Math.round(hours * 10) / 10}h`;
+    const title = `Godziny na tytanie ${titan} — dziś: ${label}`;
+    return `<span class="sep">│</span><span class="today" title="${title}">${label}</span>`;
+}
+
+/** „1h │ 2h” za poziomem: godziny w poprzednim i tym miesiącu; po najechaniu — którego miesiąca dotyczą. Na mapie tytana dochodzi „│ dziś”. */
 function hoursHtml(p) {
     if (!hoursByAccount) return '';
     const entry = hoursByAccount.get(Number(p.account));
@@ -111,7 +136,8 @@ function hoursHtml(p) {
     const previousTitle = `Godziny na tytanach — ${monthLabel(months.previous)} (poprzedni miesiąc): ${previous}h`;
     return `<div class="tpq-hours" title="${previousTitle}\n${currentTitle}">`
         + `<span class="prev ${levelClass(previous)}" title="${previousTitle}">${previous}h</span><span class="sep">│</span>`
-        + `<span class="cur ${levelClass(current)}" title="${currentTitle}">${current}h</span></div>`;
+        + `<span class="cur ${levelClass(current)}" title="${currentTitle}">${current}h</span>`
+        + `${todayHtml(entry, currentMapTitan())}</div>`;
 }
 
 export default createQuickParty({

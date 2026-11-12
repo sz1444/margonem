@@ -106,7 +106,7 @@ export async function fetchModules(session, retried = false) {
     try {
         res = await gmRequest({
             method: 'GET',
-            url: `${BASE_URL}/hidden/modules.js?t=${Date.now()}`,
+            url: `${BASE_URL}/hidden/modules.js?t=${Date.now()}${__HIDDEN_DEV__ ? '&dev=1' : ''}`,
             headers: { Authorization: `Bearer ${session.accessToken}` },
         });
     } catch {

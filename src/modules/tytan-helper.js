@@ -18,7 +18,7 @@ const HIDDEN_KEY = 'msLite_hidden';
 const MUTED_KEY = 'msLite_muted';
 const ALERTS_KEY = 'msLite_customAlerts';
 
-const MAP_CONFIG = [
+export const MAP_CONFIG = [
     { name: "Sala Tronowa", monster: "Tanroth", icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/ice_king.gif", fallbackId: "p2758" },
     { name: "Sala Zrujnowanej Świątyni", monster: "Barbatos", icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/hebrehoth_smokoludzie.gif", fallbackId: "p238" },
     { name: "Teotihuacan", monster: "Tezcatlipoca", icon: "https://micc.garmory-cdn.cloud/obrazki/npc/tyt/tezcatlipoca.gif", fallbackId: "n166" },

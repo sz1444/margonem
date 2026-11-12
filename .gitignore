@@ -6,6 +6,7 @@ node_modules/
 public/hub.js
 public/hub-builds/
 public/hidden.js
+public/hidden-builds/
 public/thema-si.user.js
 dist/
 private/

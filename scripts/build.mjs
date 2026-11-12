@@ -1,8 +1,10 @@
 // Buduje bundle hubów, zaciemnione:
 //   public/hub-builds/hub.js     ← /hub.js, loader public/hub.user.js: panel + dodatki
 //   public/hub-builds/hub-dev.js ← /hub.js?mode=dev: to samo + dodatki z `dev: true`
-//   public/hidden.js            ← loader public/hidden.user.js: panel ukrytych dodatków z logowaniem Discord
-//   private/hidden-modules.js   ← same ukryte dodatki, wydawane przez api/hidden/modules.js po zalogowaniu
+//   public/hidden-builds/hidden.js     ← /hidden.js, loader public/hidden.user.js: panel ukrytych dodatków z logowaniem Discord
+//   public/hidden-builds/hidden-dev.js ← /hidden.js?dev=true: to samo, ale pobiera dodatki w wersji dev
+//   private/hidden-modules.js          ← same ukryte dodatki, wydawane przez api/hidden/modules.js po zalogowaniu
+//   private/hidden-modules-dev.js      ← to samo z __HIDDEN_DEV__ = true (/hidden/modules.js?dev=1)
 //   public/thema-si.user.js     ← samodzielny skrypt Tampermonkeya (źródło: src/userscripts/), bez ładowania z serwera
 // Ładowane przez eval w kontekście Tampermonkeya.
 //   npm run build      → produkcyjny (obfuskacja)
@@ -43,9 +45,12 @@ const TARGETS = [
     // /hub.js i /hub.js?mode=dev — rewrite w vercel.json (pod /hub.js nie może leżeć prawdziwy plik).
     { entry: 'src/main.js', out: 'public/hub-builds/hub.js', define: { __HUB_DEV__: 'false' } },
     { entry: 'src/main.js', out: 'public/hub-builds/hub-dev.js', define: { __HUB_DEV__: 'true' } },
-    { entry: 'src/hidden/main.js', out: 'public/hidden.js' },
+    // /hidden.js i /hidden.js?dev=true — rewrite w vercel.json, jak przy hubie.
+    { entry: 'src/hidden/main.js', out: 'public/hidden-builds/hidden.js', define: { __HIDDEN_DEV__: 'false' } },
+    { entry: 'src/hidden/main.js', out: 'public/hidden-builds/hidden-dev.js', define: { __HIDDEN_DEV__: 'true' } },
     // globalName: src/hidden/auth.js odczytuje `hiddenModules.default` po wykonaniu bundla.
-    { entry: 'src/hidden/modules/index.js', out: 'private/hidden-modules.js', globalName: 'hiddenModules' },
+    { entry: 'src/hidden/modules/index.js', out: 'private/hidden-modules.js', globalName: 'hiddenModules', define: { __HIDDEN_DEV__: 'false' } },
+    { entry: 'src/hidden/modules/index.js', out: 'private/hidden-modules-dev.js', globalName: 'hiddenModules', define: { __HIDDEN_DEV__: 'true' } },
 ];
 
 // Duże pliki danych (*.json) nie idą przez obfuscator — zaciemnianie setek KB współrzędnych
