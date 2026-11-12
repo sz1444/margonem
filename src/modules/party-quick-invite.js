@@ -70,6 +70,14 @@ const css = panelId => `
     #${panelId} .pqi-btn { display: flex !important; align-items: center; justify-content: center; }
     #${panelId} .pqi-btn .label { width: 100%; text-align: center; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #${panelId} .pqi-btn:hover { filter: brightness(1.2); }
+    /* „Zaznacz grupę” — mały przycisk w prawym górnym rogu, obok zwijania. */
+    #${panelId} .pqi-select-party {
+        position: absolute; top: 5px; right: 30px; z-index: 2; cursor: pointer;
+        width: 14px; height: 14px; display: flex; align-items: center; justify-content: center;
+        color: #2ecc71; font-size: 11px; font-weight: 700; line-height: 1;
+        border: 1px solid rgba(255,255,255,0.3); border-radius: 2px; background: rgba(0,0,0,0.5);
+    }
+    #${panelId} .pqi-select-party:hover { color: #fff; border-color: #fff; background: rgba(46,204,113,0.35); }
     /* Uzbrojone „po walce”: przycisk gry przefarbowany na czerwono. */
     #${panelId} .pqi-btn.on { filter: hue-rotate(-110deg) saturate(1.6); }
 `;
@@ -89,7 +97,6 @@ const PANEL_HTML = `
                 <div class="player-list" id="pqiList" style="padding: 2px;"></div>
                 <div class="pqi-actions">
                     <div class="pqi-btns">
-                        <div class="button green small pqi-btn" id="pqiSelectParty" title="Zaznacz graczy z obecnej grupy"><div class="background"></div><div class="label">Zaznacz grupę</div></div>
                         <div class="button green small pqi-btn" id="pqiCreate" title="Rozwiąż grupę i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
                         <div class="button green small pqi-btn" id="pqiArm" title="Rozwiąż grupę i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
                     </div>
@@ -100,6 +107,7 @@ const PANEL_HTML = `
     <div class="c-window__bottom-bar">
         <div class="interface-element-bottom-bar-background-stretch"></div>
     </div>
+    <div class="pqi-select-party" id="pqiSelectParty" title="Zaznacz graczy z obecnej grupy">✓</div>
     <div class="close-button-corner-decor">
         <button type="button" class="close-button" id="pqiToggle"><div class="ie-icon ie-icon-close"></div></button>
     </div>
