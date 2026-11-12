@@ -90,7 +90,8 @@ async function buildTarget({ entry, out, globalName, define }) {
         bundle: true,
         format: 'iife',
         globalName,
-        define,
+        // Każdy bundle zna obie flagi — wspólne moduły (np. party-quick-invite) trafiają i do huba, i do ukrytych.
+        define: { __HUB_DEV__: 'false', __HIDDEN_DEV__: 'false', ...define },
         target: 'es2020',
         charset: 'utf8',
         legalComments: 'none',

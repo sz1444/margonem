@@ -149,6 +149,8 @@ export default createQuickParty({
     storagePrefix: 'tpq',
     // Plakietka z godzinami poszerza wiersz — więcej kolumn dopiero w szerszym oknie.
     columnBreakpoints: [400, 620, 1200],
+    // Nowe składanie grupy na razie tylko w /hidden.js?dev=true.
+    keepParty: __HIDDEN_DEV__,
     extension: {
         setup(rerender) {
             injectStyle(CSS);

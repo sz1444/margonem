@@ -138,6 +138,11 @@ export function disbandParty() {
     sendRequest('party&a=disband');
 }
 
+/** Wyrzuca gracza z grupy (tylko lider). */
+export function kickFromParty(id) {
+    sendRequest(`party&a=rm&id=${id}`);
+}
+
 export function leaveParty() {
     const id = getHeroId();
     if (id) sendRequest(`party&a=rm&id=${id}`);

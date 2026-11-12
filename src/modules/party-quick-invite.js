@@ -3,7 +3,7 @@ import { win } from '../core/env.js';
 import { loadJSON, saveJSON, loadFlag, saveFlag } from '../core/storage.js';
 import {
     getHeroId, getClanId, getWorldName, getMapPlayers, getPartyMembers, inviteToParty,
-    isInParty, isPartyLeader, disbandParty, leaveParty,
+    isInParty, isPartyLeader, disbandParty, kickFromParty, leaveParty,
 } from '../core/game.js';
 import { makeDraggable } from '../core/drag.js';
 import { setupOpacityButton } from '../core/ui.js';
@@ -172,6 +172,7 @@ function openPlayerMenu(p, e) {
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
+ * keepParty: lider nie rozwiązuje grupy, tylko wyrzuca niezaznaczonych i zaprasza brakujących (na razie tylko w dev).
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -182,6 +183,7 @@ export function createQuickParty({
     storagePrefix = 'pqi',
     columnBreakpoints = COLUMN_BREAKPOINTS,
     extension = {},
+    keepParty = false,
 } = {}) {
     const POS_KEY = `${storagePrefix}_widget_pos`;
     const OPACITY_KEY = `${storagePrefix}_widget_opacity`;
@@ -338,9 +340,20 @@ export function createQuickParty({
                 if (p) openPlayerMenu(p, e);
             });
 
-            /** Rozwiązuje (lider) lub opuszcza starą grupę i zaprasza zaznaczonych — z przycisku albo po walce. */
+            /**
+             * Składa grupę z zaznaczonych — z przycisku albo po walce. Z keepParty lider nie rozwiązuje grupy: wyrzuca
+             * niezaznaczonych i zaprasza tylko brakujących. Bez keepParty (albo gdy nie jest liderem) stara grupa jest
+             * rozwiązywana / opuszczana i wszyscy zaznaczeni dostają zaproszenie od nowa.
+             */
             function newParty() {
                 if (!selected.size) return;
+                if (keepParty && isInParty() && isPartyLeader()) {
+                    const myId = getHeroId();
+                    const memberIds = new Set(getPartyMembers().map(m => m.id));
+                    for (const id of memberIds) if (id !== myId && !selected.has(id)) kickFromParty(id);
+                    for (const m of selected.values()) if (!memberIds.has(m.id)) inviteToParty(m.id);
+                    return;
+                }
                 if (isInParty()) {
                     if (isPartyLeader()) disbandParty();
                     else leaveParty();
@@ -377,4 +390,5 @@ export function createQuickParty({
     };
 }
 
-export default createQuickParty();
+// Nowe składanie grupy (keepParty) na razie tylko w /hub.js?mode=dev.
+export default createQuickParty({ keepParty: __HUB_DEV__ });
