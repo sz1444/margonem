@@ -12,19 +12,33 @@ const CACHE_KEY = 'hidden_titan_hours_v2';
 const STALE_CHECK_INTERVAL = 5 * 60 * 1000;
 
 const CSS = `
-    /* Godziny po prawej: każdy okres w ramce — na górze liczba, pod nią okres (wrz / paź / dziś). */
-    #tpqPanel .tpq-hours { display: flex; align-items: stretch; gap: 1px; flex-shrink: 0; }
+    /* Mniej ramek: sekcje to lekkie tło bez obramowania, wiersze bez ramek (tylko delikatne paski). */
+    #tpqPanel .pqi-grid { gap: 4px; }
+    #tpqPanel .pqi-grid .pqi-section {
+        border: none; border-radius: 3px; background: rgba(0,0,0,0.25); padding: 2px 3px 3px;
+    }
+    #tpqPanel .pqi-grid .pqi-section-head { border-bottom: none; margin-bottom: 1px; padding: 0 3px; }
+    #tpqPanel .pqi-grid .pqi-section-head .pqi-title { color: rgba(255,255,255,0.7); font-weight: 600; }
+    #tpqPanel .pqi-grid .pqi-section-head .pqi-count { color: rgba(255,255,255,0.5); }
+    #tpqPanel .pqi-section .pqi-row:not(.checked) {
+        border: none; border-radius: 2px; background: transparent; box-shadow: none;
+    }
+    #tpqPanel .pqi-section .pqi-row:not(.checked):nth-child(even) { background: rgba(255,255,255,0.04); }
+    #tpqPanel .pqi-section .pqi-row:not(.checked):hover { background: rgba(255,255,255,0.08); filter: none; }
+    #tpqPanel .pqi-row { padding: 1px 3px; border-radius: 2px; }
+    /* Godziny po prawej: same liczby w równych kolumnach, pod nimi przygaszony okres (wrz / paź / dziś). */
+    #tpqPanel .tpq-hours { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
     #tpqPanel .tpq-cell {
-        display: flex; flex-direction: column; align-items: center; justify-content: center; width: 26px; padding: 0;
-        border: 1px solid rgba(255,255,255,0.18); border-radius: 2px; background: rgba(0,0,0,0.3);
+        display: flex; flex-direction: column; align-items: flex-end; justify-content: center; width: 28px; padding: 0;
         color: #e06c6c; white-space: nowrap;
     }
-    #tpqPanel .tpq-cell b { font-size: 10px; line-height: 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
-    #tpqPanel .tpq-cell i { font-size: 7px; line-height: 7px; font-style: normal; color: rgba(255,255,255,0.45); }
+    #tpqPanel .tpq-cell b { font-size: 11px; line-height: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    #tpqPanel .tpq-cell i { font-size: 7px; line-height: 8px; font-style: normal; color: rgba(255,255,255,0.35); }
     #tpqPanel .tpq-cell.high { color: #5fd88a; }
     #tpqPanel .tpq-cell.mid { color: #e8d25a; }
     #tpqPanel .tpq-cell.today { color: #7fc8f0; }
-    #tpqPanel .pqi-row { padding: 0 2px; }
+    /* Zero godzin nie krzyczy na czerwono — tylko przygaszone. */
+    #tpqPanel .tpq-cell.zero b { opacity: 0.5; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
@@ -93,7 +107,7 @@ function totalHours(p) {
 }
 
 /** Kolor progu: 30h+ zielony, 20h+ żółty, poniżej czerwony. */
-const levelClass = h => (h >= 30 ? 'high' : h >= 20 ? 'mid' : '');
+const levelClass = h => (h >= 30 ? 'high' : h >= 20 ? 'mid' : h > 0 ? '' : 'zero');
 
 const MONTH_NAMES = ['styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec',
     'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'];
@@ -132,7 +146,7 @@ function todayHtml(entry, titan) {
     if (!titan) return '';
     const hours = Number(entry?.today?.byTitan?.find(t => t.name === titan)?.hours) || 0;
     const title = `Godziny na tytanie ${titan} — dziś: ${Math.round(hours * 10) / 10}h`;
-    return cellHtml('today', Math.round(hours * 10) / 10, 'dziś', title);
+    return cellHtml(hours > 0 ? 'today' : 'today zero', Math.round(hours * 10) / 10, 'dziś', title);
 }
 
 /** Ramki po prawej: godziny w poprzednim i tym miesiącu (na mapie tytana także dziś); po najechaniu — pełny opis. */
