@@ -102,7 +102,7 @@ const PANEL_HTML = `
     </div>
     <div class="content" id="pqiContent">
         <div class="inner-content">
-            <div class="who-is-here">
+            <div class="">
                 <div class="player-list" id="pqiList" style="padding: 2px;"></div>
                 <div class="pqi-actions">
                     <div class="pqi-btns">
