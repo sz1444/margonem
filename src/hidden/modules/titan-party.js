@@ -28,7 +28,7 @@ const CSS = `
     /* Godziny po prawej: każdy okres w ramce, sama liczba; okres (miesiąc / dziś) w tooltipie po najechaniu. */
     #tpqPanel .tpq-hours { display: flex; align-items: stretch; gap: 1px; flex-shrink: 0; }
     #tpqPanel .tpq-cell {
-        display: flex; align-items: center; justify-content: center; width: 28px; height: 18px; padding: 0; box-sizing: border-box;
+        display: flex; align-items: center; justify-content: center; width: 28px; height: 16px; padding: 0; box-sizing: border-box;
         border: 1px solid rgba(255,255,255,0.18); border-radius: 2px; background: rgba(0,0,0,0.3);
         color: #e06c6c; white-space: nowrap;
     }
@@ -37,7 +37,7 @@ const CSS = `
     #tpqPanel .tpq-cell.mid { color: #e8d25a; }
     #tpqPanel .tpq-cell.today { color: #7fc8f0; }
     /* Wiersze jak w liście „Gracze na mapie” z gry: wyższe, z przerwą pod każdym. */
-    #tpqPanel .pqi-row { min-height: 22px; padding: 2px 4px; margin: 0 0 3px; }
+    #tpqPanel .pqi-row { min-height: 20px; padding: 1px 3px; margin: 0 0 2px; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
