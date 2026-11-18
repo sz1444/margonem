@@ -152,7 +152,7 @@ function setupHoursTooltip() {
         const cell = e.target.closest?.('#tpqPanel .tpq-cell[data-tip]') ?? null;
         if (cell === current) return;
         current = cell;
-        if (cell) showTooltip(cell, cell.dataset.tip, { minWidth: 0, padding: '6px' });
+        if (cell) showTooltip(cell, cell.dataset.tip, { minWidth: 0, maxWidth: 420, padding: '6px' });
         else hideTooltip();
     });
 }
