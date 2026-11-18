@@ -20,10 +20,10 @@ const CSS = `
     #tpqPanel .pqi-grid .pqi-section-head { border-bottom: none; margin-bottom: 1px; padding: 0 3px; }
     #tpqPanel .pqi-grid .pqi-section-head .pqi-title { color: rgba(255,255,255,0.7); font-weight: 600; }
     #tpqPanel .pqi-grid .pqi-section-head .pqi-count { color: rgba(255,255,255,0.5); }
-    /* 30h+ w poprzednim albo tym miesiącu: delikatne złote tło i pasek z lewej (inset — bez zmiany rozmiaru). */
-    #tpqPanel .pqi-row.tpq-regular:not(.checked) {
-        background: rgba(212,175,55,0.10); box-shadow: inset 2px 0 0 rgba(212,175,55,0.75);
-    }
+    /* Bez 30h w żadnym z dwóch miesięcy — lekko wyszarzone; z duchem (AFK) — mocno. Zaznaczony wiersz zawsze w pełnych kolorach. */
+    #tpqPanel .pqi-row.tpq-low:not(.checked) { opacity: 0.7; filter: grayscale(0.6); }
+    #tpqPanel .pqi-row.is-afk:not(.checked) { opacity: 0.35; filter: grayscale(1); }
+    #tpqPanel .pqi-row.is-afk .pqi-nick { opacity: 1; }
     /* Godziny po prawej: każdy okres w ramce — na górze liczba, pod nią okres (wrz / paź / dziś). */
     #tpqPanel .tpq-hours { display: flex; align-items: stretch; gap: 1px; flex-shrink: 0; }
     #tpqPanel .tpq-cell {
@@ -192,7 +192,7 @@ export default createQuickParty({
             setInterval(refresh, STALE_CHECK_INTERVAL);
         },
         rowExtraHtml: hoursHtml,
-        rowClass: p => (isRegular(p) ? 'tpq-regular' : ''),
+        rowClass: p => (hoursByAccount && !isRegular(p) ? 'tpq-low' : ''),
         // Najwięcej godzin (ten + poprzedni miesiąc) na górze.
         comparePlayers: (a, b) => totalHours(b) - totalHours(a),
     },
