@@ -20,6 +20,10 @@ const CSS = `
     #tpqPanel .pqi-grid .pqi-section-head { border-bottom: none; margin-bottom: 1px; padding: 0 3px; }
     #tpqPanel .pqi-grid .pqi-section-head .pqi-title { color: rgba(255,255,255,0.7); font-weight: 600; }
     #tpqPanel .pqi-grid .pqi-section-head .pqi-count { color: rgba(255,255,255,0.5); }
+    /* 30h+ w poprzednim albo tym miesiącu: delikatne złote tło i pasek z lewej (inset — bez zmiany rozmiaru). */
+    #tpqPanel .pqi-row.tpq-regular:not(.checked) {
+        background: rgba(212,175,55,0.10); box-shadow: inset 2px 0 0 rgba(212,175,55,0.75);
+    }
     /* Godziny po prawej: każdy okres w ramce — na górze liczba, pod nią okres (wrz / paź / dziś). */
     #tpqPanel .tpq-hours { display: flex; align-items: stretch; gap: 1px; flex-shrink: 0; }
     #tpqPanel .tpq-cell {
@@ -98,6 +102,12 @@ const fullHours = h => Math.max(0, Math.floor(Number(h) || 0));
 function totalHours(p) {
     const entry = hoursByAccount?.get(Number(p.account));
     return fullHours(entry?.current?.hours) + fullHours(entry?.previous?.hours);
+}
+
+/** Czy gracz ma 30h+ w poprzednim albo w tym miesiącu. */
+function isRegular(p) {
+    const entry = hoursByAccount?.get(Number(p.account));
+    return fullHours(entry?.current?.hours) >= 30 || fullHours(entry?.previous?.hours) >= 30;
 }
 
 /** Kolor progu: 30h+ zielony, 20h+ żółty, poniżej czerwony. */
@@ -182,6 +192,7 @@ export default createQuickParty({
             setInterval(refresh, STALE_CHECK_INTERVAL);
         },
         rowExtraHtml: hoursHtml,
+        rowClass: p => (isRegular(p) ? 'tpq-regular' : ''),
         // Najwięcej godzin (ten + poprzedni miesiąc) na górze.
         comparePlayers: (a, b) => totalHours(b) - totalHours(a),
     },

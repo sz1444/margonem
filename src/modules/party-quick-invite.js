@@ -188,7 +188,7 @@ function openPlayerMenu(p, e) {
 
 /**
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
- * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), comparePlayers(a, b) } —
+ * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), rowClass(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  */
 export function createQuickParty({
@@ -291,7 +291,7 @@ export function createQuickParty({
             const rowHtml = p => {
                 const color = kindColor(p.inParty ? 'group' : p.kind);
                 return `
-                <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
+                <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}${extension.rowClass?.(p) ? ` ${extension.rowClass(p)}` : ''}" data-id="${p.id}" title="${escapeHtml(p.nick)}${p.afk ? ' — AFK' : ''}${p.inBattle ? ' — w walce' : ''}">
                     <div class="pqi-row-inner">
                         <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
                         ${extension.rowExtraHtml?.(p) ?? ''}
