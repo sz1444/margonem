@@ -66,6 +66,8 @@ const css = panelId => `
     /* „+” widoczny dopiero po najechaniu na wiersz — przy wielu graczach lista zostaje czysta. */
     #${panelId} .pqi-row:not(:hover) .pqi-add { opacity: 0; }
     #${panelId} .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
+    #${panelId} .pqi-add.pqi-kick { color: #fc3e40; }
+    #${panelId} .pqi-add.pqi-kick:hover { color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.35); }
     #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
     #${panelId} .pqi-status.battle { color: #fc3e40; }
     #${panelId} .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
@@ -164,8 +166,8 @@ function playerKind(p, myClanId) {
     return null;
 }
 
-/** PPM na graczu: „Pokaż ekwipunek” i „Zaproś do grupy” — te same akcje, co w menu gracza w grze. */
-function openPlayerMenu(p, e) {
+/** PPM na graczu: „Pokaż ekwipunek” i „Zaproś do grupy” (albo „Wyrzuć z grupy”) — te same akcje, co w menu gracza w grze. */
+function openPlayerMenu(p, e, canKick) {
     const engine = win.Engine;
     if (!engine?.interface?.showPopupMenu) return;
     const t = (key, fallback, category) => (typeof win._t === 'function' ? win._t(key, null, category) : fallback);
@@ -182,7 +184,8 @@ function openPlayerMenu(p, e) {
             world: getWorldName(),
         })]);
     }
-    items.push([t('team_invite', 'Zaproś do grupy', 'menu'), () => inviteToParty(p.id)]);
+    if (canKick) items.push(['Wyrzuć z grupy', () => kickFromParty(p.id)]);
+    else items.push([t('team_invite', 'Zaproś do grupy', 'menu'), () => inviteToParty(p.id)]);
     engine.interface.showPopupMenu(items, e, { header: escapeHtml(p.nick) });
 }
 
@@ -190,6 +193,7 @@ function openPlayerMenu(p, e) {
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), rowClass(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
+ * allowKick: dowódca grupy widzi przy jej członkach „−” (wyrzuć) zamiast „+”.
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -199,6 +203,7 @@ export function createQuickParty({
     panelId = 'pqiPanel',
     storagePrefix = 'pqi',
     columnBreakpoints = COLUMN_BREAKPOINTS,
+    allowKick = false,
     extension = {},
 } = {}) {
     const POS_KEY = `${storagePrefix}_widget_pos`;
@@ -288,14 +293,20 @@ export function createQuickParty({
                     || KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.nick.localeCompare(b.nick));
             }
 
+            /** Czy z tego wiersza można wyrzucić gracza: jest w grupie, a my jesteśmy jej dowódcą. */
+            const canKick = p => allowKick && p.inParty && isPartyLeader();
+
             const rowHtml = p => {
                 const color = kindColor(p.inParty ? 'group' : p.kind);
+                const action = canKick(p)
+                    ? '<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>'
+                    : '<div class="pqi-add" title="Zaproś do grupy">+</div>';
                 return `
                 <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}${extension.rowClass?.(p) ? ` ${extension.rowClass(p)}` : ''}" data-id="${p.id}">
                     <div class="pqi-row-inner">
                         <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
                         ${extension.rowExtraHtml?.(p) ?? ''}
-                        <div class="pqi-add" title="Zaproś do grupy">+</div>
+                        ${action}
                     </div>
                 </div>
             `;
@@ -303,7 +314,8 @@ export function createQuickParty({
 
             function render(force = false) {
                 const players = collectPlayers();
-                const signature = players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
+                const signature = `${allowKick && isPartyLeader()}#`
+                    + players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
                 if (!force && signature === lastSignature) return;
                 lastSignature = signature;
 
@@ -337,6 +349,8 @@ export function createQuickParty({
                 if (!row) return;
                 e.stopPropagation();
 
+                // „−” = wyrzuć tę osobę z grupy (tylko dowódca), bez zaznaczania.
+                if (e.target.closest('.pqi-kick')) return kickFromParty(+row.dataset.id);
                 // „+” = zaproś tylko tę osobę do obecnej grupy, bez zaznaczania.
                 const addBtn = e.target.closest('.pqi-add');
                 if (addBtn) return inviteToParty(+row.dataset.id);
@@ -349,7 +363,7 @@ export function createQuickParty({
                 e.preventDefault();
                 e.stopPropagation();
                 const p = collectPlayers().find(x => x.id === +row.dataset.id);
-                if (p) openPlayerMenu(p, e);
+                if (p) openPlayerMenu(p, e, canKick(p));
             });
 
             /**
