@@ -6,7 +6,7 @@ import {
     isInParty, isPartyLeader, kickFromParty, leaveParty, givePartyLead,
 } from '../core/game.js';
 import { makeDraggable } from '../core/drag.js';
-import { setupOpacityButton } from '../core/ui.js';
+import { setupOpacityButton, showTooltip, hideTooltip, tooltipList } from '../core/ui.js';
 
 // Grupa ma 10 miejsc: bohater + 9 zaproszonych.
 const MAX_SELECTED = 9;
@@ -107,6 +107,12 @@ const css = panelId => `
     #${panelId} .pqi-section.empty .pqi-section-head { border-bottom: none; margin-bottom: 0; }
     /* Stopka: dwa przyciski gry, każdy na pół szerokości. */
     #${panelId} .pqi-actions { padding: 2px 2px 0; margin-top: 2px; }
+    /* Skład grupy wg profesji (partyProfs) — jak na dole okna grupy gry; po najechaniu nicki. */
+    #${panelId} .pqi-profs { display: none; justify-content: center; gap: 10px; padding: 1px 0 3px; font-size: 11px; color: #ccc; }
+    #${panelId}.pqi-in-party .pqi-profs { display: flex; }
+    #${panelId} .pqi-prof { cursor: default; }
+    #${panelId} .pqi-prof b { color: #fff; font-weight: 700; }
+    #${panelId} .pqi-prof.empty { opacity: 0.4; }
     #${panelId} .pqi-btns { display: flex; gap: 2px; width: 100%; }
     #${panelId} .pqi-btn { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0; pointer-events: auto; cursor: pointer; }
     #${panelId} .pqi-btn { display: flex !important; align-items: center; justify-content: center; }
@@ -138,6 +144,7 @@ const PANEL_HTML = `
             <div class="">
                 <div class="player-list" id="pqiList" style="padding: 2px;"></div>
                 <div class="pqi-actions">
+                    <div class="pqi-profs" id="pqiProfs"></div>
                     <div class="pqi-btns">
                         <div class="button green small pqi-btn" id="pqiCreate" title="Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
                         <div class="button green small pqi-btn" id="pqiArm" title="Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
@@ -231,6 +238,7 @@ const PARTY_ICONS_URL = 'https://margonem.vercel.app/assets/party-icons.png';
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), rowClass(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  * allowKick: dowódca grupy widzi przy jej członkach „−” (wyrzuć) zamiast „+”.
+ * partyProfs: pod listą skład grupy wg profesji (0b 1w …), po najechaniu na profesję — nicki.
  * gameIcons: ikonki z arkusza gry zamiast znaków (✕ ♛ ⇄ +).
  * allowLead: dowódca widzi „♛” (przekaż dowodzenie) przy członkach grupy i w PPM.
  * allowSwap: dowódca klika „⇄” przy graczu, potem „⇄” przy graczu z drugiej strony (grupa ↔ spoza grupy) — członek wylatuje, ten spoza grupy dostaje zaproszenie (Esc = anuluj).
@@ -247,6 +255,7 @@ export function createQuickParty({
     allowSwap = false,
     allowLead = false,
     gameIcons = false,
+    partyProfs = false,
     extension = {},
 } = {}) {
     const POS_KEY = `${storagePrefix}_widget_pos`;
@@ -375,16 +384,63 @@ export function createQuickParty({
             `;
             };
 
+            // Kolejność jak w oknie grupy gry.
+            const PARTY_PROF_ORDER = ['b', 'w', 'p', 'm', 't', 'h'];
+            // prof → nicki członków grupy (z nami), do tooltipa.
+            let partyByProf = {};
+
+            /** Członkowie grupy z profesją: z silnika, a gdy jej nie podaje — z listy graczy na mapie / bohatera. */
+            function partyComposition(players) {
+                const myId = getHeroId();
+                const heroProf = win.Engine?.hero?.d?.prof ?? win.hero?.prof ?? null;
+                return getPartyMembers().map(m => ({
+                    nick: m.nick,
+                    prof: m.prof || players.find(p => p.id === m.id)?.prof || (m.id === myId ? heroProf : null),
+                }));
+            }
+
+            function renderPartyProfs(players) {
+                const members = isInParty() ? partyComposition(players) : [];
+                panel.classList.toggle('pqi-in-party', members.length > 0);
+                partyByProf = {};
+                for (const code of PARTY_PROF_ORDER) partyByProf[code] = members.filter(m => m.prof === code).map(m => m.nick);
+                panel.querySelector('#pqiProfs').innerHTML = PARTY_PROF_ORDER.map(code => {
+                    const count = partyByProf[code].length;
+                    return `<span class="pqi-prof${count ? '' : ' empty'}" data-prof="${code}"><b>${count}</b>${code}</span>`;
+                }).join('');
+            }
+
+            if (partyProfs) {
+                // Delegacja — liczniki są przerysowywane.
+                let tipFor = null;
+                panel.querySelector('#pqiProfs').addEventListener('mouseover', e => {
+                    const el = e.target.closest('.pqi-prof');
+                    if (!el || el === tipFor) return;
+                    tipFor = el;
+                    const code = el.dataset.prof;
+                    const name = PROFS.find(p => p.code === code)?.name ?? code;
+                    const rows = (partyByProf[code] ?? []).map(nick => ({ left: escapeHtml(nick) }));
+                    showTooltip(el, `<div style="color: #fff; font-size: 11px; font-weight: 600; padding: 0 2px 3px;">${name}</div>`
+                        + tooltipList(rows, 'Brak w grupie'), { minWidth: 120, maxWidth: 220 });
+                });
+                panel.querySelector('#pqiProfs').addEventListener('mouseleave', () => {
+                    tipFor = null;
+                    hideTooltip();
+                });
+            }
+
             function render(force = false) {
                 const players = collectPlayers();
                 // Wybrany do podmiany zniknął (z mapy / z grupy / zmienił stronę) albo straciliśmy dowódcę — anuluj.
                 if (swapSrc && (!canSwap() || !players.some(p => p.id === swapSrc.id && p.inParty === swapSrc.inParty))) swapSrc = null;
-                const signature = `${(allowKick || allowSwap) && isPartyLeader()}#${swapSrc?.id}#`
+                const partyKey = partyProfs ? getPartyMembers().map(m => `${m.id}${m.prof ?? ''}`).join(',') : '';
+                const signature = `${(allowKick || allowSwap) && isPartyLeader()}#${swapSrc?.id}#${partyKey}#`
                     + players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
                 if (!force && signature === lastSignature) return;
                 lastSignature = signature;
 
                 headerText.textContent = `${title} (${selected.size}/${MAX_SELECTED})`;
+                if (partyProfs) renderPartyProfs(players);
 
                 // Nieznana profesja ląduje w pierwszej kolumnie, żeby nikt nie zniknął.
                 const columns = PROFS.map(prof => players.filter(p => p.prof === prof.code));

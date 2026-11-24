@@ -202,6 +202,8 @@ export default createQuickParty({
     allowSwap: true,
     allowLead: true,
     gameIcons: true,
+    // Skład grupy wg profesji pod listą — na razie tylko w wersji dev.
+    partyProfs: __HIDDEN_DEV__,
     extension: {
         setup(rerender) {
             injectStyle(CSS);

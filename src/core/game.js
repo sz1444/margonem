@@ -89,14 +89,14 @@ export function isPartyLeader() {
     return false;
 }
 
-/** Członkowie grupy jako [{ id, nick }] (z bohaterem włącznie). */
+/** Członkowie grupy jako [{ id, nick, prof }] (z bohaterem włącznie); prof bywa pusty, gdy silnik go nie podaje. */
 export function getPartyMembers() {
     try {
         if (win.Engine?.party) {
             const members = win.Engine.party.getMembers();
-            return members ? [...members.values()].map(m => ({ id: +m.id, nick: m.nick ?? m.name ?? String(m.id) })) : [];
+            return members ? [...members.values()].map(m => ({ id: +m.id, nick: m.nick ?? m.name ?? String(m.id), prof: m.prof ?? m.d?.prof ?? null })) : [];
         }
-        if (win.g?.party) return Object.entries(win.g.party).map(([id, m]) => ({ id: +id, nick: m.nick ?? String(id) }));
+        if (win.g?.party) return Object.entries(win.g.party).map(([id, m]) => ({ id: +id, nick: m.nick ?? String(id), prof: m.prof ?? null }));
     } catch {}
     return [];
 }
