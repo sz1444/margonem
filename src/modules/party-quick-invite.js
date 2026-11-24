@@ -76,11 +76,12 @@ const css = panelId => `
     #${panelId} .pqi-party .pqi-section-head { border-bottom: none; }
     #${panelId} .pqi-party-rows { display: grid; grid-template-columns: repeat(var(--pqi-cols, 2), minmax(0, 1fr)); gap: 0 4px; }
     #${panelId} .pqi-row.off-map .pqi-nick { opacity: 0.6; }
-    /* Przeciąganie: źródło przygaszone, cel podświetlony na niebiesko. */
-    #${panelId}.pqi-dragging, #${panelId}.pqi-dragging * { cursor: grabbing !important; user-select: none; }
-    #${panelId} .pqi-row.drag-src { opacity: 0.35; }
-    #${panelId} .pqi-row.drop-ok { box-shadow: inset 0 0 0 1px #7fc8f0; background: rgba(127,200,240,0.25); }
-    #${panelId} .pqi-party.drop-ok, #${panelId} .pqi-map.drop-ok { box-shadow: inset 0 0 0 1px #7fc8f0; background: rgba(127,200,240,0.12); }
+    /* Podmiana ikonką „⇄”: wybrany na czerwono, przy graczach z drugiej strony „⇄” widoczne na stałe. */
+    #${panelId} .pqi-add.pqi-swap { color: #7fc8f0; width: 14px; }
+    #${panelId} .pqi-add.pqi-swap:hover { color: #fff; border-color: #7fc8f0; background: rgba(127,200,240,0.3); }
+    #${panelId} .pqi-row .pqi-add.pqi-swap.target { opacity: 1; }
+    #${panelId} .pqi-row.swap-src { box-shadow: inset 0 0 0 1px #fc3e40; background: rgba(252,62,64,0.25); }
+    #${panelId} .pqi-row.swap-src .pqi-add.pqi-swap { opacity: 1; color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.4); }
     #${panelId} .pqi-map { border-radius: 3px; }
     #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
     #${panelId} .pqi-status.battle { color: #fc3e40; }
@@ -210,8 +211,8 @@ function openPlayerMenu(p, e, { canKick = false } = {}) {
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), rowClass(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  * allowKick: dowódca grupy widzi przy jej członkach „−” (wyrzuć) zamiast „+”.
- * allowSwap: członkowie grupy w osobnej sekcji „W grupie” nad profesjami; dowódca przeciąga graczy myszką:
- * na gracza z drugiej strony = podmiana, na sekcję „W grupie” = zaproszenie, na listę mapy = wyrzucenie.
+ * allowSwap: członkowie grupy w osobnej sekcji „W grupie” nad profesjami; dowódca klika „⇄” przy graczu,
+ * potem „⇄” przy graczu z drugiej strony — członek wylatuje, ten spoza grupy dostaje zaproszenie (Esc = anuluj).
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -314,13 +315,29 @@ export function createQuickParty({
 
             /** Czy z tego wiersza można wyrzucić gracza: jest w grupie, a my jesteśmy jej dowódcą. */
             const canKick = p => allowKick && p.inParty && isPartyLeader();
-            const actionHtml = p => (canKick(p)
-                ? '<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>'
-                : '<div class="pqi-add" title="Zaproś do grupy">+</div>');
+            // Podmiana: wybrany gracz { id, inParty } albo null.
+            let swapSrc = null;
+            const canSwap = () => allowSwap && isPartyLeader();
+
+            function actionHtml(p) {
+                const add = canKick(p)
+                    ? '<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>'
+                    : p.offMap ? '' : '<div class="pqi-add" title="Zaproś do grupy">+</div>';
+                if (!canSwap()) return add;
+                // Wybrany albo „druga strona” — sama ikonka podmiany, zawsze widoczna.
+                if (swapSrc?.id === p.id) return '<div class="pqi-add pqi-swap" title="Anuluj podmianę (Esc)">⇄</div>';
+                if (swapSrc) {
+                    return swapSrc.inParty !== !!p.inParty && !p.offMap
+                        ? '<div class="pqi-add pqi-swap target" title="Podmień">⇄</div>'
+                        : '';
+                }
+                const tip = p.inParty ? 'Podmień na gracza spoza grupy' : 'Podmień za członka grupy';
+                return `<div class="pqi-add pqi-swap" title="${tip}">⇄</div>${add}`;
+            }
 
             const rowHtml = p => {
                 const color = kindColor(p.inParty ? 'group' : p.kind);
-                const cls = `${selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}${p.offMap ? ' off-map' : ''}`
+                const cls = `${selected.has(p.id) ? ' checked' : ''}${swapSrc?.id === p.id ? ' swap-src' : ''}${p.afk ? ' is-afk' : ''}${p.offMap ? ' off-map' : ''}`
                     + `${extension.rowClass?.(p) ? ` ${extension.rowClass(p)}` : ''}`;
                 return `
                 <div class="one-other tw-list-item pqi-row${cls}" data-id="${p.id}" data-party="${p.inParty ? 1 : 0}"${p.offMap ? ' title="Poza mapą"' : ''}>
@@ -344,11 +361,11 @@ export function createQuickParty({
             }
 
             function render(force = false) {
-                // W trakcie przeciągania nie przerysowujemy — podświetlenie celu by zniknęło.
-                if (drag?.ghost) return;
                 const players = collectPlayers();
                 const members = allowSwap ? partyRows(players) : [];
-                const signature = `${(allowKick || allowSwap) && isPartyLeader()}#${members.map(m => m.id).join(',')}#`
+                // Wybrany do podmiany zniknął (z mapy / z grupy / zmienił stronę) albo straciliśmy dowódcę — anuluj.
+                if (swapSrc && (!canSwap() || ![...members, ...players].some(p => p.id === swapSrc.id && !!p.inParty === swapSrc.inParty))) swapSrc = null;
+                const signature = `${(allowKick || allowSwap) && isPartyLeader()}#${swapSrc?.id}#${members.map(m => m.id).join(',')}#`
                     + players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
                 if (!force && signature === lastSignature) return;
                 lastSignature = signature;
@@ -362,12 +379,12 @@ export function createQuickParty({
                 columns[0].push(...rest.filter(p => !PROFS.some(x => x.code === p.prof)));
 
                 const partyHtml = members.length ? `
-                    <div class="pqi-section pqi-party" data-drop="party">
+                    <div class="pqi-section pqi-party">
                         <div class="pqi-section-head"><span class="pqi-title">W grupie</span> <span class="pqi-count">${members.length + 1}/10</span></div>
                         <div class="pqi-party-rows">${members.map(rowHtml).join('')}</div>
                     </div>` : '';
 
-                listEl.innerHTML = `${partyHtml}<div class="pqi-map" data-drop="map"><div class="pqi-grid">${PROFS.map((prof, i) => `
+                listEl.innerHTML = `${partyHtml}<div class="pqi-map"><div class="pqi-grid">${PROFS.map((prof, i) => `
                     <div class="pqi-section${columns[i].length ? '' : ' empty'}">
                         <div class="pqi-section-head"><span class="pqi-title">${prof.name}</span> <span class="pqi-count">${columns[i].length}</span></div>
                         ${columns[i].map(rowHtml).join('')}
@@ -387,11 +404,11 @@ export function createQuickParty({
             }
 
             listEl.addEventListener('click', e => {
-                // Klik kończący przeciąganie to nie zaznaczenie.
-                if (suppressClick) return;
                 const row = e.target.closest('.pqi-row');
                 if (!row) return;
                 e.stopPropagation();
+
+                if (e.target.closest('.pqi-swap')) return onSwapClick(+row.dataset.id, row.dataset.party === '1');
 
                 // „−” = wyrzuć tę osobę z grupy (tylko dowódca), bez zaznaczania.
                 if (e.target.closest('.pqi-kick')) return kickFromParty(+row.dataset.id);
@@ -410,89 +427,22 @@ export function createQuickParty({
                 if (p) openPlayerMenu(p, e, { canKick: canKick(p) });
             });
 
-            // Przeciąganie (tylko dowódca): { id, inParty, x, y, row, ghost, target } — ghost powstaje po 5 px ruchu.
-            let drag = null;
-            let suppressClick = false;
-
-            /** Cel upuszczenia pod kursorem: { el, run } albo null. */
-            function dropTarget(el, d) {
-                const row = el?.closest?.(`#${panelId} .pqi-row`);
-                if (row) {
-                    const otherId = +row.dataset.id;
-                    const otherInParty = row.dataset.party === '1';
-                    // Podmiana tylko między grupą a resztą — członek wylatuje, ten spoza grupy dostaje zaproszenie.
-                    if (otherId === d.id || otherInParty === d.inParty) return null;
-                    return {
-                        el: row,
-                        run: () => (d.inParty ? swapPlayers(d.id, otherId) : swapPlayers(otherId, d.id)),
-                    };
+            /** Pierwszy „⇄” wybiera gracza, drugi (po drugiej stronie) podmienia, ponowny na wybranym — anuluje. */
+            function onSwapClick(id, inParty) {
+                if (!swapSrc) swapSrc = { id, inParty };
+                else if (swapSrc.id === id) swapSrc = null;
+                else if (swapSrc.inParty !== inParty) {
+                    if (swapSrc.inParty) swapPlayers(swapSrc.id, id);
+                    else swapPlayers(id, swapSrc.id);
+                    swapSrc = null;
                 }
-                const zone = el?.closest?.(`#${panelId} [data-drop]`);
-                if (zone?.dataset.drop === 'party' && !d.inParty && getPartyMembers().length < 10) {
-                    return { el: zone, run: () => inviteToParty(d.id) };
-                }
-                if (zone?.dataset.drop === 'map' && d.inParty) return { el: zone, run: () => kickFromParty(d.id) };
-                return null;
-            }
-
-            function setDropHighlight(target) {
-                if (drag.target?.el === target?.el) return;
-                drag.target?.el.classList.remove('drop-ok');
-                target?.el.classList.add('drop-ok');
-                drag.target = target;
-            }
-
-            function endDrag() {
-                if (!drag) return;
-                drag.ghost?.remove();
-                drag.target?.el.classList.remove('drop-ok');
-                drag.row.classList.remove('drag-src');
-                panel.classList.remove('pqi-dragging');
-                drag = null;
+                render(true);
             }
 
             if (allowSwap) {
-                listEl.addEventListener('mousedown', e => {
-                    if (e.button !== 0 || e.target.closest('.pqi-add') || !isPartyLeader()) return;
-                    const row = e.target.closest('.pqi-row');
-                    if (!row) return;
-                    e.preventDefault(); // bez zaznaczania tekstu przy przeciąganiu
-                    drag = { id: +row.dataset.id, inParty: row.dataset.party === '1', x: e.clientX, y: e.clientY, row, ghost: null, target: null };
-                });
-
-                document.addEventListener('mousemove', e => {
-                    if (!drag) return;
-                    if (!drag.ghost) {
-                        if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5) return;
-                        const nick = drag.row.querySelector('.pqi-nick');
-                        drag.ghost = document.createElement('div');
-                        drag.ghost.textContent = nick?.firstChild?.textContent ?? '';
-                        drag.ghost.style.cssText = `position: fixed; z-index: 100000; pointer-events: none; padding: 2px 6px;
-                            font-size: 11px; font-weight: 600; color: ${nick?.style.color || '#fff'};
-                            background: rgba(0,0,0,0.85); border: 1px solid #7fc8f0; border-radius: 3px; white-space: nowrap;`;
-                        document.body.appendChild(drag.ghost);
-                        drag.row.classList.add('drag-src');
-                        panel.classList.add('pqi-dragging');
-                    }
-                    drag.ghost.style.left = `${e.clientX + 10}px`;
-                    drag.ghost.style.top = `${e.clientY + 8}px`;
-                    setDropHighlight(dropTarget(document.elementFromPoint(e.clientX, e.clientY), drag));
-                });
-
-                document.addEventListener('mouseup', () => {
-                    if (!drag) return;
-                    const { ghost, target } = drag;
-                    endDrag();
-                    if (!ghost) return; // zwykły klik — obsłuży go listener click
-                    suppressClick = true;
-                    setTimeout(() => { suppressClick = false; }, 0);
-                    target?.run();
-                    render(true);
-                });
-
                 document.addEventListener('keydown', e => {
-                    if (e.key === 'Escape' && drag?.ghost) {
-                        endDrag();
+                    if (e.key === 'Escape' && swapSrc) {
+                        swapSrc = null;
                         render(true);
                     }
                 });
