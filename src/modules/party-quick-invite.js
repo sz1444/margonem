@@ -68,6 +68,12 @@ const css = panelId => `
     #${panelId} .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
     #${panelId} .pqi-add.pqi-kick { color: #fc3e40; }
     #${panelId} .pqi-add.pqi-kick:hover { color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.35); }
+    /* Podmiana: „⇄” przy członku grupy włącza tryb, „⇄” przy kandydatach (zawsze widoczne w trybie) go kończy. */
+    #${panelId} .pqi-add.pqi-swap { color: #7fc8f0; width: 14px; }
+    #${panelId} .pqi-add.pqi-swap:hover { color: #fff; border-color: #7fc8f0; background: rgba(127,200,240,0.3); }
+    #${panelId} .pqi-row .pqi-add.pqi-swap-to { opacity: 1; }
+    #${panelId} .pqi-row.swap-from { box-shadow: inset 0 0 0 1px #fc3e40; background: rgba(252,62,64,0.25); }
+    #${panelId} .pqi-row.swap-from .pqi-add.pqi-swap { opacity: 1; color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.4); }
     #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
     #${panelId} .pqi-status.battle { color: #fc3e40; }
     #${panelId} .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
@@ -89,26 +95,6 @@ const css = panelId => `
         border: 1px solid rgba(255,255,255,0.3); border-radius: 2px; background: rgba(0,0,0,0.5);
     }
     #${panelId} .pqi-select-party:hover { color: #fff; border-color: #fff; background: rgba(46,204,113,0.35); }
-    /* Podmiana członka grupy: dymek z graczami spoza grupy (w body — panel ucina overflow). */
-    #${panelId}Swap {
-        position: fixed; display: none; z-index: 99999; min-width: 200px; max-width: 320px;
-    }
-    #${panelId}Swap .content { position: relative; z-index: 2; padding: 4px; }
-    #${panelId}Swap .pqi-swap-head { color: #fff; font-size: 11px; font-weight: 600; padding: 0 2px 3px; white-space: nowrap; }
-    #${panelId}Swap .pqi-swap-list { max-height: 260px; overflow-y: auto; }
-    #${panelId}Swap .pqi-row { display: flex; align-items: center; width: 100%; box-sizing: border-box; padding: 1px 3px; margin: 0 0 2px; cursor: default; }
-    #${panelId}Swap .pqi-row-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 3px; }
-    #${panelId}Swap .pqi-nick { font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; margin-right: 4px; }
-    #${panelId}Swap .pqi-lvl { color: rgba(255,255,255,0.55); font-size: 10px; font-weight: 400; }
-    #${panelId}Swap .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
-    #${panelId}Swap .pqi-swap-btn {
-        flex-shrink: 0; width: 16px; height: 14px; cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        color: #7fc8f0; font-size: 11px; font-weight: 700; line-height: 1;
-        border: 1px solid rgba(255,255,255,0.3); border-radius: 2px; background: rgba(0,0,0,0.3);
-    }
-    #${panelId}Swap .pqi-swap-btn:hover { color: #fff; border-color: #7fc8f0; background: rgba(127,200,240,0.3); }
-    #${panelId}Swap .pqi-swap-empty { color: #eaeaea; font-style: italic; font-size: 11px; padding: 2px; }
     /* Uzbrojone „po walce”: przycisk gry przefarbowany na czerwono. */
     #${panelId} .pqi-btn.on { filter: hue-rotate(-110deg) saturate(1.6); }
 `;
@@ -214,7 +200,7 @@ function openPlayerMenu(p, e, canKick) {
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), rowClass(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  * allowKick: dowódca grupy widzi przy jej członkach „−” (wyrzuć) zamiast „+”.
- * allowSwap: dowódca po najechaniu na członka grupy widzi graczy spoza niej — „⇄” wyrzuca członka i zaprasza wybranego.
+ * allowSwap: dowódca klika „⇄” przy członku grupy, potem „⇄” przy graczu spoza niej — członek wylatuje, wybrany dostaje zaproszenie.
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -317,20 +303,27 @@ export function createQuickParty({
 
             /** Czy z tego wiersza można wyrzucić gracza: jest w grupie, a my jesteśmy jej dowódcą. */
             const canKick = p => allowKick && p.inParty && isPartyLeader();
+            /** Czy członka grupy można podmienić (my jesteśmy dowódcą). */
+            const canSwap = p => allowSwap && !!p?.inParty && isPartyLeader();
 
-            const rowHtml = (p, { swap = false } = {}) => {
+            // Tryb podmiany: id członka grupy, którego podmieniamy, albo null.
+            let swapFrom = null;
+
+            function actionHtml(p) {
+                if (swapFrom && !p.inParty) return '<div class="pqi-add pqi-swap pqi-swap-to" title="Podmień na tego gracza">⇄</div>';
+                const swap = canSwap(p) ? '<div class="pqi-add pqi-swap" title="Podmień na innego gracza">⇄</div>' : '';
+                if (canKick(p)) return `${swap}<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>`;
+                return swap || '<div class="pqi-add" title="Zaproś do grupy">+</div>';
+            }
+
+            const rowHtml = p => {
                 const color = kindColor(p.inParty ? 'group' : p.kind);
-                const action = swap
-                    ? '<div class="pqi-swap-btn" title="Podmień: wyrzuć obecnego, zaproś tego gracza">⇄</div>'
-                    : canKick(p)
-                        ? '<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>'
-                        : '<div class="pqi-add" title="Zaproś do grupy">+</div>';
                 return `
-                <div class="one-other tw-list-item pqi-row${!swap && selected.has(p.id) ? ' checked' : ''}${p.afk ? ' is-afk' : ''}${extension.rowClass?.(p) ? ` ${extension.rowClass(p)}` : ''}" data-id="${p.id}">
+                <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.id === swapFrom ? ' swap-from' : ''}${p.afk ? ' is-afk' : ''}${extension.rowClass?.(p) ? ` ${extension.rowClass(p)}` : ''}" data-id="${p.id}">
                     <div class="pqi-row-inner">
                         <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
                         ${extension.rowExtraHtml?.(p) ?? ''}
-                        ${action}
+                        ${actionHtml(p)}
                     </div>
                 </div>
             `;
@@ -338,13 +331,17 @@ export function createQuickParty({
 
             function render(force = false) {
                 const players = collectPlayers();
-                const signature = `${allowKick && isPartyLeader()}#`
+                // Podmieniany wypadł z grupy albo straciliśmy dowódcę — koniec trybu.
+                if (swapFrom && !canSwap(players.find(p => p.id === swapFrom))) swapFrom = null;
+                const signature = `${(allowKick || allowSwap) && isPartyLeader()}#${swapFrom}#`
                     + players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
-                if (swapTarget && !canSwap(players.find(p => p.id === swapTarget))) hideSwap();
                 if (!force && signature === lastSignature) return;
                 lastSignature = signature;
 
-                headerText.textContent = `${title} (${selected.size}/${MAX_SELECTED})`;
+                const from = swapFrom && players.find(p => p.id === swapFrom);
+                headerText.textContent = from
+                    ? `Podmień ${from.nick} → wybierz ⇄ (Esc)`
+                    : `${title} (${selected.size}/${MAX_SELECTED})`;
 
                 // Nieznana profesja ląduje w pierwszej kolumnie, żeby nikt nie zniknął.
                 const columns = PROFS.map(prof => players.filter(p => p.prof === prof.code));
@@ -374,6 +371,8 @@ export function createQuickParty({
                 if (!row) return;
                 e.stopPropagation();
 
+                // „⇄” przy członku grupy włącza/wyłącza tryb podmiany, przy graczu spoza grupy — podmienia.
+                if (e.target.closest('.pqi-swap')) return onSwapClick(+row.dataset.id);
                 // „−” = wyrzuć tę osobę z grupy (tylko dowódca), bez zaznaczania.
                 if (e.target.closest('.pqi-kick')) return kickFromParty(+row.dataset.id);
                 // „+” = zaproś tylko tę osobę do obecnej grupy, bez zaznaczania.
@@ -391,78 +390,36 @@ export function createQuickParty({
                 if (p) openPlayerMenu(p, e, canKick(p));
             });
 
-            // Podmiana: dymek otwarty dla członka grupy `swapTarget` (id), znika chwilę po zjechaniu z wiersza i dymku.
-            let swapEl = null;
-            let swapTarget = null;
-            let swapHideTimer = null;
-            const canSwap = p => allowSwap && p?.inParty && isPartyLeader();
-
-            function getSwapEl() {
-                if (swapEl) return swapEl;
-                swapEl = document.createElement('div');
-                swapEl.id = `${panelId}Swap`;
-                swapEl.className = 'c-window border-window transparent';
-                swapEl.innerHTML = '<div class="border-image"></div><div class="content"></div>';
-                document.body.appendChild(swapEl);
-                isolateWheel(swapEl);
-                swapEl.addEventListener('mouseenter', () => clearTimeout(swapHideTimer));
-                swapEl.addEventListener('mouseleave', scheduleSwapHide);
-                swapEl.addEventListener('click', e => {
-                    const btn = e.target.closest('.pqi-swap-btn');
-                    if (!btn || !swapTarget) return;
-                    e.stopPropagation();
-                    kickFromParty(swapTarget);
-                    inviteToParty(+btn.closest('.pqi-row').dataset.id);
-                    hideSwap();
-                });
-                return swapEl;
+            function setSwapFrom(id) {
+                swapFrom = id;
+                render(true);
             }
 
-            function hideSwap() {
-                clearTimeout(swapHideTimer);
-                swapTarget = null;
-                if (swapEl) swapEl.style.display = 'none';
+            function onSwapClick(id) {
+                const p = collectPlayers().find(x => x.id === id);
+                if (!p) return;
+                if (p.inParty) return setSwapFrom(swapFrom === id ? null : (canSwap(p) ? id : null));
+                if (!swapFrom) return;
+                swapPlayers(swapFrom, id);
+                setSwapFrom(null);
             }
 
-            function scheduleSwapHide() {
-                clearTimeout(swapHideTimer);
-                swapHideTimer = setTimeout(hideSwap, 250);
-            }
-
-            function showSwap(row, member, players) {
-                clearTimeout(swapHideTimer);
-                if (swapTarget === member.id && swapEl?.style.display === 'block') return;
-                swapTarget = member.id;
-                const el = getSwapEl();
-                const candidates = players.filter(p => !p.inParty);
-                el.querySelector('.content').innerHTML = `
-                    <div class="pqi-swap-head">Podmień ${escapeHtml(member.nick)} na:</div>
-                    <div class="pqi-swap-list">${candidates.length
-                        ? candidates.map(p => rowHtml(p, { swap: true })).join('')
-                        : '<div class="pqi-swap-empty">Brak graczy spoza grupy</div>'}</div>`;
-                el.style.display = 'block';
-
-                // Obok panelu (po prawej, a gdy brak miejsca — po lewej), na wysokości wiersza.
-                const rowRect = row.getBoundingClientRect();
-                const panelRect = panel.getBoundingClientRect();
-                let x = panelRect.right + 4;
-                if (x + el.offsetWidth > window.innerWidth) x = Math.max(5, panelRect.left - el.offsetWidth - 4);
-                let y = rowRect.top;
-                if (y + el.offsetHeight > window.innerHeight) y = Math.max(5, window.innerHeight - el.offsetHeight - 5);
-                el.style.left = x + 'px';
-                el.style.top = y + 'px';
+            /** Wyrzuca `outId`, a zaprasza `inId` dopiero, gdy tamten zniknie z grupy (przy pełnej grupie zaproszenie by przepadło). */
+            function swapPlayers(outId, inId) {
+                kickFromParty(outId);
+                const started = Date.now();
+                const waitAndInvite = () => {
+                    const stillIn = getPartyMembers().some(m => m.id === outId);
+                    if (!stillIn || Date.now() - started > 3000) return inviteToParty(inId);
+                    setTimeout(waitAndInvite, 150);
+                };
+                setTimeout(waitAndInvite, 150);
             }
 
             if (allowSwap) {
-                listEl.addEventListener('mouseover', e => {
-                    const row = e.target.closest('.pqi-row');
-                    if (!row) return;
-                    const players = collectPlayers();
-                    const p = players.find(x => x.id === +row.dataset.id);
-                    if (canSwap(p)) showSwap(row, p, players);
-                    else if (swapTarget) scheduleSwapHide();
+                document.addEventListener('keydown', e => {
+                    if (e.key === 'Escape' && swapFrom) setSwapFrom(null);
                 });
-                listEl.addEventListener('mouseleave', () => { if (swapTarget) scheduleSwapHide(); });
             }
 
             /**
