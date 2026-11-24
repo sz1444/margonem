@@ -44,8 +44,12 @@ const CSS = `
 
 // Na razie tylko w wersji dev: większe ikonki, bez poziomu gracza, mniejsze godziny.
 const DEV_CSS = `
-    #tpqPanel .pqi-add { width: 15px; height: 15px; font-size: 14px; color: rgba(255,255,255,0.45); }
+    /* Ikonki ciasno obok siebie: pole tylko na szerokość ikonki, 2px przerwy. */
+    #tpqPanel .pqi-icons { gap: 2px; }
+    #tpqPanel .pqi-add { width: auto; min-width: 11px; height: 15px; font-size: 14px; color: rgba(255,255,255,0.45); }
     #tpqPanel .pqi-lvl { display: none; }
+    /* Nick cieńszy i ciaśniej. */
+    #tpqPanel .pqi-nick { font-weight: 300; letter-spacing: -0.2px; }
     #tpqPanel .tpq-cell { width: 24px; height: 14px; }
     #tpqPanel .tpq-cell b { font-size: 10px; line-height: 10px; }
 `;
