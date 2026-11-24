@@ -68,12 +68,17 @@ const css = panelId => `
     #${panelId} .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
     #${panelId} .pqi-add.pqi-kick { color: #fc3e40; }
     #${panelId} .pqi-add.pqi-kick:hover { color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.35); }
-    /* Podmiana: „⇄” przy członku grupy włącza tryb, „⇄” przy kandydatach (zawsze widoczne w trybie) go kończy. */
-    #${panelId} .pqi-add.pqi-swap { color: #7fc8f0; width: 14px; }
-    #${panelId} .pqi-add.pqi-swap:hover { color: #fff; border-color: #7fc8f0; background: rgba(127,200,240,0.3); }
-    #${panelId} .pqi-row .pqi-add.pqi-swap-to { opacity: 1; }
-    #${panelId} .pqi-row.swap-from { box-shadow: inset 0 0 0 1px #fc3e40; background: rgba(252,62,64,0.25); }
-    #${panelId} .pqi-row.swap-from .pqi-add.pqi-swap { opacity: 1; color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.4); }
+    /* Tryb podmiany (z PPM): podmieniany na czerwono, reszta grupy przygaszona, kandydat = klik w cały wiersz. */
+    #${panelId}.pqi-swapping .pqi-row.swap-from { box-shadow: inset 0 0 0 1px #fc3e40; background: rgba(252,62,64,0.25); }
+    #${panelId}.pqi-swapping .pqi-row.in-party:not(.swap-from) { opacity: 0.3; cursor: default; }
+    #${panelId}.pqi-swapping .pqi-row.swap-to:hover { box-shadow: inset 0 0 0 1px #7fc8f0; background: rgba(127,200,240,0.2); }
+    #${panelId}.pqi-swapping .pqi-add { display: none; }
+    #${panelId} .pqi-swap-bar { display: none; align-items: center; gap: 4px; width: 100%; }
+    #${panelId}.pqi-swapping .pqi-btns { display: none; }
+    #${panelId}.pqi-swapping .pqi-swap-bar { display: flex; }
+    #${panelId} .pqi-swap-text { flex: 1; min-width: 0; color: #eaeaea; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #${panelId} .pqi-swap-text b { color: #fc3e40; }
+    #${panelId} .pqi-swap-bar .pqi-btn { flex: 0 0 auto; padding: 0 8px; }
     #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
     #${panelId} .pqi-status.battle { color: #fc3e40; }
     #${panelId} .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
@@ -116,6 +121,10 @@ const PANEL_HTML = `
                     <div class="pqi-btns">
                         <div class="button green small pqi-btn" id="pqiCreate" title="Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych teraz"><div class="background"></div><div class="label">Zrób grupę</div></div>
                         <div class="button green small pqi-btn" id="pqiArm" title="Wyrzuć niezaznaczonych z grupy i zaproś zaznaczonych po najbliższej walce"><div class="background"></div><div class="label">Zrób grupę po walce</div></div>
+                    </div>
+                    <div class="pqi-swap-bar">
+                        <div class="pqi-swap-text" id="pqiSwapText"></div>
+                        <div class="button green small pqi-btn" id="pqiSwapCancel" title="Anuluj podmianę (Esc)"><div class="background"></div><div class="label">Anuluj</div></div>
                     </div>
                 </div>
             </div>
@@ -172,8 +181,11 @@ function playerKind(p, myClanId) {
     return null;
 }
 
-/** PPM na graczu: „Pokaż ekwipunek” i „Zaproś do grupy” (albo „Wyrzuć z grupy”) — te same akcje, co w menu gracza w grze. */
-function openPlayerMenu(p, e, canKick) {
+/**
+ * PPM na graczu: „Pokaż ekwipunek” i „Zaproś do grupy” (albo „Wyrzuć z grupy”) — te same akcje, co w menu gracza w grze.
+ * onSwap — dla członka grupy, gdy wolno podmieniać: pozycja „Podmień na…”.
+ */
+function openPlayerMenu(p, e, { canKick = false, onSwap = null } = {}) {
     const engine = win.Engine;
     if (!engine?.interface?.showPopupMenu) return;
     const t = (key, fallback, category) => (typeof win._t === 'function' ? win._t(key, null, category) : fallback);
@@ -190,6 +202,7 @@ function openPlayerMenu(p, e, canKick) {
             world: getWorldName(),
         })]);
     }
+    if (onSwap) items.push(['Podmień na…', onSwap]);
     if (canKick) items.push(['Wyrzuć z grupy', () => kickFromParty(p.id)]);
     else items.push([t('team_invite', 'Zaproś do grupy', 'menu'), () => inviteToParty(p.id)]);
     engine.interface.showPopupMenu(items, e, { header: escapeHtml(p.nick) });
@@ -200,7 +213,7 @@ function openPlayerMenu(p, e, canKick) {
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), rowClass(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  * allowKick: dowódca grupy widzi przy jej członkach „−” (wyrzuć) zamiast „+”.
- * allowSwap: dowódca klika „⇄” przy członku grupy, potem „⇄” przy graczu spoza niej — członek wylatuje, wybrany dostaje zaproszenie.
+ * allowSwap: PPM na członku grupy → „Podmień na…”, potem klik w gracza spoza grupy — członek wylatuje, wybrany dostaje zaproszenie.
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -309,17 +322,17 @@ export function createQuickParty({
             // Tryb podmiany: id członka grupy, którego podmieniamy, albo null.
             let swapFrom = null;
 
-            function actionHtml(p) {
-                if (swapFrom && !p.inParty) return '<div class="pqi-add pqi-swap pqi-swap-to" title="Podmień na tego gracza">⇄</div>';
-                const swap = canSwap(p) ? '<div class="pqi-add pqi-swap" title="Podmień na innego gracza">⇄</div>' : '';
-                if (canKick(p)) return `${swap}<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>`;
-                return swap || '<div class="pqi-add" title="Zaproś do grupy">+</div>';
-            }
+            const actionHtml = p => (canKick(p)
+                ? '<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>'
+                : '<div class="pqi-add" title="Zaproś do grupy">+</div>');
+
+            /** Klasy wiersza w trybie podmiany. */
+            const swapClass = p => (!swapFrom ? '' : p.id === swapFrom ? ' swap-from' : p.inParty ? ' in-party' : ' swap-to');
 
             const rowHtml = p => {
                 const color = kindColor(p.inParty ? 'group' : p.kind);
                 return `
-                <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${p.id === swapFrom ? ' swap-from' : ''}${p.afk ? ' is-afk' : ''}${extension.rowClass?.(p) ? ` ${extension.rowClass(p)}` : ''}" data-id="${p.id}">
+                <div class="one-other tw-list-item pqi-row${selected.has(p.id) ? ' checked' : ''}${swapClass(p)}${p.afk ? ' is-afk' : ''}${extension.rowClass?.(p) ? ` ${extension.rowClass(p)}` : ''}" data-id="${p.id}">
                     <div class="pqi-row-inner">
                         <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
                         ${extension.rowExtraHtml?.(p) ?? ''}
@@ -338,10 +351,10 @@ export function createQuickParty({
                 if (!force && signature === lastSignature) return;
                 lastSignature = signature;
 
+                headerText.textContent = `${title} (${selected.size}/${MAX_SELECTED})`;
                 const from = swapFrom && players.find(p => p.id === swapFrom);
-                headerText.textContent = from
-                    ? `Podmień ${from.nick} → wybierz ⇄ (Esc)`
-                    : `${title} (${selected.size}/${MAX_SELECTED})`;
+                panel.classList.toggle('pqi-swapping', !!from);
+                if (from) panel.querySelector('#pqiSwapText').innerHTML = `Kto zastąpi <b>${escapeHtml(from.nick)}</b>?`;
 
                 // Nieznana profesja ląduje w pierwszej kolumnie, żeby nikt nie zniknął.
                 const columns = PROFS.map(prof => players.filter(p => p.prof === prof.code));
@@ -371,8 +384,8 @@ export function createQuickParty({
                 if (!row) return;
                 e.stopPropagation();
 
-                // „⇄” przy członku grupy włącza/wyłącza tryb podmiany, przy graczu spoza grupy — podmienia.
-                if (e.target.closest('.pqi-swap')) return onSwapClick(+row.dataset.id);
+                // Tryb podmiany: klik w gracza spoza grupy = podmiana, w podmienianego = anuluj, reszta nic.
+                if (swapFrom) return onSwapPick(+row.dataset.id);
                 // „−” = wyrzuć tę osobę z grupy (tylko dowódca), bez zaznaczania.
                 if (e.target.closest('.pqi-kick')) return kickFromParty(+row.dataset.id);
                 // „+” = zaproś tylko tę osobę do obecnej grupy, bez zaznaczania.
@@ -387,7 +400,7 @@ export function createQuickParty({
                 e.preventDefault();
                 e.stopPropagation();
                 const p = collectPlayers().find(x => x.id === +row.dataset.id);
-                if (p) openPlayerMenu(p, e, canKick(p));
+                if (p) openPlayerMenu(p, e, { canKick: canKick(p), onSwap: canSwap(p) ? () => setSwapFrom(p.id) : null });
             });
 
             function setSwapFrom(id) {
@@ -395,11 +408,10 @@ export function createQuickParty({
                 render(true);
             }
 
-            function onSwapClick(id) {
+            function onSwapPick(id) {
+                if (id === swapFrom) return setSwapFrom(null);
                 const p = collectPlayers().find(x => x.id === id);
-                if (!p) return;
-                if (p.inParty) return setSwapFrom(swapFrom === id ? null : (canSwap(p) ? id : null));
-                if (!swapFrom) return;
+                if (!p || p.inParty) return;
                 swapPlayers(swapFrom, id);
                 setSwapFrom(null);
             }
@@ -415,6 +427,11 @@ export function createQuickParty({
                 };
                 setTimeout(waitAndInvite, 150);
             }
+
+            panel.querySelector('#pqiSwapCancel').addEventListener('click', e => {
+                e.stopPropagation();
+                setSwapFrom(null);
+            });
 
             if (allowSwap) {
                 document.addEventListener('keydown', e => {
