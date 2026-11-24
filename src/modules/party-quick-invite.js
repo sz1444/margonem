@@ -406,7 +406,7 @@ export function createQuickParty({
                 for (const code of PARTY_PROF_ORDER) partyByProf[code] = members.filter(m => m.prof === code).map(m => m.nick);
                 panel.querySelector('#pqiProfs').innerHTML = PARTY_PROF_ORDER.map(code => {
                     const count = partyByProf[code].length;
-                    return `<span class="pqi-prof${count ? '' : ' empty'}" data-prof="${code}"><b>${count}</b>${code}</span>`;
+                    return `<span class="pqi-prof${count ? '' : ' empty'}" data-prof="${code}"><b>${count}${code}</b></span>`;
                 }).join('');
             }
 
