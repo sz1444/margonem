@@ -71,19 +71,19 @@ const css = panelId => `
     /* Podmiana: wybrany na czerwono, przy graczach z drugiej strony „⇄” podświetlone. */
     #${panelId} .pqi-row.swap-src { box-shadow: inset 0 0 0 1px #fc3e40; background: rgba(252,62,64,0.25); }
     #${panelId} .pqi-row.swap-src .pqi-add.pqi-swap { color: #fc3e40; }
-    /* Ikonki z arkusza gry (gdy udało się go odczytać — klasa pqi-sprites): znak zastępuje wycinek arkusza. */
+    /* Ikonki z gry (gameIcons — klasa pqi-sprites): znak zastępuje wycinek sprite'a party-icons.png. */
     #${panelId}.pqi-sprites .pqi-add { font-size: 0; }
     #${panelId}.pqi-sprites .pqi-add::before {
-        content: ''; display: block; background-image: var(--pqi-sprite); background-repeat: no-repeat;
+        content: ''; display: block; background-image: url("${PARTY_ICONS_URL}"); background-repeat: no-repeat;
         opacity: 0.75; transition: opacity 0.1s, filter 0.1s;
     }
     #${panelId}.pqi-sprites .pqi-add:hover::before { opacity: 1; filter: brightness(1.4); }
-    #${panelId}.pqi-sprites .pqi-kick::before { width: 11px; height: 11px; background-position: -625px -118px; }
+    #${panelId}.pqi-sprites .pqi-kick::before { width: 14px; height: 14px; background-position: 0 0; }
     #${panelId}.pqi-sprites .pqi-kick:hover::before { filter: brightness(1.2) sepia(1) saturate(5) hue-rotate(-40deg); }
-    #${panelId}.pqi-sprites .pqi-lead::before { width: 12px; height: 11px; background-position: -642px -118px; }
-    #${panelId}.pqi-sprites .pqi-invite::before { width: 18px; height: 17px; background-position: -337px -82px; }
-    /* Strzałki w arkuszu są beżowe — szare jak reszta; podświetlone na niebiesko, wybrany na czerwono. */
-    #${panelId}.pqi-sprites .pqi-swap::before { width: 13px; height: 12px; background-position: -701px -187px; filter: grayscale(1) brightness(1.1); }
+    #${panelId}.pqi-sprites .pqi-lead::before { width: 14px; height: 14px; background-position: -14px 0; }
+    #${panelId}.pqi-sprites .pqi-invite::before { width: 18px; height: 17px; background-position: -28px 0; }
+    /* Strzałki w arkuszu gry są beżowe — szare jak reszta; podświetlone na niebiesko, wybrany na czerwono. */
+    #${panelId}.pqi-sprites .pqi-swap::before { width: 13px; height: 12px; background-position: -46px 0; filter: grayscale(1) brightness(1.1); }
     #${panelId}.pqi-sprites .pqi-swap.target::before, #${panelId}.pqi-sprites .pqi-swap:hover::before {
         opacity: 1; filter: grayscale(1) brightness(0.9) sepia(1) saturate(4) hue-rotate(170deg);
     }
@@ -214,32 +214,8 @@ function openPlayerMenu(p, e, { canKick = false, canLead = false } = {}) {
     engine.interface.showPopupMenu(items, e, { header: escapeHtml(p.nick) });
 }
 
-/**
- * Adres arkusza ikon gry, odczytany z ikonki „wyrzuć z grupy” (okno grupy) — tymczasowy, niewidoczny element
- * z klasami jak w grze, więc działa też bez otwartej grupy. null, gdy CSS gry go nie rysuje.
- */
-function readGameSprite() {
-    const probe = document.createElement('div');
-    probe.className = 'c-window party-window';
-    probe.style.cssText = 'position: absolute; left: -9999px; top: -9999px; visibility: hidden;';
-    probe.innerHTML = '<div class="party"><div class="party__list"><div class="party-member tw-list-avatar">'
-        + '<div class="info-icons"><div class="kick-out-party kick-out"></div></div></div></div></div>';
-    document.body.appendChild(probe);
-    const image = getComputedStyle(probe.querySelector('.kick-out')).backgroundImage;
-    probe.remove();
-    return image && image !== 'none' ? image : null;
-}
-
-/** Ikonki z arkusza gry zamiast znaków; gdy CSS gry jeszcze nie wczytany — ponawia przez chwilę. */
-function applyGameSprite(panel, tries = 20) {
-    const sprite = readGameSprite();
-    if (sprite) {
-        panel.style.setProperty('--pqi-sprite', sprite);
-        panel.classList.add('pqi-sprites');
-    } else if (tries > 0) {
-        setTimeout(() => applyGameSprite(panel, tries - 1), 1000);
-    }
-}
+// Ikonki wycięte z arkusza gry (/img/gui/buttony.png) i trzymane u nas: ✕, ♛, „zaproś”, „podmień” — obok siebie.
+const PARTY_ICONS_URL = 'https://margonem.vercel.app/assets/party-icons.png';
 
 /**
  * Quick Party jako dodatek. Kopie (np. w ukrytych dodatkach) podają własne id, panelId i storagePrefix,
@@ -300,7 +276,7 @@ export function createQuickParty({
             `;
             panel.innerHTML = PANEL_HTML;
             document.body.appendChild(panel);
-            if (gameIcons) applyGameSprite(panel);
+            if (gameIcons) panel.classList.add('pqi-sprites');
 
             // Szerokość okna (przeciągany róg) → liczba kolumn profesji; zapamiętywana.
             new ResizeObserver(() => {
