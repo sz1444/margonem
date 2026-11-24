@@ -88,6 +88,27 @@ const css = panelId => `
     }
     #${panelId}Swap .pqi-row:hover .pqi-swap-icon { color: #fff; border-color: #7fc8f0; }
     #${panelId}Swap .pqi-swap-empty { color: #eaeaea; font-style: italic; font-size: 11px; padding: 2px; }
+    #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
+    #${panelId} .pqi-status.battle { color: #fc3e40; }
+    #${panelId} .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
+    /* Pusta profesja: sam przygaszony nagłówek, bez wiersza z kreską. */
+    #${panelId} .pqi-section.empty { opacity: 0.45; }
+    #${panelId} .pqi-section.empty .pqi-section-head { border-bottom: none; margin-bottom: 0; }
+    /* Stopka: dwa przyciski gry, każdy na pół szerokości. */
+    #${panelId} .pqi-actions { padding: 2px 2px 0; margin-top: 2px; }
+    #${panelId} .pqi-btns { display: flex; gap: 2px; width: 100%; }
+    #${panelId} .pqi-btn { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0; pointer-events: auto; cursor: pointer; }
+    #${panelId} .pqi-btn { display: flex !important; align-items: center; justify-content: center; }
+    #${panelId} .pqi-btn .label { width: 100%; text-align: center; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #${panelId} .pqi-btn:hover { filter: brightness(1.2); }
+    /* „Zaznacz grupę” — mały przycisk w prawym górnym rogu, obok zwijania. */
+    #${panelId} .pqi-select-party {
+        position: absolute; top: 5px; right: 30px; z-index: 2; cursor: pointer;
+        width: 14px; height: 14px; display: flex; align-items: center; justify-content: center;
+        color: #2ecc71; font-size: 11px; font-weight: 700; line-height: 1;
+        border: 1px solid rgba(255,255,255,0.3); border-radius: 2px; background: rgba(0,0,0,0.5);
+    }
+    #${panelId} .pqi-select-party:hover { color: #fff; border-color: #fff; background: rgba(46,204,113,0.35); }
     /* Uzbrojone „po walce”: przycisk gry przefarbowany na czerwono. */
     #${panelId} .pqi-btn.on { filter: hue-rotate(-110deg) saturate(1.6); }
 `;
