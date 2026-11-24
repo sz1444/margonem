@@ -42,6 +42,14 @@ const CSS = `
     #tpqPanel .pqi-nick { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 13px; }
 `;
 
+// Na razie tylko w wersji dev: większe ikonki, bez poziomu gracza, mniejsze godziny.
+const DEV_CSS = `
+    #tpqPanel .pqi-add { width: 15px; height: 15px; font-size: 14px; color: rgba(255,255,255,0.45); }
+    #tpqPanel .pqi-lvl { display: none; }
+    #tpqPanel .tpq-cell { width: 24px; height: 14px; }
+    #tpqPanel .tpq-cell b { font-size: 10px; line-height: 10px; }
+`;
+
 // accountId → { current, previous } z /hidden/titan-hour; null, dopóki nie przyjdą dane.
 let hoursByAccount = null;
 let months = {};
@@ -195,6 +203,7 @@ export default createQuickParty({
     extension: {
         setup(rerender) {
             injectStyle(CSS);
+            if (__HIDDEN_DEV__) injectStyle(DEV_CSS);
             setupHoursTooltip();
             if (applyHours(loadCached()?.data)) rerender();
             // Pobieramy tylko, gdy zapis jest starszy niż godzina (inna karta mogła już go odświeżyć).
