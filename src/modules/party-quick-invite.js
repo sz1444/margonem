@@ -68,21 +68,12 @@ const css = panelId => `
     #${panelId} .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
     #${panelId} .pqi-add.pqi-kick { color: #fc3e40; }
     #${panelId} .pqi-add.pqi-kick:hover { color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.35); }
-    /* Sekcja „W grupie” nad profesjami (allowSwap): członkowie grupy w kolumnach jak profesje. */
-    #${panelId} .pqi-party {
-        margin-bottom: 4px; border: none; border-radius: 3px; padding: 2px 3px 3px;
-        background: rgba(181,84,255,0.14); box-shadow: inset 0 0 0 1px rgba(181,84,255,0.35);
-    }
-    #${panelId} .pqi-party .pqi-section-head { border-bottom: none; }
-    #${panelId} .pqi-party-rows { display: grid; grid-template-columns: repeat(var(--pqi-cols, 2), minmax(0, 1fr)); gap: 0 4px; }
-    #${panelId} .pqi-row.off-map .pqi-nick { opacity: 0.6; }
     /* Podmiana ikonką „⇄”: wybrany na czerwono, przy graczach z drugiej strony „⇄” widoczne na stałe. */
     #${panelId} .pqi-add.pqi-swap { color: #7fc8f0; width: 14px; }
     #${panelId} .pqi-add.pqi-swap:hover { color: #fff; border-color: #7fc8f0; background: rgba(127,200,240,0.3); }
     #${panelId} .pqi-row .pqi-add.pqi-swap.target { opacity: 1; }
     #${panelId} .pqi-row.swap-src { box-shadow: inset 0 0 0 1px #fc3e40; background: rgba(252,62,64,0.25); }
     #${panelId} .pqi-row.swap-src .pqi-add.pqi-swap { opacity: 1; color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.4); }
-    #${panelId} .pqi-map { border-radius: 3px; }
     #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
     #${panelId} .pqi-status.battle { color: #fc3e40; }
     #${panelId} .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
@@ -211,8 +202,7 @@ function openPlayerMenu(p, e, { canKick = false } = {}) {
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), rowClass(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  * allowKick: dowódca grupy widzi przy jej członkach „−” (wyrzuć) zamiast „+”.
- * allowSwap: członkowie grupy w osobnej sekcji „W grupie” nad profesjami; dowódca klika „⇄” przy graczu,
- * potem „⇄” przy graczu z drugiej strony — członek wylatuje, ten spoza grupy dostaje zaproszenie (Esc = anuluj).
+ * allowSwap: dowódca klika „⇄” przy graczu, potem „⇄” przy graczu z drugiej strony (grupa ↔ spoza grupy) — członek wylatuje, ten spoza grupy dostaje zaproszenie (Esc = anuluj).
  */
 export function createQuickParty({
     id = 'party-quick-invite',
@@ -322,12 +312,12 @@ export function createQuickParty({
             function actionHtml(p) {
                 const add = canKick(p)
                     ? '<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>'
-                    : p.offMap ? '' : '<div class="pqi-add" title="Zaproś do grupy">+</div>';
+                    : '<div class="pqi-add" title="Zaproś do grupy">+</div>';
                 if (!canSwap()) return add;
                 // Wybrany albo „druga strona” — sama ikonka podmiany, zawsze widoczna.
                 if (swapSrc?.id === p.id) return '<div class="pqi-add pqi-swap" title="Anuluj podmianę (Esc)">⇄</div>';
                 if (swapSrc) {
-                    return swapSrc.inParty !== !!p.inParty && !p.offMap
+                    return swapSrc.inParty !== !!p.inParty
                         ? '<div class="pqi-add pqi-swap target" title="Podmień">⇄</div>'
                         : '';
                 }
@@ -337,59 +327,40 @@ export function createQuickParty({
 
             const rowHtml = p => {
                 const color = kindColor(p.inParty ? 'group' : p.kind);
-                const cls = `${selected.has(p.id) ? ' checked' : ''}${swapSrc?.id === p.id ? ' swap-src' : ''}${p.afk ? ' is-afk' : ''}${p.offMap ? ' off-map' : ''}`
+                const cls = `${selected.has(p.id) ? ' checked' : ''}${swapSrc?.id === p.id ? ' swap-src' : ''}${p.afk ? ' is-afk' : ''}`
                     + `${extension.rowClass?.(p) ? ` ${extension.rowClass(p)}` : ''}`;
                 return `
-                <div class="one-other tw-list-item pqi-row${cls}" data-id="${p.id}" data-party="${p.inParty ? 1 : 0}"${p.offMap ? ' title="Poza mapą"' : ''}>
+                <div class="one-other tw-list-item pqi-row${cls}" data-id="${p.id}" data-party="${p.inParty ? 1 : 0}">
                     <div class="pqi-row-inner">
                         <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
-                        ${p.offMap ? '' : extension.rowExtraHtml?.(p) ?? ''}
+                        ${extension.rowExtraHtml?.(p) ?? ''}
                         ${actionHtml(p)}
                     </div>
                 </div>
             `;
             };
 
-            /** Członkowie grupy (bez nas): z mapy z pełnymi danymi, spoza mapy — sam nick. */
-            function partyRows(players) {
-                const myId = getHeroId();
-                const onMap = players.filter(p => p.inParty);
-                const offMap = getPartyMembers()
-                    .filter(m => m.id !== myId && !onMap.some(p => p.id === m.id))
-                    .map(m => ({ id: m.id, nick: m.nick, kind: 'group', inParty: true, offMap: true }));
-                return [...onMap, ...offMap];
-            }
-
             function render(force = false) {
                 const players = collectPlayers();
-                const members = allowSwap ? partyRows(players) : [];
                 // Wybrany do podmiany zniknął (z mapy / z grupy / zmienił stronę) albo straciliśmy dowódcę — anuluj.
-                if (swapSrc && (!canSwap() || ![...members, ...players].some(p => p.id === swapSrc.id && !!p.inParty === swapSrc.inParty))) swapSrc = null;
-                const signature = `${(allowKick || allowSwap) && isPartyLeader()}#${swapSrc?.id}#${members.map(m => m.id).join(',')}#`
+                if (swapSrc && (!canSwap() || !players.some(p => p.id === swapSrc.id && p.inParty === swapSrc.inParty))) swapSrc = null;
+                const signature = `${(allowKick || allowSwap) && isPartyLeader()}#${swapSrc?.id}#`
                     + players.map(p => `${p.id}:${selected.has(p.id)}:${p.afk}:${p.inBattle}:${p.inParty}`).join('|');
                 if (!force && signature === lastSignature) return;
                 lastSignature = signature;
 
                 headerText.textContent = `${title} (${selected.size}/${MAX_SELECTED})`;
 
-                // Z sekcją „W grupie” profesje pokazują tylko graczy spoza grupy.
-                const rest = allowSwap ? players.filter(p => !p.inParty) : players;
                 // Nieznana profesja ląduje w pierwszej kolumnie, żeby nikt nie zniknął.
-                const columns = PROFS.map(prof => rest.filter(p => p.prof === prof.code));
-                columns[0].push(...rest.filter(p => !PROFS.some(x => x.code === p.prof)));
+                const columns = PROFS.map(prof => players.filter(p => p.prof === prof.code));
+                columns[0].push(...players.filter(p => !PROFS.some(x => x.code === p.prof)));
 
-                const partyHtml = members.length ? `
-                    <div class="pqi-section pqi-party">
-                        <div class="pqi-section-head"><span class="pqi-title">W grupie</span> <span class="pqi-count">${members.length + 1}/10</span></div>
-                        <div class="pqi-party-rows">${members.map(rowHtml).join('')}</div>
-                    </div>` : '';
-
-                listEl.innerHTML = `${partyHtml}<div class="pqi-map"><div class="pqi-grid">${PROFS.map((prof, i) => `
+                listEl.innerHTML = `<div class="pqi-grid">${PROFS.map((prof, i) => `
                     <div class="pqi-section${columns[i].length ? '' : ' empty'}">
                         <div class="pqi-section-head"><span class="pqi-title">${prof.name}</span> <span class="pqi-count">${columns[i].length}</span></div>
                         ${columns[i].map(rowHtml).join('')}
                     </div>
-                `).join('')}</div></div>`;
+                `).join('')}</div>`;
             }
 
             function toggleSelected(id) {
