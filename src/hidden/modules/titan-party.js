@@ -22,20 +22,20 @@ const CSS = `
     #tpqPanel .pqi-grid .pqi-section-head .pqi-title { color: rgba(255,255,255,0.7); font-weight: 600; }
     #tpqPanel .pqi-grid .pqi-section-head .pqi-count { color: rgba(255,255,255,0.5); }
     /* Bez 30h w żadnym z dwóch miesięcy — lekko wyszarzone; z duchem (AFK) — mocno. Zaznaczony wiersz zawsze w pełnych kolorach. */
-    #tpqPanel .pqi-row.tpq-low:not(.checked) { opacity: 0.7; filter: grayscale(0.6); }
-    #tpqPanel .pqi-row.is-afk:not(.checked) { opacity: 0.35; filter: grayscale(1); }
-    #tpqPanel .pqi-row.is-afk .pqi-nick { opacity: 1; }
+    :is(#tpqPanel, #tpqPanelSwap) .pqi-row.tpq-low:not(.checked) { opacity: 0.7; filter: grayscale(0.6); }
+    :is(#tpqPanel, #tpqPanelSwap) .pqi-row.is-afk:not(.checked) { opacity: 0.35; filter: grayscale(1); }
+    :is(#tpqPanel, #tpqPanelSwap) .pqi-row.is-afk .pqi-nick { opacity: 1; }
     /* Godziny po prawej: każdy okres w ramce, sama liczba; okres (miesiąc / dziś) w tooltipie po najechaniu. */
-    #tpqPanel .tpq-hours { display: flex; align-items: stretch; gap: 1px; flex-shrink: 0; }
-    #tpqPanel .tpq-cell {
+    :is(#tpqPanel, #tpqPanelSwap) .tpq-hours { display: flex; align-items: stretch; gap: 1px; flex-shrink: 0; }
+    :is(#tpqPanel, #tpqPanelSwap) .tpq-cell {
         display: flex; align-items: center; justify-content: center; width: 28px; height: 16px; padding: 0; box-sizing: border-box;
         border: 1px solid rgba(255,255,255,0.18); border-radius: 2px; background: rgba(0,0,0,0.3);
         color: #e06c6c; white-space: nowrap;
     }
-    #tpqPanel .tpq-cell b { font-size: 11px; line-height: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
-    #tpqPanel .tpq-cell.high { color: #5fd88a; }
-    #tpqPanel .tpq-cell.mid { color: #e8d25a; }
-    #tpqPanel .tpq-cell.today { color: #7fc8f0; }
+    :is(#tpqPanel, #tpqPanelSwap) .tpq-cell b { font-size: 11px; line-height: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    :is(#tpqPanel, #tpqPanelSwap) .tpq-cell.high { color: #5fd88a; }
+    :is(#tpqPanel, #tpqPanelSwap) .tpq-cell.mid { color: #e8d25a; }
+    :is(#tpqPanel, #tpqPanelSwap) .tpq-cell.today { color: #7fc8f0; }
     /* Wiersze jak w liście „Gracze na mapie” z gry: wyższe, z przerwą pod każdym. */
     #tpqPanel .pqi-row { min-height: 20px; padding: 1px 3px; margin: 0 0 2px; }
     /* Pełne nicki: zamiast ucinać „…” zawijamy je w komórce. */
@@ -149,7 +149,7 @@ const cellHtml = (cls, hours, tip) =>
 function setupHoursTooltip() {
     let current = null;
     document.addEventListener('mouseover', e => {
-        const cell = e.target.closest?.('#tpqPanel .tpq-cell[data-tip]') ?? null;
+        const cell = e.target.closest?.(':is(#tpqPanel, #tpqPanelSwap) .tpq-cell[data-tip]') ?? null;
         if (cell === current) return;
         current = cell;
         if (cell) showTooltip(cell, cell.dataset.tip, { minWidth: 0, maxWidth: 420, padding: '6px' });
