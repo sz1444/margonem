@@ -200,6 +200,8 @@ export default createQuickParty({
     allowSwap: true,
     // Przekazanie dowodzenia (♛) — na razie tylko w wersji dev, komenda party&a=give niepotwierdzona.
     allowLead: __HIDDEN_DEV__,
+    // Ikonki z arkusza gry — na razie tylko w wersji dev.
+    gameIcons: __HIDDEN_DEV__,
     extension: {
         setup(rerender) {
             injectStyle(CSS);
