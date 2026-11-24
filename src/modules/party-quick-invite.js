@@ -81,12 +81,21 @@ const css = panelId => `
     #${panelId}.pqi-sprites .pqi-kick::before { width: 14px; height: 14px; background-position: 0 0; }
     #${panelId}.pqi-sprites .pqi-kick:hover::before { filter: brightness(1.2) sepia(1) saturate(5) hue-rotate(-40deg); }
     #${panelId}.pqi-sprites .pqi-lead::before { width: 14px; height: 14px; background-position: -14px 0; }
-    #${panelId}.pqi-sprites .pqi-invite::before { width: 18px; height: 17px; background-position: -28px 0; }
+    #${panelId}.pqi-sprites .pqi-invite::before { width: 11px; height: 10px; background-position: -28px 0; }
     /* Strzałki w arkuszu gry są beżowe — szare jak reszta; podświetlone na niebiesko, wybrany na czerwono. */
-    #${panelId}.pqi-sprites .pqi-swap::before { width: 13px; height: 12px; background-position: -46px 0; filter: grayscale(1) brightness(1.1); }
+    #${panelId}.pqi-sprites .pqi-swap::before { width: 13px; height: 12px; background-position: -39px 0; filter: grayscale(1) brightness(1.1); }
     #${panelId}.pqi-sprites .pqi-swap.target::before, #${panelId}.pqi-sprites .pqi-swap:hover::before {
         opacity: 1; filter: grayscale(1) brightness(0.9) sepia(1) saturate(4) hue-rotate(170deg);
     }
+    /* Status przy nicku: miecze (walka, na czerwono) i duch (AFK). */
+    #${panelId}.pqi-sprites .pqi-status { font-size: 0; vertical-align: middle; }
+    #${panelId}.pqi-sprites .pqi-status::before {
+        content: ''; display: inline-block; vertical-align: middle; background: url("${PARTY_ICONS_URL}") no-repeat;
+    }
+    #${panelId}.pqi-sprites .pqi-status.battle::before {
+        width: 15px; height: 12px; background-position: -52px 0; filter: sepia(1) saturate(6) hue-rotate(-50deg) brightness(0.9);
+    }
+    #${panelId}.pqi-sprites .pqi-status.ghost::before { width: 12px; height: 14px; background-position: -67px 0; }
     #${panelId}.pqi-sprites .pqi-row.swap-src .pqi-swap::before {
         opacity: 1; filter: grayscale(1) brightness(0.9) sepia(1) saturate(6) hue-rotate(-40deg);
     }
@@ -214,7 +223,7 @@ function openPlayerMenu(p, e, { canKick = false, canLead = false } = {}) {
     engine.interface.showPopupMenu(items, e, { header: escapeHtml(p.nick) });
 }
 
-// Ikonki wycięte z arkusza gry (/img/gui/buttony.png) i trzymane u nas: ✕, ♛, „zaproś”, „podmień” — obok siebie.
+// Ikonki wycięte z arkusza gry (/img/gui/buttony.png) i trzymane u nas, obok siebie: ✕, ♛, +, podmień, walka, duch.
 const PARTY_ICONS_URL = 'https://margonem.vercel.app/assets/party-icons.png';
 
 /**
@@ -358,7 +367,7 @@ export function createQuickParty({
                 return `
                 <div class="one-other tw-list-item pqi-row${cls}" data-id="${p.id}" data-party="${p.inParty ? 1 : 0}">
                     <div class="pqi-row-inner">
-                        <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
+                        <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status ghost" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
                         <div class="pqi-icons">${actionHtml(p)}</div>
                         ${extension.rowExtraHtml?.(p) ?? ''}
                     </div>
