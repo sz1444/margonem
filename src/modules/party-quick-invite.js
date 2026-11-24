@@ -3,7 +3,7 @@ import { win } from '../core/env.js';
 import { loadJSON, saveJSON, loadFlag, saveFlag } from '../core/storage.js';
 import {
     getHeroId, getClanId, getWorldName, getMapPlayers, getPartyMembers, inviteToParty,
-    isInParty, isPartyLeader, kickFromParty, leaveParty,
+    isInParty, isPartyLeader, kickFromParty, leaveParty, givePartyLead,
 } from '../core/game.js';
 import { makeDraggable } from '../core/drag.js';
 import { setupOpacityButton } from '../core/ui.js';
@@ -57,23 +57,20 @@ const css = panelId => `
     #${panelId} .pqi-nick { font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; flex: 1; margin-right: 4px; }
     /* Poziom w nawiasie zaraz za nickiem, przygaszony. */
     #${panelId} .pqi-lvl { color: rgba(255,255,255,0.55); font-size: 10px; font-weight: 400; white-space: nowrap; }
+    /* Ikonki jak w oknie grupy gry: zawsze widoczne, delikatne, bez ramek; kolor dopiero po najechaniu. */
+    #${panelId} .pqi-icons { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-right: 2px; }
     #${panelId} .pqi-add {
-        flex-shrink: 0; width: 12px; height: 12px; margin-left: 2px;
-        display: flex; align-items: center; justify-content: center;
-        color: #eaeaea; font-size: 11px; font-weight: 700; line-height: 1;
-        border: 1px solid rgba(255,255,255,0.3); border-radius: 2px; background: rgba(0,0,0,0.3);
+        flex-shrink: 0; width: 12px; height: 12px; display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.4); font-size: 11px; line-height: 1; cursor: pointer; transition: color 0.1s;
     }
-    /* „+” widoczny dopiero po najechaniu na wiersz — przy wielu graczach lista zostaje czysta. */
-    #${panelId} .pqi-row:not(:hover) .pqi-add { opacity: 0; }
-    #${panelId} .pqi-add:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.15); }
-    #${panelId} .pqi-add.pqi-kick { color: #fc3e40; }
-    #${panelId} .pqi-add.pqi-kick:hover { color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.35); }
-    /* Podmiana ikonką „⇄”: wybrany na czerwono, przy graczach z drugiej strony „⇄” widoczne na stałe. */
-    #${panelId} .pqi-add.pqi-swap { color: #7fc8f0; width: 14px; }
-    #${panelId} .pqi-add.pqi-swap:hover { color: #fff; border-color: #7fc8f0; background: rgba(127,200,240,0.3); }
-    #${panelId} .pqi-row .pqi-add.pqi-swap.target { opacity: 1; }
+    #${panelId} .pqi-add:hover { color: #fff; }
+    #${panelId} .pqi-add.pqi-kick:hover { color: #fc3e40; }
+    #${panelId} .pqi-add.pqi-lead { color: rgba(232,210,90,0.5); }
+    #${panelId} .pqi-add.pqi-lead:hover { color: #e8d25a; }
+    #${panelId} .pqi-add.pqi-swap:hover, #${panelId} .pqi-add.pqi-swap.target { color: #7fc8f0; }
+    /* Podmiana: wybrany na czerwono, przy graczach z drugiej strony „⇄” podświetlone. */
     #${panelId} .pqi-row.swap-src { box-shadow: inset 0 0 0 1px #fc3e40; background: rgba(252,62,64,0.25); }
-    #${panelId} .pqi-row.swap-src .pqi-add.pqi-swap { opacity: 1; color: #fff; border-color: #fc3e40; background: rgba(252,62,64,0.4); }
+    #${panelId} .pqi-row.swap-src .pqi-add.pqi-swap { color: #fc3e40; }
     #${panelId} .pqi-status { font-size: 10px; flex-shrink: 0; }
     #${panelId} .pqi-status.battle { color: #fc3e40; }
     #${panelId} .pqi-row.is-afk .pqi-nick { opacity: 0.55; font-style: italic; }
@@ -175,7 +172,7 @@ function playerKind(p, myClanId) {
 /**
  * PPM na graczu: „Pokaż ekwipunek” i „Zaproś do grupy” (albo „Wyrzuć z grupy”) — te same akcje, co w menu gracza w grze.
  */
-function openPlayerMenu(p, e, { canKick = false } = {}) {
+function openPlayerMenu(p, e, { canKick = false, canLead = false } = {}) {
     const engine = win.Engine;
     if (!engine?.interface?.showPopupMenu) return;
     const t = (key, fallback, category) => (typeof win._t === 'function' ? win._t(key, null, category) : fallback);
@@ -192,6 +189,7 @@ function openPlayerMenu(p, e, { canKick = false } = {}) {
             world: getWorldName(),
         })]);
     }
+    if (canLead) items.push(['Przekaż dowodzenie', () => givePartyLead(p.id)]);
     if (canKick) items.push(['Wyrzuć z grupy', () => kickFromParty(p.id)]);
     else items.push([t('team_invite', 'Zaproś do grupy', 'menu'), () => inviteToParty(p.id)]);
     engine.interface.showPopupMenu(items, e, { header: escapeHtml(p.nick) });
@@ -202,6 +200,7 @@ function openPlayerMenu(p, e, { canKick = false } = {}) {
  * żeby nie kolidować z oryginałem; szersze wiersze → większe columnBreakpoints. extension: { setup(rerender), rowExtraHtml(p), rowClass(p), comparePlayers(a, b) } —
  * dodatkowa treść za poziomem i własna kolejność (przy remisie: rodzaj relacji, nick).
  * allowKick: dowódca grupy widzi przy jej członkach „−” (wyrzuć) zamiast „+”.
+ * allowLead: dowódca widzi „♛” (przekaż dowodzenie) przy członkach grupy i w PPM.
  * allowSwap: dowódca klika „⇄” przy graczu, potem „⇄” przy graczu z drugiej strony (grupa ↔ spoza grupy) — członek wylatuje, ten spoza grupy dostaje zaproszenie (Esc = anuluj).
  */
 export function createQuickParty({
@@ -214,6 +213,7 @@ export function createQuickParty({
     columnBreakpoints = COLUMN_BREAKPOINTS,
     allowKick = false,
     allowSwap = false,
+    allowLead = false,
     extension = {},
 } = {}) {
     const POS_KEY = `${storagePrefix}_widget_pos`;
@@ -309,20 +309,21 @@ export function createQuickParty({
             let swapSrc = null;
             const canSwap = () => allowSwap && isPartyLeader();
 
+            const SWAP_ICON = (tip, cls = '') => `<div class="pqi-add pqi-swap${cls}" title="${tip}">⇄</div>`;
+
+            /** Ikonki wiersza: [⇄] [✕ ♛] dla członka grupy (gdy dowodzimy), [⇄] [+] dla reszty. */
             function actionHtml(p) {
-                const add = canKick(p)
-                    ? '<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">−</div>'
-                    : '<div class="pqi-add" title="Zaproś do grupy">+</div>';
-                if (!canSwap()) return add;
-                // Wybrany albo „druga strona” — sama ikonka podmiany, zawsze widoczna.
-                if (swapSrc?.id === p.id) return '<div class="pqi-add pqi-swap" title="Anuluj podmianę (Esc)">⇄</div>';
+                // W trakcie podmiany: tylko „⇄” — na wybranym (anuluj) i na graczach z drugiej strony.
                 if (swapSrc) {
-                    return swapSrc.inParty !== !!p.inParty
-                        ? '<div class="pqi-add pqi-swap target" title="Podmień">⇄</div>'
-                        : '';
+                    if (swapSrc.id === p.id) return SWAP_ICON('Anuluj podmianę (Esc)');
+                    return swapSrc.inParty !== !!p.inParty ? SWAP_ICON('Podmień', ' target') : '';
                 }
-                const tip = p.inParty ? 'Podmień na gracza spoza grupy' : 'Podmień za członka grupy';
-                return `<div class="pqi-add pqi-swap" title="${tip}">⇄</div>${add}`;
+                const swap = canSwap() ? SWAP_ICON(p.inParty ? 'Podmień na gracza spoza grupy' : 'Podmień za członka grupy') : '';
+                if (canKick(p)) {
+                    return `${swap}<div class="pqi-add pqi-kick" title="Wyrzuć z grupy">✕</div>`
+                        + (allowLead ? '<div class="pqi-add pqi-lead" title="Przekaż dowodzenie">♛</div>' : '');
+                }
+                return `${swap}<div class="pqi-add" title="Zaproś do grupy">+</div>`;
             }
 
             const rowHtml = p => {
@@ -333,8 +334,8 @@ export function createQuickParty({
                 <div class="one-other tw-list-item pqi-row${cls}" data-id="${p.id}" data-party="${p.inParty ? 1 : 0}">
                     <div class="pqi-row-inner">
                         <div class="pqi-nick" style="color: ${color};">${escapeHtml(p.nick)}${p.lvl ? ` <span class="pqi-lvl">(${p.lvl}${p.prof ?? ''})</span>` : ''}${p.afk ? ' <span class="pqi-status" title="AFK (duch)">👻</span>' : ''}${p.inBattle ? ' <span class="pqi-status battle" title="W walce">⚔</span>' : ''}</div>
+                        <div class="pqi-icons">${actionHtml(p)}</div>
                         ${extension.rowExtraHtml?.(p) ?? ''}
-                        ${actionHtml(p)}
                     </div>
                 </div>
             `;
@@ -381,7 +382,8 @@ export function createQuickParty({
 
                 if (e.target.closest('.pqi-swap')) return onSwapClick(+row.dataset.id, row.dataset.party === '1');
 
-                // „−” = wyrzuć tę osobę z grupy (tylko dowódca), bez zaznaczania.
+                if (e.target.closest('.pqi-lead')) return givePartyLead(+row.dataset.id);
+                // „✕” = wyrzuć tę osobę z grupy (tylko dowódca), bez zaznaczania.
                 if (e.target.closest('.pqi-kick')) return kickFromParty(+row.dataset.id);
                 // „+” = zaproś tylko tę osobę do obecnej grupy, bez zaznaczania.
                 const addBtn = e.target.closest('.pqi-add');
@@ -395,7 +397,7 @@ export function createQuickParty({
                 e.preventDefault();
                 e.stopPropagation();
                 const p = collectPlayers().find(x => x.id === +row.dataset.id);
-                if (p) openPlayerMenu(p, e, { canKick: canKick(p) });
+                if (p) openPlayerMenu(p, e, { canKick: canKick(p), canLead: allowLead && canKick(p) });
             });
 
             /** Pierwszy „⇄” wybiera gracza, drugi (po drugiej stronie) podmienia, ponowny na wybranym — anuluje. */

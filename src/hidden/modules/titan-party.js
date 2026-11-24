@@ -190,6 +190,8 @@ export default createQuickParty({
     columnBreakpoints: [400, 620, 1200],
     allowKick: true,
     allowSwap: true,
+    // Przekazanie dowodzenia (♛) — na razie tylko w wersji dev, komenda party&a=give niepotwierdzona.
+    allowLead: __HIDDEN_DEV__,
     extension: {
         setup(rerender) {
             injectStyle(CSS);

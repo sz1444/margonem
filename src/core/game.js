@@ -143,6 +143,11 @@ export function kickFromParty(id) {
     sendRequest(`party&a=rm&id=${id}`);
 }
 
+/** Przekazuje dowodzenie grupą (tylko lider). */
+export function givePartyLead(id) {
+    sendRequest(`party&a=give&id=${id}`);
+}
+
 export function leaveParty() {
     const id = getHeroId();
     if (id) sendRequest(`party&a=rm&id=${id}`);
